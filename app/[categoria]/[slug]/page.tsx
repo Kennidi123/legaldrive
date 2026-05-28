@@ -17,32 +17,40 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    select: { slug: true, category: { select: { slug: true } } },
-    where: { publishedAt: { not: null } },
-  })
-  return posts.map((p) => ({ categoria: p.category.slug, slug: p.slug }))
+  try {
+    const posts = await prisma.post.findMany({
+      select: { slug: true, category: { select: { slug: true } } },
+      where: { publishedAt: { not: null } },
+    })
+    return posts.map((p) => ({ categoria: p.category.slug, slug: p.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = await prisma.post.findUnique({
-    where: { slug },
-    include: { category: true },
-  })
-  if (!post) return {}
-  return {
-    title: post.metaTitle || post.title,
-    description: post.metaDesc || post.excerpt,
-    openGraph: {
+  try {
+    const post = await prisma.post.findUnique({
+      where: { slug },
+      include: { category: true },
+    })
+    if (!post) return {}
+    return {
       title: post.metaTitle || post.title,
       description: post.metaDesc || post.excerpt,
-      images: post.coverImage ? [{ url: post.coverImage }] : [],
-      type: 'article',
-      publishedTime: post.publishedAt?.toISOString(),
-      modifiedTime: post.updatedAt.toISOString(),
-    },
-    alternates: { canonical: `${siteUrl}/${post.category.slug}/${post.slug}` },
+      openGraph: {
+        title: post.metaTitle || post.title,
+        description: post.metaDesc || post.excerpt,
+        images: post.coverImage ? [{ url: post.coverImage }] : [],
+        type: 'article',
+        publishedTime: post.publishedAt?.toISOString(),
+        modifiedTime: post.updatedAt.toISOString(),
+      },
+      alternates: { canonical: `${siteUrl}/${post.category.slug}/${post.slug}` },
+    }
+  } catch {
+    return {}
   }
 }
 

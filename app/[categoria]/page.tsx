@@ -12,19 +12,27 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const categories = await prisma.category.findMany({ select: { slug: true } })
-  return categories.map((c) => ({ categoria: c.slug }))
+  try {
+    const categories = await prisma.category.findMany({ select: { slug: true } })
+    return categories.map((c) => ({ categoria: c.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoria } = await params
-  const category = await prisma.category.findUnique({ where: { slug: categoria } })
-  if (!category) return {}
-  return buildMetadata({
-    title: `${category.name} — Notícias e Análises`,
-    description: `Análises, notícias e artigos jurídicos sobre ${category.name} no Brasil. Especialistas em Direito de Trânsito.`,
-    slug: categoria,
-  })
+  try {
+    const category = await prisma.category.findUnique({ where: { slug: categoria } })
+    if (!category) return {}
+    return buildMetadata({
+      title: `${category.name} — Notícias e Análises`,
+      description: `Análises, notícias e artigos jurídicos sobre ${category.name} no Brasil. Especialistas em Direito de Trânsito.`,
+      slug: categoria,
+    })
+  } catch {
+    return {}
+  }
 }
 
 export default async function CategoryPage({ params }: Props) {
