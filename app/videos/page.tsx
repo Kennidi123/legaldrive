@@ -3,7 +3,7 @@ import { buildMetadata } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
 import WhatsAppBanner from '@/components/WhatsAppBanner'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export const metadata = buildMetadata({
   title: 'Vídeos — Análises e Documentários',

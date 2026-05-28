@@ -8,7 +8,7 @@ import WhatsAppBanner from '@/components/WhatsAppBanner'
 import CategoryTabs from '@/components/CategoryTabs'
 import Link from 'next/link'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export const metadata = buildMetadata({})
 

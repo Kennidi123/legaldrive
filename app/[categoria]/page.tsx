@@ -5,7 +5,7 @@ import ArticleCard from '@/components/ArticleCard'
 import WhatsAppBanner from '@/components/WhatsAppBanner'
 import type { Metadata } from 'next'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ categoria: string }>

@@ -10,7 +10,7 @@ import WhatsAppBanner from '@/components/WhatsAppBanner'
 import VideoEmbed from '@/components/VideoEmbed'
 import type { Metadata } from 'next'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ categoria: string; slug: string }>
