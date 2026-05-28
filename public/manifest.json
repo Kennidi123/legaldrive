@@ -1,0 +1,21 @@
+{
+  "name": "Legal Drive",
+  "short_name": "Legal Drive",
+  "description": "Inteligência jurídica em Direito de Trânsito para o motorista brasileiro.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101415",
+  "theme_color": "#ffb86b",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
