@@ -2,14 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-setup-secret')
-  if (secret !== process.env.SETUP_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+async function runPush(): Promise<{ status: string; steps: string[]; message?: string; stack?: string }> {
   const steps: string[] = []
-
   try {
     steps.push('1. Importando Payload...')
     const { getPayload: _getPayload } = await import('payload')
@@ -34,17 +28,32 @@ export async function POST(req: NextRequest) {
     const result = await pushSchema(schema, drizzle)
 
     steps.push(`6. hasDataLoss: ${result.hasDataLoss}, warnings: ${result.warnings?.length ?? 0}`)
-
     steps.push('7. Aplicando schema no banco...')
     await result.apply()
-
     steps.push('✓ Tabelas criadas com sucesso!')
-
-    return NextResponse.json({ status: 'ok', steps })
+    return { status: 'ok', steps }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     const stack = err instanceof Error ? err.stack?.split('\n').slice(0, 8).join('\n') : undefined
     steps.push(`ERRO: ${message}`)
-    return NextResponse.json({ status: 'error', message, steps, stack }, { status: 500 })
+    return { status: 'error', steps, message, stack }
   }
+}
+
+export async function GET(req: NextRequest) {
+  const secret = req.nextUrl.searchParams.get('secret')
+  if (secret !== process.env.SETUP_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const result = await runPush()
+  return NextResponse.json(result, { status: result.status === 'ok' ? 200 : 500 })
+}
+
+export async function POST(req: NextRequest) {
+  const secret = req.headers.get('x-setup-secret')
+  if (secret !== process.env.SETUP_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const result = await runPush()
+  return NextResponse.json(result, { status: result.status === 'ok' ? 200 : 500 })
 }
