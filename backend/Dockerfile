@@ -10,6 +10,9 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Gera o importMap explicitamente antes do build
+RUN node_modules/.bin/payload generate:importmap || echo "importmap generation skipped"
+
 RUN npm run build
 
 RUN addgroup --system --gid 1001 nodejs
