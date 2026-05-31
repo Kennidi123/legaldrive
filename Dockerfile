@@ -4,7 +4,7 @@ RUN apk add --no-cache libc6-compat openssl python3 make g++
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps && npm dedupe --legacy-peer-deps
 
 COPY . .
 
