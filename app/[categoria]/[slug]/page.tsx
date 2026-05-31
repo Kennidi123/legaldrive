@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
+import { getPayload } from '@/lib/getPayload'
 import { articleJsonLd, breadcrumbJsonLd, siteUrl } from '@/lib/seo'
+import { lexicalToHTML, getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import CategoryBadge from '@/components/CategoryBadge'
 import ShareButtons from '@/components/ShareButtons'
 import ArticleCardHorizontal from '@/components/ArticleCardHorizontal'
@@ -18,11 +19,17 @@ interface Props {
 
 export async function generateStaticParams() {
   try {
-    const posts = await prisma.post.findMany({
-      select: { slug: true, category: { select: { slug: true } } },
-      where: { publishedAt: { not: null } },
+    const payload = await getPayload()
+    const posts = await payload.find({
+      collection: 'posts',
+      where: { status: { equals: 'published' } },
+      depth: 1,
+      limit: 200,
     })
-    return posts.map((p) => ({ categoria: p.category.slug, slug: p.slug }))
+    return posts.docs.map((p: any) => ({
+      categoria: typeof p.category === 'object' ? p.category.slug : '',
+      slug: p.slug,
+    }))
   } catch {
     return []
   }
@@ -31,30 +38,30 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
-    const post = await prisma.post.findUnique({
-      where: { slug },
-      include: { category: true },
-    })
+    const payload = await getPayload()
+    const result = await payload.find({ collection: 'posts', where: { slug: { equals: slug } }, depth: 1, limit: 1 })
+    const post = result.docs[0] as any
     if (!post) return {}
+    const cat = typeof post.category === 'object' ? post.category : null
     return {
-      title: post.metaTitle || post.title,
-      description: post.metaDesc || post.excerpt,
+      title: post.seo?.metaTitle || post.title,
+      description: post.seo?.metaDesc || post.excerpt,
       openGraph: {
-        title: post.metaTitle || post.title,
-        description: post.metaDesc || post.excerpt,
-        images: post.coverImage ? [{ url: post.coverImage }] : [],
+        title: post.seo?.metaTitle || post.title,
+        description: post.seo?.metaDesc || post.excerpt,
+        images: getPostCoverImage(post) ? [{ url: getPostCoverImage(post)! }] : [],
         type: 'article',
-        publishedTime: post.publishedAt?.toISOString(),
-        modifiedTime: post.updatedAt.toISOString(),
+        publishedTime: post.publishedAt,
+        modifiedTime: post.updatedAt,
       },
-      alternates: { canonical: `${siteUrl}/${post.category.slug}/${post.slug}` },
+      alternates: { canonical: cat ? `${siteUrl}/${cat.slug}/${post.slug}` : `${siteUrl}/${slug}` },
     }
   } catch {
     return {}
   }
 }
 
-function formatDate(date?: Date | null) {
+function formatDate(date?: string | null) {
   if (!date) return ''
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(date))
 }
@@ -62,36 +69,59 @@ function formatDate(date?: Date | null) {
 export default async function ArticlePage({ params }: Props) {
   const { categoria, slug } = await params
 
-  const post = await prisma.post.findUnique({
-    where: { slug },
-    include: { category: true, author: true, tags: true },
-  })
+  let post: any = null
+  let related: any[] = []
 
-  if (!post || post.category.slug !== categoria) notFound()
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'posts',
+      where: { and: [{ slug: { equals: slug } }, { status: { equals: 'published' } }] },
+      depth: 2,
+      limit: 1,
+    })
+    post = result.docs[0]
+    if (!post) notFound()
 
-  const related = await prisma.post.findMany({
-    where: { categoryId: post.categoryId, id: { not: post.id }, publishedAt: { not: null } },
-    include: { category: true },
-    orderBy: { publishedAt: 'desc' },
-    take: 3,
-  })
+    const cat = typeof post.category === 'object' ? post.category : null
+    if (cat && cat.slug !== categoria) notFound()
 
-  const articleUrl = `/${categoria}/${slug}`
+    if (cat) {
+      const relResult = await payload.find({
+        collection: 'posts',
+        where: { and: [{ 'category.slug': { equals: cat.slug } }, { status: { equals: 'published' } }, { id: { not_equals: post.id } }] },
+        depth: 2,
+        limit: 3,
+        sort: '-publishedAt',
+      })
+      related = relResult.docs
+    }
+  } catch {
+    notFound()
+  }
+
+  const cat = typeof post.category === 'object' ? post.category : { name: '', slug: categoria }
+  const author = typeof post.author === 'object' ? post.author : null
+  const tags = Array.isArray(post.tags) ? post.tags.filter((t: any) => typeof t === 'object') : []
+  const coverImage = getPostCoverImage(post)
+  const avatarUrl = getAuthorAvatar(author)
+  const htmlContent = lexicalToHTML(post.content)
+  const articleUrl = `/${cat.slug}/${post.slug}`
   const fullUrl = `${siteUrl}${articleUrl}`
 
   const jsonLd = articleJsonLd({
     title: post.title,
     description: post.excerpt,
-    publishedAt: post.publishedAt,
-    updatedAt: post.updatedAt,
-    author: post.author.name,
-    image: post.coverImage,
+    publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
+    updatedAt: new Date(post.updatedAt),
+    author: author?.name || 'Legal Drive',
+    image: coverImage,
     url: fullUrl,
   })
 
   const breadcrumb = breadcrumbJsonLd([
     { name: 'Início', url: siteUrl },
-    { name: post.category.name, url: `${siteUrl}/${post.category.slug}` },
+    { name: cat.name, url: `${siteUrl}/${cat.slug}` },
     { name: post.title, url: fullUrl },
   ])
 
@@ -103,62 +133,40 @@ export default async function ArticlePage({ params }: Props) {
       <main>
         <div className="max-w-content mx-auto px-4 md:px-16 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Article */}
             <article className="lg:col-span-8">
               {/* Breadcrumb */}
-              <nav className="flex items-center gap-2 font-mono text-xs text-[var(--on-surface-variant)] mb-8 uppercase tracking-wider">
+              <nav className="flex items-center gap-2 font-mono text-xs text-[var(--on-surface-variant)] mb-8 uppercase tracking-wider flex-wrap">
                 <Link href="/" className="hover:text-[var(--secondary)] transition-colors">Início</Link>
                 <span className="text-[var(--outline-variant)]">›</span>
-                <Link href={`/${post.category.slug}`} className="hover:text-[var(--secondary)] transition-colors">
-                  {post.category.name}
-                </Link>
+                <Link href={`/${cat.slug}`} className="hover:text-[var(--secondary)] transition-colors">{cat.name}</Link>
                 <span className="text-[var(--outline-variant)]">›</span>
-                <span className="text-[var(--secondary)] truncate max-w-[200px]">{post.title}</span>
+                <span className="text-[var(--secondary)] truncate max-w-[180px]">{post.title}</span>
               </nav>
 
-              {/* Header */}
               <header className="mb-10">
-                <div className="flex items-center gap-2 text-[var(--secondary)] mb-4">
-                  <CategoryBadge name={post.category.name} slug={post.category.slug} />
+                <div className="flex items-center gap-2 mb-4">
+                  <CategoryBadge name={cat.name} slug={cat.slug} />
                   <span className="h-px w-6 bg-[var(--secondary)]" />
                 </div>
-
                 <h1 className="font-display text-3xl md:text-4xl font-bold text-[var(--on-surface)] leading-tight mb-6">
                   {post.title}
                 </h1>
-
                 <div className="flex flex-wrap items-center gap-4 py-5 border-y border-[var(--outline-variant)]">
-                  {post.author.avatar && (
-                    <Image
-                      src={post.author.avatar}
-                      alt={post.author.name}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full object-cover ring-2 ring-[var(--secondary)]"
-                    />
+                  {avatarUrl && (
+                    <Image src={avatarUrl} alt={author?.name || ''} width={40} height={40} className="w-10 h-10 rounded-full object-cover ring-2 ring-[var(--secondary)]" />
                   )}
                   <div>
-                    <p className="font-mono text-xs text-[var(--on-surface)] uppercase tracking-wider">
-                      {post.author.name}
-                    </p>
-                    {post.author.bio && (
-                      <p className="font-mono text-[10px] text-[var(--outline)] uppercase">
-                        {post.author.bio.split('.')[0]}
-                      </p>
-                    )}
+                    <p className="font-mono text-xs text-[var(--on-surface)] uppercase tracking-wider">{author?.name}</p>
+                    {author?.role && <p className="font-mono text-[10px] text-[var(--outline)] uppercase">{author.role}</p>}
                   </div>
-
-                  <div className="h-6 w-px bg-[var(--outline-variant)] hidden md:block" />
-
                   {post.publishedAt && (
-                    <span className="font-mono text-xs text-[var(--on-surface-variant)] uppercase tracking-wider flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {formatDate(post.publishedAt)}
-                    </span>
+                    <>
+                      <span className="h-6 w-px bg-[var(--outline-variant)] hidden md:block" />
+                      <span className="font-mono text-xs text-[var(--on-surface-variant)] uppercase tracking-wider">
+                        {formatDate(post.publishedAt)}
+                      </span>
+                    </>
                   )}
-
                   {post.readingTime && (
                     <>
                       <span className="text-[var(--outline-variant)]">·</span>
@@ -170,112 +178,78 @@ export default async function ArticlePage({ params }: Props) {
                 </div>
               </header>
 
-              {/* Cover Image */}
-              {post.coverImage && (
+              {coverImage && (
                 <figure className="mb-10">
                   <div className="relative aspect-video overflow-hidden rounded-lg">
-                    <Image
-                      src={post.coverImage}
-                      alt={post.title}
-                      fill
-                      priority
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 66vw"
-                    />
+                    <Image src={coverImage} alt={post.title} fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 66vw" />
                   </div>
                 </figure>
               )}
 
-              {/* YouTube embed if applicable */}
-              {post.youtubeUrl && (
+              {post.youtubeId && (
                 <div className="mb-10">
-                  <VideoEmbed
-                    youtubeId={post.youtubeUrl}
-                    title={post.title}
-                  />
+                  <VideoEmbed youtubeId={post.youtubeId} title={post.title} />
                 </div>
               )}
 
-              {/* Article Content */}
-              <div
-                className="article-prose"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+              <div className="article-prose" dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
-              {/* Tags */}
-              {post.tags.length > 0 && (
+              {tags.length > 0 && (
                 <div className="mt-10 flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded bg-[var(--surface-container-high)] text-[var(--on-surface-variant)]"
-                    >
+                  {tags.map((tag: any) => (
+                    <span key={tag.id} className="font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded bg-[var(--surface-container-high)] text-[var(--on-surface-variant)]">
                       #{tag.name}
                     </span>
                   ))}
                 </div>
               )}
 
-              {/* Share */}
-              <div className="mt-10 pt-8 border-t border-[var(--outline-variant)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="mt-10 pt-8 border-t border-[var(--outline-variant)]">
                 <ShareButtons url={articleUrl} title={post.title} />
               </div>
             </article>
 
-            {/* Sidebar */}
             <aside className="lg:col-span-4 space-y-8">
-              {/* CTA */}
               <WhatsAppBanner variant="sidebar" />
 
-              {/* Newsletter */}
               <div className="bg-[var(--surface-container-high)] p-6 rounded-lg border border-[rgba(255,255,255,0.07)]">
-                <h3 className="font-display text-lg font-bold text-[var(--on-surface)] mb-2">
-                  Radar Legal Drive
-                </h3>
-                <p className="text-sm text-[var(--on-surface-variant)] mb-5">
-                  Receba atualizações cruciais sobre leis de trânsito direto no seu e-mail.
-                </p>
+                <h3 className="font-display text-lg font-bold text-[var(--on-surface)] mb-2">Radar Legal Drive</h3>
+                <p className="text-sm text-[var(--on-surface-variant)] mb-5">Receba atualizações cruciais sobre leis de trânsito direto no seu e-mail.</p>
                 <form className="space-y-3">
-                  <input
-                    type="email"
-                    placeholder="Seu melhor e-mail"
-                    className="w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors placeholder:text-[var(--outline)]"
-                  />
-                  <button
-                    type="submit"
-                    className="w-full bg-[var(--on-surface)] text-[var(--surface)] font-mono text-xs font-bold tracking-widest uppercase py-3 rounded hover:bg-[var(--secondary)] hover:text-[var(--on-secondary)] transition-all"
-                  >
+                  <input type="email" placeholder="Seu melhor e-mail" className="w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors placeholder:text-[var(--outline)]" />
+                  <button type="submit" className="w-full bg-[var(--on-surface)] text-[var(--surface)] font-mono text-xs font-bold tracking-widest uppercase py-3 rounded hover:bg-[var(--secondary)] hover:text-[var(--on-secondary)] transition-all">
                     Inscrever Agora
                   </button>
                 </form>
               </div>
 
-              {/* Related Articles */}
               {related.length > 0 && (
                 <div>
                   <h3 className="font-mono text-xs tracking-widest uppercase text-[var(--secondary)] mb-5 border-b border-[var(--outline-variant)] pb-2">
                     Artigos Relacionados
                   </h3>
                   <div className="space-y-5 divide-y divide-[var(--outline-variant)]">
-                    {related.map((rel) => (
-                      <div key={rel.id} className="pt-5 first:pt-0">
-                        <ArticleCardHorizontal
-                          title={rel.title}
-                          slug={rel.slug}
-                          coverImage={rel.coverImage}
-                          category={{ name: rel.category.name, slug: rel.category.slug }}
-                          publishedAt={rel.publishedAt}
-                          readingTime={rel.readingTime}
-                        />
-                      </div>
-                    ))}
+                    {related.map((rel: any) => {
+                      const relCat = typeof rel.category === 'object' ? rel.category : { name: '', slug: '' }
+                      return (
+                        <div key={rel.id} className="pt-5 first:pt-0">
+                          <ArticleCardHorizontal
+                            title={rel.title}
+                            slug={rel.slug}
+                            coverImage={getPostCoverImage(rel)}
+                            category={{ name: relCat.name, slug: relCat.slug }}
+                            publishedAt={rel.publishedAt ? new Date(rel.publishedAt) : null}
+                            readingTime={rel.readingTime}
+                          />
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
             </aside>
           </div>
         </div>
-
         <WhatsAppBanner />
       </main>
     </>
