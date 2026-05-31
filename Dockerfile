@@ -51,6 +51,9 @@ COPY --from=builder /app/node_modules/graphql ./node_modules/graphql
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
+# Diretório de migrations com permissão de escrita para o nextjs user
+RUN mkdir -p /app/migrations && chown -R nextjs:nodejs /app/migrations
+
 USER nextjs
 
 EXPOSE 3000
