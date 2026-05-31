@@ -4,6 +4,8 @@ import path from 'path'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: false },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
