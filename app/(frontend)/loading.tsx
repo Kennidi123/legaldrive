@@ -1,7 +1,6 @@
 export default function Loading() {
   return (
     <div className="max-w-content mx-auto px-4 md:px-16 py-16">
-      {/* Hero skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
         <div className="lg:col-span-8">
           <div className="skeleton aspect-video rounded-lg mb-4" />
@@ -21,8 +20,6 @@ export default function Loading() {
           ))}
         </div>
       </div>
-
-      {/* Cards skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="rounded-lg overflow-hidden bg-[var(--surface-container)]">

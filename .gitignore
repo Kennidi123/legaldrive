@@ -27,6 +27,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Payload auto-generated
+payload-types.ts
+
 # Database
 *.db
 *.sqlite

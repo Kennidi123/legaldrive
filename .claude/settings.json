@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit *)",
+      "Bash(Remove-Item -LiteralPath \"app\\\\page.tsx\")",
+      "Bash(Remove-Item -LiteralPath \"app\\\\loading.tsx\")",
+      "Bash(Remove-Item -LiteralPath \"app\\\\[categoria]\\\\page.tsx\")",
+      "Bash(Remove-Item -LiteralPath \"app\\\\[categoria]\\\\loading.tsx\")",
+      "Bash(Remove-Item -LiteralPath \"app\\\\[categoria]\\\\error.tsx\")"
+    ]
+  }
+}

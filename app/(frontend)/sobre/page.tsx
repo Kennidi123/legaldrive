@@ -42,7 +42,6 @@ const services = [
 export default function SobrePage() {
   return (
     <main>
-      {/* Hero */}
       <section className="bg-[var(--primary-container)] border-b border-[var(--outline-variant)]">
         <div className="max-w-content mx-auto px-4 md:px-16 py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
@@ -85,7 +84,6 @@ export default function SobrePage() {
         </div>
       </section>
 
-      {/* Stats */}
       <section className="bg-[var(--surface-container-low)] border-b border-[var(--outline-variant)]">
         <div className="max-w-content mx-auto px-4 md:px-16 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -99,7 +97,6 @@ export default function SobrePage() {
         </div>
       </section>
 
-      {/* Services */}
       <section className="max-w-content mx-auto px-4 md:px-16 py-24">
         <div className="text-center mb-16">
           <span className="font-mono text-xs tracking-widest uppercase text-[var(--secondary)] block mb-3">

@@ -28,7 +28,6 @@ export default function ContatoPage() {
 
       <section className="max-w-content mx-auto px-4 md:px-16 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Left: Info */}
           <div>
             <h2 className="font-display text-2xl font-bold text-[var(--on-surface)] mb-8">
               Como podemos ajudar?
@@ -89,7 +88,6 @@ export default function ContatoPage() {
             </a>
           </div>
 
-          {/* Right: Form */}
           <div className="bg-[var(--surface-container-high)] p-8 rounded-lg border border-[rgba(255,255,255,0.07)]">
             <h3 className="font-display text-xl font-bold text-[var(--primary)] mb-6">
               Formulário de Defesa

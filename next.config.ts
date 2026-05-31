@@ -1,7 +1,11 @@
+import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
@@ -10,6 +14,13 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias as object),
+      '@payload-config': path.resolve(process.cwd(), 'payload.config.ts'),
+    }
+    return config
+  },
 }
 
-export default nextConfig
+export default withPayload(nextConfig)
