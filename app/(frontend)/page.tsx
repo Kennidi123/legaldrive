@@ -139,7 +139,7 @@ export default async function HomePage() {
         ) : (
           <div className="text-center py-16">
             <p className="font-mono text-xs text-[var(--outline)] uppercase tracking-widest">
-              Nenhum artigo publicado ainda. Acesse <a href="/admin" className="text-[var(--secondary)] hover:underline">/admin</a> para criar conteúdo.
+              Nenhum artigo publicado ainda. Acesse <Link href="/admin" className="text-[var(--secondary)] hover:underline">/admin</Link> para criar conteúdo.
             </p>
           </div>
         )}

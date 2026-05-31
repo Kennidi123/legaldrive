@@ -2,6 +2,7 @@ import { getPayload } from '@/lib/getPayload'
 import { buildMetadata } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
 import WhatsAppBanner from '@/components/WhatsAppBanner'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,7 +46,7 @@ export default async function VideosPage() {
               Nenhum vídeo cadastrado ainda
             </p>
             <p className="text-[var(--on-surface-variant)] text-sm">
-              Acesse <a href="/admin" className="text-[var(--secondary)] hover:underline">/admin → Vídeos</a> para adicionar.
+              Acesse <Link href="/admin" className="text-[var(--secondary)] hover:underline">/admin → Vídeos</Link> para adicionar.
             </p>
           </div>
         ) : (

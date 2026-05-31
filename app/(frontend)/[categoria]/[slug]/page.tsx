@@ -134,7 +134,6 @@ export default async function ArticlePage({ params }: Props) {
         <div className="max-w-content mx-auto px-4 md:px-16 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <article className="lg:col-span-8">
-              {/* Breadcrumb */}
               <nav className="flex items-center gap-2 font-mono text-xs text-[var(--on-surface-variant)] mb-8 uppercase tracking-wider flex-wrap">
                 <Link href="/" className="hover:text-[var(--secondary)] transition-colors">Início</Link>
                 <span className="text-[var(--outline-variant)]">›</span>

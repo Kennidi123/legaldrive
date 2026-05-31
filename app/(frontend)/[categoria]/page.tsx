@@ -4,6 +4,7 @@ import { buildMetadata } from '@/lib/seo'
 import { getPostCoverImage } from '@/lib/lexical'
 import ArticleCard from '@/components/ArticleCard'
 import WhatsAppBanner from '@/components/WhatsAppBanner'
+import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -87,7 +88,7 @@ export default async function CategoryPage({ params }: Props) {
               Nenhum artigo publicado nesta categoria
             </p>
             <p className="text-[var(--on-surface-variant)] text-sm">
-              Acesse <a href="/admin" className="text-[var(--secondary)] hover:underline">/admin</a> para criar o primeiro artigo.
+              Acesse <Link href="/admin" className="text-[var(--secondary)] hover:underline">/admin</Link> para criar o primeiro artigo.
             </p>
           </div>
         ) : (
