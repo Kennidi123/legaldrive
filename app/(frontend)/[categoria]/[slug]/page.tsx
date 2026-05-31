@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPost, getPosts, getAllPostSlugs, getPostCoverImage, getAuthorAvatar } from '@/lib/payload-api'
+import { getPayload } from '@/lib/getPayload'
 import { articleJsonLd, breadcrumbJsonLd, siteUrl } from '@/lib/seo'
-import { lexicalToHTML } from '@/lib/lexical'
+import { lexicalToHTML, getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import CategoryBadge from '@/components/CategoryBadge'
 import ShareButtons from '@/components/ShareButtons'
 import ArticleCardHorizontal from '@/components/ArticleCardHorizontal'
@@ -18,25 +18,46 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return getAllPostSlugs()
+  try {
+    const payload = await getPayload()
+    const posts = await payload.find({
+      collection: 'posts',
+      where: { status: { equals: 'published' } },
+      depth: 1,
+      limit: 200,
+    })
+    return posts.docs.map((p: any) => ({
+      categoria: typeof p.category === 'object' ? p.category.slug : '',
+      slug: p.slug,
+    }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPost(slug)
-  if (!post) return {}
-  const cat = typeof post.category === 'object' ? post.category : null
-  return {
-    title: post.metaTitle || post.title,
-    description: post.metaDesc || post.excerpt,
-    openGraph: {
-      title: post.metaTitle || post.title,
-      description: post.metaDesc || post.excerpt,
-      images: getPostCoverImage(post) ? [{ url: getPostCoverImage(post)! }] : [],
-      type: 'article',
-      publishedTime: post.publishedAt,
-    },
-    alternates: { canonical: cat ? `${siteUrl}/${cat.slug}/${post.slug}` : `${siteUrl}/${slug}` },
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({ collection: 'posts', where: { slug: { equals: slug } }, depth: 1, limit: 1 })
+    const post = result.docs[0] as any
+    if (!post) return {}
+    const cat = typeof post.category === 'object' ? post.category : null
+    return {
+      title: post.seo?.metaTitle || post.title,
+      description: post.seo?.metaDesc || post.excerpt,
+      openGraph: {
+        title: post.seo?.metaTitle || post.title,
+        description: post.seo?.metaDesc || post.excerpt,
+        images: getPostCoverImage(post) ? [{ url: getPostCoverImage(post)! }] : [],
+        type: 'article',
+        publishedTime: post.publishedAt,
+        modifiedTime: post.updatedAt,
+      },
+      alternates: { canonical: cat ? `${siteUrl}/${cat.slug}/${post.slug}` : `${siteUrl}/${slug}` },
+    }
+  } catch {
+    return {}
   }
 }
 
@@ -48,16 +69,36 @@ function formatDate(date?: string | null) {
 export default async function ArticlePage({ params }: Props) {
   const { categoria, slug } = await params
 
-  const post = await getPost(slug)
-  if (!post) notFound()
+  let post: any = null
+  let related: any[] = []
 
-  const cat = typeof post.category === 'object' ? post.category : null
-  if (cat && cat.slug !== categoria) notFound()
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({
+      collection: 'posts',
+      where: { and: [{ slug: { equals: slug } }, { status: { equals: 'published' } }] },
+      depth: 2,
+      limit: 1,
+    })
+    post = result.docs[0]
+    if (!post) notFound()
 
-  const relResult = cat
-    ? await getPosts({ categorySlug: cat.slug, limit: 4 })
-    : { docs: [] }
-  const related = relResult.docs.filter((p: any) => p.id !== post.id).slice(0, 3)
+    const postCat = typeof post.category === 'object' ? post.category : null
+    if (postCat && postCat.slug !== categoria) notFound()
+
+    if (postCat) {
+      const relResult = await payload.find({
+        collection: 'posts',
+        where: { and: [{ 'category.slug': { equals: postCat.slug } }, { status: { equals: 'published' } }, { id: { not_equals: post.id } }] },
+        depth: 2,
+        limit: 3,
+        sort: '-publishedAt',
+      })
+      related = relResult.docs
+    }
+  } catch {
+    notFound()
+  }
 
   const cat = typeof post.category === 'object' ? post.category : { name: '', slug: categoria }
   const author = typeof post.author === 'object' ? post.author : null
