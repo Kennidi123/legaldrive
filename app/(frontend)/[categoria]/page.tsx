@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
-import { getCategory, getCategories, getPosts, getPostCoverImage } from '@/lib/payload-api'
+import { getPayload } from '@/lib/getPayload'
 import { buildMetadata } from '@/lib/seo'
+import { getPostCoverImage } from '@/lib/lexical'
 import ArticleCard from '@/components/ArticleCard'
 import WhatsAppBanner from '@/components/WhatsAppBanner'
 import Link from 'next/link'
@@ -13,31 +14,55 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const categories = await getCategories()
-  return categories.map((c) => ({ categoria: c.slug }))
+  try {
+    const payload = await getPayload()
+    const categories = await payload.find({ collection: 'categories', limit: 50 })
+    return categories.docs.map((c: any) => ({ categoria: c.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoria } = await params
-  const cat = await getCategory(categoria)
-  if (!cat) return {}
-  return buildMetadata({
-    title: `${cat.name} — Notícias e Análises`,
-    description: cat.description || `Análises e notícias sobre ${cat.name} no Brasil.`,
-    slug: categoria,
-  })
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({ collection: 'categories', where: { slug: { equals: categoria } }, limit: 1 })
+    const cat = result.docs[0] as any
+    if (!cat) return {}
+    return buildMetadata({
+      title: `${cat.name} — Notícias e Análises`,
+      description: cat.description || `Análises e notícias sobre ${cat.name} no Brasil.`,
+      slug: categoria,
+    })
+  } catch {
+    return {}
+  }
 }
 
 export default async function CategoryPage({ params }: Props) {
   const { categoria } = await params
 
-  const [category, postsResult] = await Promise.all([
-    getCategory(categoria),
-    getPosts({ categorySlug: categoria, limit: 12 }),
-  ])
+  let category: any = null
+  let posts: any[] = []
 
-  if (!category) notFound()
-  const posts = postsResult.docs
+  try {
+    const payload = await getPayload()
+    const catResult = await payload.find({ collection: 'categories', where: { slug: { equals: categoria } }, limit: 1 })
+    category = catResult.docs[0]
+    if (!category) notFound()
+
+    const postsResult = await payload.find({
+      collection: 'posts',
+      where: { and: [{ 'category.slug': { equals: categoria } }, { status: { equals: 'published' } }] },
+      depth: 2,
+      limit: 12,
+      sort: '-publishedAt',
+    })
+    posts = postsResult.docs
+  } catch {
+    notFound()
+  }
 
   return (
     <main>

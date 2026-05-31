@@ -1,4 +1,4 @@
-import { getVideos } from '@/lib/payload-api'
+import { getPayload } from '@/lib/getPayload'
 import { buildMetadata } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
 import WhatsAppBanner from '@/components/WhatsAppBanner'
@@ -13,7 +13,14 @@ export const metadata = buildMetadata({
 })
 
 export default async function VideosPage() {
-  const videos = await getVideos(50)
+  let videos: any[] = []
+  try {
+    const payload = await getPayload()
+    const result = await payload.find({ collection: 'videos', limit: 50, sort: '-publishedAt' })
+    videos = result.docs
+  } catch {
+    videos = []
+  }
 
   return (
     <main>

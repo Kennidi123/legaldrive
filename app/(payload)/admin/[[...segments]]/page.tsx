@@ -9,7 +9,11 @@ type Args = {
 }
 
 export async function generateMetadata({ params, searchParams }: Args): Promise<Metadata> {
-  return generatePageMetadata({ config, params, searchParams })
+  try {
+    return await generatePageMetadata({ config, params, searchParams })
+  } catch {
+    return {}
+  }
 }
 
 export default async function Page({ params, searchParams }: Args) {
