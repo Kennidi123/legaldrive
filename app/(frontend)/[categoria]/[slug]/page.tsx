@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPayload } from '@/lib/getPayload'
+import { getPostBySlug, getAllPublishedPosts, getRelatedPosts } from '@/lib/payload-api'
 import { articleJsonLd, breadcrumbJsonLd, siteUrl } from '@/lib/seo'
 import { lexicalToHTML, getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import CategoryBadge from '@/components/CategoryBadge'
@@ -19,14 +19,9 @@ interface Props {
 
 export async function generateStaticParams() {
   try {
-    const payload = await getPayload()
-    const posts = await payload.find({
-      collection: 'posts',
-      where: { status: { equals: 'published' } },
-      depth: 1,
-      limit: 200,
-    })
-    return posts.docs.map((p: any) => ({
+    const result = await getAllPublishedPosts()
+    if (!result) return []
+    return result.docs.map((p: any) => ({
       categoria: typeof p.category === 'object' ? p.category.slug : '',
       slug: p.slug,
     }))
@@ -38,9 +33,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
-    const payload = await getPayload()
-    const result = await payload.find({ collection: 'posts', where: { slug: { equals: slug } }, depth: 1, limit: 1 })
-    const post = result.docs[0] as any
+    const post = await getPostBySlug(slug, 1)
     if (!post) return {}
     const cat = typeof post.category === 'object' ? post.category : null
     return {
@@ -69,38 +62,19 @@ function formatDate(date?: string | null) {
 export default async function ArticlePage({ params }: Props) {
   const { categoria, slug } = await params
 
-  let post: any = null
+  const post = await getPostBySlug(slug, 2)
+  if (!post) notFound()
+
+  const postCat = typeof post.category === 'object' ? post.category : null
+  if (postCat && postCat.slug !== categoria) notFound()
+
   let related: any[] = []
-
-  try {
-    const payload = await getPayload()
-    const result = await payload.find({
-      collection: 'posts',
-      where: { and: [{ slug: { equals: slug } }, { status: { equals: 'published' } }] },
-      depth: 2,
-      limit: 1,
-    })
-    post = result.docs[0]
-    if (!post) notFound()
-
-    const postCat = typeof post.category === 'object' ? post.category : null
-    if (postCat && postCat.slug !== categoria) notFound()
-
-    if (postCat) {
-      const relResult = await payload.find({
-        collection: 'posts',
-        where: { and: [{ 'category.slug': { equals: postCat.slug } }, { status: { equals: 'published' } }, { id: { not_equals: post.id } }] },
-        depth: 2,
-        limit: 3,
-        sort: '-publishedAt',
-      })
-      related = relResult.docs
-    }
-  } catch {
-    notFound()
+  if (postCat) {
+    const relResult = await getRelatedPosts(postCat.slug, post.id, 3)
+    related = relResult?.docs || []
   }
 
-  const cat = typeof post.category === 'object' ? post.category : { name: '', slug: categoria }
+  const cat = postCat || { name: '', slug: categoria }
   const author = typeof post.author === 'object' ? post.author : null
   const tags = Array.isArray(post.tags) ? post.tags.filter((t: any) => typeof t === 'object') : []
   const coverImage = getPostCoverImage(post)

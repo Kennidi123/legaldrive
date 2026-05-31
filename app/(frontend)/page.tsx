@@ -1,5 +1,5 @@
 import { buildMetadata } from '@/lib/seo'
-import { getPayload } from '@/lib/getPayload'
+import { getFeaturedPosts, getLatestPosts, getCategories, getVideos } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
 import FeaturedHero from '@/components/FeaturedHero'
 import ArticleCard from '@/components/ArticleCard'
@@ -14,26 +14,18 @@ export const metadata = buildMetadata({})
 
 async function getData() {
   try {
-    const payload = await getPayload()
     const [featured, latest, categories, videos] = await Promise.all([
-      payload.find({
-        collection: 'posts',
-        where: { and: [{ featured: { equals: true } }, { status: { equals: 'published' } }] },
-        depth: 2,
-        limit: 4,
-        sort: '-publishedAt',
-      }),
-      payload.find({
-        collection: 'posts',
-        where: { status: { equals: 'published' } },
-        depth: 2,
-        limit: 8,
-        sort: '-publishedAt',
-      }),
-      payload.find({ collection: 'categories', limit: 20, sort: 'name' }),
-      payload.find({ collection: 'videos', limit: 3, sort: '-publishedAt' }),
+      getFeaturedPosts(4),
+      getLatestPosts(8),
+      getCategories(20),
+      getVideos(3),
     ])
-    return { featured: featured.docs, latest: latest.docs, categories: categories.docs, videos: videos.docs }
+    return {
+      featured: featured?.docs || [],
+      latest: latest?.docs || [],
+      categories: categories?.docs || [],
+      videos: videos?.docs || [],
+    }
   } catch {
     return { featured: [], latest: [], categories: [], videos: [] }
   }

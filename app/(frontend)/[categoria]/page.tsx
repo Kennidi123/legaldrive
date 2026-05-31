@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getPayload } from '@/lib/getPayload'
+import { getCategories, getCategoryBySlug, getPostsByCategory } from '@/lib/payload-api'
 import { buildMetadata } from '@/lib/seo'
 import { getPostCoverImage } from '@/lib/lexical'
 import ArticleCard from '@/components/ArticleCard'
@@ -15,9 +15,8 @@ interface Props {
 
 export async function generateStaticParams() {
   try {
-    const payload = await getPayload()
-    const categories = await payload.find({ collection: 'categories', limit: 50 })
-    return categories.docs.map((c: any) => ({ categoria: c.slug }))
+    const result = await getCategories()
+    return (result?.docs || []).map((c: any) => ({ categoria: c.slug }))
   } catch {
     return []
   }
@@ -26,9 +25,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoria } = await params
   try {
-    const payload = await getPayload()
-    const result = await payload.find({ collection: 'categories', where: { slug: { equals: categoria } }, limit: 1 })
-    const cat = result.docs[0] as any
+    const cat = await getCategoryBySlug(categoria)
     if (!cat) return {}
     return buildMetadata({
       title: `${cat.name} — Notícias e Análises`,
@@ -43,26 +40,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPage({ params }: Props) {
   const { categoria } = await params
 
-  let category: any = null
-  let posts: any[] = []
+  const category = await getCategoryBySlug(categoria)
+  if (!category) notFound()
 
-  try {
-    const payload = await getPayload()
-    const catResult = await payload.find({ collection: 'categories', where: { slug: { equals: categoria } }, limit: 1 })
-    category = catResult.docs[0]
-    if (!category) notFound()
-
-    const postsResult = await payload.find({
-      collection: 'posts',
-      where: { and: [{ 'category.slug': { equals: categoria } }, { status: { equals: 'published' } }] },
-      depth: 2,
-      limit: 12,
-      sort: '-publishedAt',
-    })
-    posts = postsResult.docs
-  } catch {
-    notFound()
-  }
+  const postsResult = await getPostsByCategory(categoria)
+  const posts = postsResult?.docs || []
 
   return (
     <main>
