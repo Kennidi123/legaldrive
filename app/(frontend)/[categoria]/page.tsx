@@ -37,11 +37,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+function slugToName(slug: string) {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 export default async function CategoryPage({ params }: Props) {
   const { categoria } = await params
 
-  const category = await getCategoryBySlug(categoria)
-  if (!category) notFound()
+  const category = await getCategoryBySlug(categoria) || {
+    name: slugToName(categoria),
+    slug: categoria,
+    description: null,
+  }
 
   const postsResult = await getPostsByCategory(categoria)
   const posts = postsResult?.docs || []
