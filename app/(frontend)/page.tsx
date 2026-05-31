@@ -1,6 +1,5 @@
 import { buildMetadata } from '@/lib/seo'
-import { getPayload } from '@/lib/getPayload'
-import { getPostCoverImage } from '@/lib/lexical'
+import { getPosts, getCategories, getVideos, getPostCoverImage } from '@/lib/payload-api'
 import FeaturedHero from '@/components/FeaturedHero'
 import ArticleCard from '@/components/ArticleCard'
 import ArticleCardHorizontal from '@/components/ArticleCardHorizontal'
@@ -13,30 +12,13 @@ export const dynamic = 'force-dynamic'
 export const metadata = buildMetadata({})
 
 async function getData() {
-  try {
-    const payload = await getPayload()
-    const [featured, latest, categories, videos] = await Promise.all([
-      payload.find({
-        collection: 'posts',
-        where: { and: [{ featured: { equals: true } }, { status: { equals: 'published' } }] },
-        depth: 2,
-        limit: 4,
-        sort: '-publishedAt',
-      }),
-      payload.find({
-        collection: 'posts',
-        where: { status: { equals: 'published' } },
-        depth: 2,
-        limit: 8,
-        sort: '-publishedAt',
-      }),
-      payload.find({ collection: 'categories', limit: 20, sort: 'name' }),
-      payload.find({ collection: 'videos', limit: 3, sort: '-publishedAt' }),
-    ])
-    return { featured: featured.docs, latest: latest.docs, categories: categories.docs, videos: videos.docs }
-  } catch {
-    return { featured: [], latest: [], categories: [], videos: [] }
-  }
+  const [featured, latest, categories, videos] = await Promise.all([
+    getPosts({ featured: true, limit: 4 }),
+    getPosts({ limit: 8 }),
+    getCategories(),
+    getVideos(3),
+  ])
+  return { featured: featured.docs, latest: latest.docs, categories, videos }
 }
 
 function normalizePost(doc: any) {
@@ -59,8 +41,8 @@ function normalizePost(doc: any) {
 export default async function HomePage() {
   const { featured, latest, categories, videos } = await getData()
 
-  const featuredPosts = featured.map(normalizePost)
-  const latestPosts = latest.map(normalizePost)
+  const featuredPosts = (featured as any[]).map(normalizePost)
+  const latestPosts = (latest as any[]).map(normalizePost)
   const [heroPost, ...sidePosts] = featuredPosts
   const recentNews = latestPosts.filter((p) => p.id !== heroPost?.id).slice(0, 4)
   const editorialPosts = latestPosts
@@ -119,7 +101,7 @@ export default async function HomePage() {
 
       <section className="max-w-content mx-auto px-4 md:px-16 py-16">
         <div className="mb-8">
-          <CategoryTabs categories={categories.map((c: any) => ({ name: c.name, slug: c.slug }))} />
+          <CategoryTabs categories={(categories as any[]).map((c: any) => ({ name: c.name, slug: c.slug }))} />
         </div>
         <div className="flex items-center justify-between mb-8">
           <h2 className="section-title">Notícias Recentes</h2>

@@ -7,7 +7,13 @@
       "Bash(Remove-Item -LiteralPath \"app\\\\[categoria]\\\\page.tsx\")",
       "Bash(Remove-Item -LiteralPath \"app\\\\[categoria]\\\\loading.tsx\")",
       "Bash(Remove-Item -LiteralPath \"app\\\\[categoria]\\\\error.tsx\")",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(cd \"c:\\\\Users\\\\kenne\\\\OneDrive\\\\Desktop\\\\PROJETOS\\\\legaldrive\" && mkdir -p backend/collections && cp collections/*.ts backend/collections/ && echo \"OK\")",
+      "Bash(cd \"c:\\\\Users\\\\kenne\\\\OneDrive\\\\Desktop\\\\PROJETOS\\\\legaldrive\" && rm -rf \"app/[categoria]\" app/contato app/sobre app/videos && echo \"Pastas vazias removidas\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\kenne\\OneDrive\\Desktop\\PROJETOS\\legaldrive\\collections",
+      "C:\\Users\\kenne\\OneDrive\\Desktop\\PROJETOS\\legaldrive\\app\\[categoria]"
     ]
   }
 }

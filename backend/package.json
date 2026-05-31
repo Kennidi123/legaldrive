@@ -1,15 +1,20 @@
 {
-  "name": "legaldrive",
+  "name": "legaldrive-backend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start --port 3001",
+    "payload": "payload"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "^3.33.0",
+    "@payloadcms/next": "^3.33.0",
+    "@payloadcms/richtext-lexical": "^3.33.0",
+    "graphql": "^16.9.0",
     "next": "15.3.9",
+    "payload": "^3.33.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.33.5"
@@ -18,12 +23,6 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "15.3.9",
-    "tailwindcss": "^3.4.17",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
 }

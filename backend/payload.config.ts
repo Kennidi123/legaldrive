@@ -16,11 +16,13 @@ import { Videos } from './collections/Videos'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'
+
 export default buildConfig({
   admin: {
     user: Users.slug,
     meta: {
-      titleSuffix: '— Legal Drive',
+      titleSuffix: '— Legal Drive CMS',
       description: 'Painel administrativo do portal Legal Drive.',
     },
     importMap: {
@@ -38,11 +40,14 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
 
+  cors: [frontendUrl],
+  csrf: [frontendUrl],
+
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
+      max: 5,
     },
-    migrationDir: path.resolve('/app/migrations'),
   }),
 
   sharp,
