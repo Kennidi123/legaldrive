@@ -33,9 +33,17 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma client (apenas para queries em runtime — sem CLI)
+# Prisma client (sem CLI)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Payload CMS — módulos não rastreados corretamente pelo standalone output tracing
+COPY --from=builder /app/node_modules/payload ./node_modules/payload
+COPY --from=builder /app/node_modules/@payloadcms ./node_modules/@payloadcms
+COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
+COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder /app/node_modules/graphql ./node_modules/graphql
 
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
