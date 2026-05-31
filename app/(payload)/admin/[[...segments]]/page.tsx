@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
+import { getPayload } from 'payload'
 import config from '@payload-config'
 import { importMap } from '../importMap'
 
@@ -9,16 +10,18 @@ type Args = {
 }
 
 export async function generateMetadata({ params, searchParams }: Args): Promise<Metadata> {
-  return generatePageMetadata({ config, params, searchParams })
+  try {
+    return await generatePageMetadata({ config, params, searchParams })
+  } catch {
+    return {}
+  }
 }
 
 export default async function Page({ params, searchParams }: Args) {
   try {
-    const { getPayload: _getPayload } = await import('payload')
-    await _getPayload({ config })
+    await getPayload({ config })
     return await RootPage({ config, params, searchParams, importMap })
   } catch (err) {
-    // Re-throw Next.js internal control flow (redirect, notFound)
     if (err instanceof Error && (err.message === 'NEXT_REDIRECT' || err.message === 'NEXT_NOT_FOUND')) {
       throw err
     }
@@ -35,9 +38,6 @@ export default async function Page({ params, searchParams }: Args) {
         </pre>
         <p style={{ color: '#8b949e', fontSize: '12px', marginTop: '16px' }}>
           DATABASE_URL: {process.env.DATABASE_URL ? 'SIM (' + process.env.DATABASE_URL.substring(0, 30) + '...)' : 'NÃO'}
-        </p>
-        <p style={{ color: '#58a6ff', fontSize: '12px', marginTop: '8px' }}>
-          Para criar as tabelas acesse: <code>/api/payload-push?secret=legal2024setup</code>
         </p>
       </div>
     )
