@@ -4,7 +4,13 @@ type PayloadList = { docs: any[]; totalDocs: number }
 
 async function get<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${BASE}${path}`, { next: { revalidate: 60 } })
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 5000)
+    const res = await fetch(`${BASE}${path}`, {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    })
+    clearTimeout(timer)
     if (!res.ok) return null
     return res.json()
   } catch { return null }
