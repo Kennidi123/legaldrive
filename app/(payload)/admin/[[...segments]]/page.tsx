@@ -18,6 +18,10 @@ export default async function Page({ params, searchParams }: Args) {
     await _getPayload({ config })
     return await RootPage({ config, params, searchParams, importMap })
   } catch (err) {
+    // Re-throw Next.js internal control flow (redirect, notFound)
+    if (err instanceof Error && (err.message === 'NEXT_REDIRECT' || err.message === 'NEXT_NOT_FOUND')) {
+      throw err
+    }
     const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
     const stack = err instanceof Error ? (err.stack || '') : ''
     return (
