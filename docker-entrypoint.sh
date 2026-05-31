@@ -1,3 +1,3 @@
 #!/bin/sh
 set -e
-exec node server.js
+exec node_modules/.bin/next start

@@ -1,24 +1,19 @@
-# ── Stage 1: Dependencies ──────────────────────────────────
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+# ── Stage 1: Builder ───────────────────────────────────────
+FROM node:20-alpine AS builder
+RUN apk add --no-cache libc6-compat openssl python3 make g++
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
-# ── Stage 2: Builder ───────────────────────────────────────
-FROM node:20-alpine AS builder
-RUN apk add --no-cache libc6-compat openssl
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-RUN npx prisma generate
 RUN npm run build
 
-# ── Stage 3: Runner ────────────────────────────────────────
+# ── Stage 2: Runner ────────────────────────────────────────
 FROM node:20-alpine AS runner
 RUN apk add --no-cache openssl
 WORKDIR /app
@@ -30,29 +25,11 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
 
-# Prisma client (sem CLI)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# Payload CMS — módulos não rastreados corretamente pelo standalone output tracing
-COPY --from=builder /app/node_modules/payload ./node_modules/payload
-COPY --from=builder /app/node_modules/@payloadcms ./node_modules/@payloadcms
-COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
-COPY --from=builder /app/node_modules/drizzle-kit ./node_modules/drizzle-kit
-COPY --from=builder /app/node_modules/pg ./node_modules/pg
-COPY --from=builder /app/node_modules/pg-pool ./node_modules/pg-pool
-COPY --from=builder /app/node_modules/pg-protocol ./node_modules/pg-protocol
-COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
-COPY --from=builder /app/node_modules/graphql ./node_modules/graphql
-
-COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh
-
-# Diretório de migrations com permissão de escrita para o nextjs user
-RUN mkdir -p /app/migrations && chown -R nextjs:nodejs /app/migrations
+RUN mkdir -p /app/migrations && chown -R nextjs:nodejs /app/migrations /app/.next
 
 USER nextjs
 
@@ -60,4 +37,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["./docker-entrypoint.sh"]
+CMD ["node_modules/.bin/next", "start"]
