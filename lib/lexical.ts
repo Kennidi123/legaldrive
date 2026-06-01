@@ -65,14 +65,25 @@ export function lexicalToHTML(content: LexicalRoot | null | undefined): string {
   return serializeNodes(content.root.children)
 }
 
+const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || '').replace(/\/$/, '')
+
+// Corrige URLs que ficaram com o host interno do container (localhost:3001)
+function normalizeImageUrl(url?: string | null): string | null {
+  if (!url) return null
+  if (BACKEND) {
+    return url.replace(/^https?:\/\/localhost:3001/, BACKEND)
+  }
+  return url
+}
+
 export function getPostCoverImage(post: {
   coverImage?: { url?: string } | null | number
   coverImageUrl?: string | null
 }): string | null {
   if (post.coverImage && typeof post.coverImage === 'object' && post.coverImage.url) {
-    return post.coverImage.url
+    return normalizeImageUrl(post.coverImage.url)
   }
-  return post.coverImageUrl || null
+  return normalizeImageUrl(post.coverImageUrl)
 }
 
 export function getAuthorAvatar(author: {
@@ -81,7 +92,7 @@ export function getAuthorAvatar(author: {
 } | null | undefined): string | null {
   if (!author) return null
   if (author.avatar && typeof author.avatar === 'object' && author.avatar.url) {
-    return author.avatar.url
+    return normalizeImageUrl(author.avatar.url)
   }
-  return author.avatarUrl || null
+  return normalizeImageUrl(author.avatarUrl)
 }

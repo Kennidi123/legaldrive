@@ -53,7 +53,11 @@ export async function POST(req: NextRequest) {
     await pool.end()
 
     const id = result.rows[0].id
-    const url = `${req.nextUrl.origin}/api/image/${id}`
+    // Usa o dominio publico (headers do proxy Traefik/Coolify), nao o origin interno do container
+    const proto = req.headers.get('x-forwarded-proto') || req.nextUrl.protocol.replace(':', '')
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || req.nextUrl.host
+    const base = (process.env.BACKEND_PUBLIC_URL || `${proto}://${host}`).replace(/\/$/, '')
+    const url = `${base}/api/image/${id}`
     return NextResponse.json({ url, id }, { status: 200, headers: corsHeaders })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
