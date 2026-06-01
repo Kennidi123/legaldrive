@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import ImageUpload from '../../ImageUpload'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -207,10 +208,11 @@ export default function NewPostPage() {
                   <input value={newAuthor.role} onChange={e => setNewAuthor(a => ({ ...a, role: e.target.value }))} placeholder="Advogado de Trânsito" className={inp} />
                 </div>
               </div>
-              <div>
-                <label className={lbl}>Foto (URL)</label>
-                <input value={newAuthor.avatarUrl} onChange={e => setNewAuthor(a => ({ ...a, avatarUrl: e.target.value }))} placeholder="https://..." className={inp} />
-              </div>
+              <ImageUpload
+                label="Foto do Autor"
+                value={newAuthor.avatarUrl}
+                onChange={url => setNewAuthor(a => ({ ...a, avatarUrl: url }))}
+              />
               <button type="button" onClick={createAuthor} disabled={creatingAuthor || !newAuthor.name.trim()} className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-lg hover:brightness-110 transition-all disabled:opacity-50">
                 {creatingAuthor ? 'Criando...' : 'Criar Autor'}
               </button>
@@ -241,15 +243,14 @@ export default function NewPostPage() {
         {/* Mídia e Links */}
         <div className={sec}>
           <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Mídia & Links</p>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={lbl}>Imagem de Capa (URL)</label>
-              <input name="coverImageUrl" value={form.coverImageUrl} onChange={handleChange} placeholder="https://imagem.jpg" className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Vídeo YouTube (ID)</label>
-              <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="dQw4w9WgXcQ" className={inp} />
-            </div>
+          <ImageUpload
+            label="Imagem de Capa"
+            value={form.coverImageUrl}
+            onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
+          />
+          <div>
+            <label className={lbl}>Vídeo YouTube (ID)</label>
+            <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="dQw4w9WgXcQ" className={inp} />
           </div>
           <div>
             <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte original ou notícia)</span></label>
