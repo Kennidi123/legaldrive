@@ -51,7 +51,6 @@ export const Posts: CollectionConfig = {
       name: 'author',
       type: 'relationship',
       relationTo: 'authors',
-      required: true,
       label: 'Autor',
       admin: { position: 'sidebar' },
     },
@@ -117,6 +116,12 @@ export const Posts: CollectionConfig = {
       type: 'text',
       label: 'ID do Vídeo YouTube',
       admin: { description: 'Ex: dQw4w9WgXcQ — apenas o ID, não a URL completa.' },
+    },
+    {
+      name: 'externalLink',
+      type: 'text',
+      label: 'Link Externo',
+      admin: { description: 'URL de fonte externa ou notícia original. Ex: https://g1.globo.com/...' },
     },
     // ── SEO ───────────────────────────────────────────────
     {

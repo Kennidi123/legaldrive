@@ -167,6 +167,23 @@ export default async function ArticlePage({ params }: Props) {
 
               <div className="article-prose" dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
+              {post.externalLink && (
+                <a
+                  href={post.externalLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 flex items-center gap-3 p-4 rounded-lg bg-[var(--surface-container-high)] border border-[var(--outline-variant)] hover:border-[var(--secondary)] transition-colors group"
+                >
+                  <svg className="w-5 h-5 text-[var(--secondary)] flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <div className="min-w-0">
+                    <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Fonte Externa</p>
+                    <p className="text-sm text-[var(--on-surface)] truncate group-hover:text-[var(--secondary)] transition-colors">{post.externalLink}</p>
+                  </div>
+                </a>
+              )}
+
               {tags.length > 0 && (
                 <div className="mt-10 flex flex-wrap gap-2">
                   {tags.map((tag: any) => (

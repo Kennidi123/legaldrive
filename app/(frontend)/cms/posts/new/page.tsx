@@ -1,16 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
 function getToken() {
-  return document.cookie.split(';').find(c => c.trim().startsWith('cms_token='))?.split('=')[1] || ''
+  const match = document.cookie.match(/(?:^|;\s*)cms_token=([^;]*)/)
+  return match ? decodeURIComponent(match[1]) : ''
 }
 
 function slugify(text: string) {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
+  return (
+    <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-lg shadow-xl font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${type === 'success' ? 'bg-green-900 text-green-300 border border-green-700' : 'bg-red-900 text-red-300 border border-red-700'}`}>
+      <span>{type === 'success' ? '✓' : '✗'}</span> {msg}
+    </div>
+  )
 }
 
 export default function NewPostPage() {
@@ -18,51 +28,87 @@ export default function NewPostPage() {
   const [categories, setCategories] = useState<any[]>([])
   const [authors, setAuthors] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const [showAuthorForm, setShowAuthorForm] = useState(false)
+  const [newAuthor, setNewAuthor] = useState({ name: '', role: '', avatarUrl: '' })
+  const [creatingAuthor, setCreatingAuthor] = useState(false)
+  const [slugManual, setSlugManual] = useState(false)
+
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', category: '', author: '',
-    status: 'draft', featured: false, coverImageUrl: '', youtubeId: '', readingTime: '',
+    title: '', slug: '', excerpt: '', content: '', category: '',
+    author: '', status: 'draft' as 'draft' | 'published',
+    featured: false, coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
   })
+
+  const showToast = useCallback((msg: string, type: 'success' | 'error') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3500)
+  }, [])
 
   useEffect(() => {
     const token = getToken()
-    const headers = { Authorization: `JWT ${token}` }
+    const h = { Authorization: `JWT ${token}` }
     Promise.all([
-      fetch(`${BACKEND}/api/categories?limit=50`, { headers }).then(r => r.json()),
-      fetch(`${BACKEND}/api/authors?limit=50`, { headers }).then(r => r.json()),
+      fetch(`${BACKEND}/api/categories?limit=50&sort=name`, { headers: h }).then(r => r.json()),
+      fetch(`${BACKEND}/api/authors?limit=50`, { headers: h }).then(r => r.json()),
     ]).then(([cats, auths]) => {
       setCategories(cats?.docs || [])
       setAuthors(auths?.docs || [])
+      if ((cats?.docs || []).length === 0) showToast('Sem categorias. Acesse /api/seed para criar.', 'error')
     })
-  }, [])
+  }, [showToast])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value, type } = e.target
-    const checked = (e.target as HTMLInputElement).checked
-    setForm(f => ({
-      ...f,
-      [name]: type === 'checkbox' ? checked : value,
-      ...(name === 'title' && !form.slug ? { slug: slugify(value) } : {}),
-    }))
+    const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    setForm(f => {
+      const next: any = { ...f, [name]: val }
+      if (name === 'title' && !slugManual) next.slug = slugify(value as string)
+      return next
+    })
+  }
+
+  async function createAuthor() {
+    if (!newAuthor.name.trim()) return
+    setCreatingAuthor(true)
+    try {
+      const token = getToken()
+      const res = await fetch(`${BACKEND}/api/authors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `JWT ${token}` },
+        body: JSON.stringify(newAuthor),
+      })
+      const data = await res.json()
+      if (!res.ok) { showToast(data.errors?.[0]?.message || 'Erro ao criar autor', 'error'); return }
+      const created = data.doc
+      setAuthors(a => [...a, created])
+      setForm(f => ({ ...f, author: created.id }))
+      setShowAuthorForm(false)
+      setNewAuthor({ name: '', role: '', avatarUrl: '' })
+      showToast(`Autor "${created.name}" criado!`, 'success')
+    } finally {
+      setCreatingAuthor(false)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!form.title || !form.slug || !form.excerpt) { showToast('Título, slug e resumo são obrigatórios.', 'error'); return }
     setSaving(true)
-    setError('')
     try {
       const token = getToken()
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
         status: form.status, featured: form.featured,
-        coverImageUrl: form.coverImageUrl || undefined,
-        youtubeId: form.youtubeId || undefined,
-        readingTime: form.readingTime ? Number(form.readingTime) : undefined,
-        publishedAt: form.status === 'published' ? new Date().toISOString() : undefined,
-        content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content }], version: 1 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
+        content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
       }
       if (form.category) body.category = form.category
       if (form.author) body.author = form.author
+      if (form.coverImageUrl) body.coverImageUrl = form.coverImageUrl
+      if (form.youtubeId) body.youtubeId = form.youtubeId
+      if (form.externalLink) body.externalLink = form.externalLink
+      if (form.readingTime) body.readingTime = Number(form.readingTime)
+      if (form.status === 'published') body.publishedAt = new Date().toISOString()
 
       const res = await fetch(`${BACKEND}/api/posts`, {
         method: 'POST',
@@ -70,102 +116,153 @@ export default function NewPostPage() {
         body: JSON.stringify(body),
       })
       const data = await res.json()
-      if (!res.ok) {
-        setError(data.errors?.[0]?.message || 'Erro ao criar post')
-        setSaving(false)
-        return
-      }
-      router.push('/cms')
-    } catch (err) {
-      setError('Erro de conexão')
-      setSaving(false)
-    }
+      if (!res.ok) { showToast(data.errors?.[0]?.message || 'Erro ao criar post', 'error'); setSaving(false); return }
+      showToast('Post criado com sucesso!', 'success')
+      setTimeout(() => router.push('/cms'), 1200)
+    } catch { showToast('Erro de conexão', 'error'); setSaving(false) }
   }
 
-  const inputClass = "w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors"
-  const labelClass = "font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] block mb-2"
+  const inp = "w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors placeholder:text-[var(--outline)]"
+  const lbl = "font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)] block mb-1.5"
+  const sec = "bg-[var(--surface-container-high)] border border-[rgba(255,255,255,0.06)] rounded-xl p-6 space-y-5"
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="font-display text-2xl font-bold text-[var(--on-surface)]">Novo Post</h1>
+      {toast && <Toast {...toast} />}
+
+      <div className="flex items-center justify-between">
+        <div>
+          <Link href="/cms" className="font-mono text-[10px] tracking-widest uppercase text-[var(--outline)] hover:text-[var(--secondary)] transition-colors">← Dashboard</Link>
+          <h1 className="font-display text-2xl font-bold text-[var(--on-surface)] mt-1">Novo Post</h1>
+        </div>
+        <div className="flex gap-3">
+          <button type="button" onClick={() => setForm(f => ({ ...f, status: 'draft' }))} className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-colors ${form.status === 'draft' ? 'bg-yellow-900/40 text-yellow-300 border-yellow-700' : 'border-[var(--outline-variant)] text-[var(--outline)]'}`}>Rascunho</button>
+          <button type="button" onClick={() => setForm(f => ({ ...f, status: 'published' }))} className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-colors ${form.status === 'published' ? 'bg-green-900/40 text-green-300 border-green-700' : 'border-[var(--outline-variant)] text-[var(--outline)]'}`}>Publicar</button>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-2 gap-5">
+        {/* Título e Slug */}
+        <div className={sec}>
           <div>
-            <label className={labelClass}>Título *</label>
-            <input name="title" value={form.title} onChange={handleChange} required className={inputClass} />
+            <label className={lbl}>Título *</label>
+            <input name="title" value={form.title} onChange={handleChange} required placeholder="Ex: Novas regras para multas de radar em 2025" className={inp} />
           </div>
           <div>
-            <label className={labelClass}>Slug *</label>
-            <input name="slug" value={form.slug} onChange={handleChange} required className={inputClass} />
+            <label className={lbl}>Slug (URL) *</label>
+            <div className="flex gap-2">
+              <input name="slug" value={form.slug} onChange={e => { setSlugManual(true); handleChange(e) }} required placeholder="novas-regras-multas-radar-2025" className={inp} />
+              <button type="button" onClick={() => { setSlugManual(false); setForm(f => ({ ...f, slug: slugify(f.title) })) }} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
+            </div>
+          </div>
+          <div>
+            <label className={lbl}>Resumo * <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(exibido nos cards)</span></label>
+            <textarea name="excerpt" value={form.excerpt} onChange={handleChange} required rows={3} placeholder="Breve descrição do artigo..." className={inp} />
           </div>
         </div>
 
-        <div>
-          <label className={labelClass}>Resumo *</label>
-          <textarea name="excerpt" value={form.excerpt} onChange={handleChange} required rows={3} className={inputClass} />
-        </div>
-
-        <div>
-          <label className={labelClass}>Conteúdo *</label>
-          <textarea name="content" value={form.content} onChange={handleChange} required rows={10} className={inputClass} placeholder="Digite o conteúdo do artigo..." />
-        </div>
-
-        <div className="grid grid-cols-2 gap-5">
+        {/* Conteúdo */}
+        <div className={sec}>
           <div>
-            <label className={labelClass}>Categoria</label>
-            <select name="category" value={form.category} onChange={handleChange} className={inputClass}>
-              <option value="">Selecionar...</option>
-              {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className={labelClass}>Autor</label>
-            <select name="author" value={form.author} onChange={handleChange} className={inputClass}>
-              <option value="">Selecionar...</option>
-              {authors.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-            </select>
+            <label className={lbl}>Conteúdo do Artigo</label>
+            <textarea name="content" value={form.content} onChange={handleChange} rows={14} placeholder="Escreva o conteúdo completo do artigo aqui..." className={`${inp} font-mono text-sm leading-relaxed`} />
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-5">
-          <div>
-            <label className={labelClass}>Status</label>
-            <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
-              <option value="draft">Rascunho</option>
-              <option value="published">Publicar</option>
-            </select>
+        {/* Classificação */}
+        <div className={sec}>
+          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Classificação</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={lbl}>Categoria *</label>
+              <select name="category" value={form.category} onChange={handleChange} required className={inp}>
+                <option value="">Selecionar categoria...</option>
+                {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={`${lbl} mb-0`}>Autor</label>
+                <button type="button" onClick={() => setShowAuthorForm(v => !v)} className="font-mono text-[10px] text-[var(--secondary)] hover:underline">
+                  {showAuthorForm ? '✕ Fechar' : '+ Novo Autor'}
+                </button>
+              </div>
+              <select name="author" value={form.author} onChange={handleChange} className={inp}>
+                <option value="">Sem autor</option>
+                {authors.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className={labelClass}>Tempo leitura (min)</label>
-            <input name="readingTime" type="number" value={form.readingTime} onChange={handleChange} className={inputClass} />
-          </div>
-          <div className="flex items-end pb-1">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input name="featured" type="checkbox" checked={form.featured} onChange={handleChange} className="w-4 h-4 accent-[var(--secondary)]" />
-              <span className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)]">Destaque Home</span>
-            </label>
+
+          {showAuthorForm && (
+            <div className="bg-[var(--surface-container-low)] border border-[var(--outline-variant)] rounded-lg p-4 space-y-3">
+              <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)]">Criar Novo Autor</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={lbl}>Nome *</label>
+                  <input value={newAuthor.name} onChange={e => setNewAuthor(a => ({ ...a, name: e.target.value }))} placeholder="Dr. João Silva" className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Cargo</label>
+                  <input value={newAuthor.role} onChange={e => setNewAuthor(a => ({ ...a, role: e.target.value }))} placeholder="Advogado de Trânsito" className={inp} />
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>Foto (URL)</label>
+                <input value={newAuthor.avatarUrl} onChange={e => setNewAuthor(a => ({ ...a, avatarUrl: e.target.value }))} placeholder="https://..." className={inp} />
+              </div>
+              <button type="button" onClick={createAuthor} disabled={creatingAuthor || !newAuthor.name.trim()} className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-lg hover:brightness-110 transition-all disabled:opacity-50">
+                {creatingAuthor ? 'Criando...' : 'Criar Autor'}
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-4 pt-1">
+            <div>
+              <label className={lbl}>Status</label>
+              <select name="status" value={form.status} onChange={handleChange} className={inp}>
+                <option value="draft">📝 Rascunho</option>
+                <option value="published">✅ Publicado</option>
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Leitura (min)</label>
+              <input name="readingTime" type="number" min="1" value={form.readingTime} onChange={handleChange} className={inp} />
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <input name="featured" type="checkbox" checked={form.featured} onChange={handleChange} className="w-4 h-4 accent-[var(--secondary)]" />
+                <span className="font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)] group-hover:text-[var(--on-surface)] transition-colors">⭐ Destaque Home</span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
-          <div>
-            <label className={labelClass}>URL da Imagem de Capa</label>
-            <input name="coverImageUrl" value={form.coverImageUrl} onChange={handleChange} className={inputClass} placeholder="https://..." />
+        {/* Mídia e Links */}
+        <div className={sec}>
+          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Mídia & Links</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={lbl}>Imagem de Capa (URL)</label>
+              <input name="coverImageUrl" value={form.coverImageUrl} onChange={handleChange} placeholder="https://imagem.jpg" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Vídeo YouTube (ID)</label>
+              <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="dQw4w9WgXcQ" className={inp} />
+            </div>
           </div>
           <div>
-            <label className={labelClass}>ID do YouTube</label>
-            <input name="youtubeId" value={form.youtubeId} onChange={handleChange} className={inputClass} placeholder="dQw4w9WgXcQ" />
+            <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte original ou notícia)</span></label>
+            <input name="externalLink" type="url" value={form.externalLink} onChange={handleChange} placeholder="https://g1.globo.com/..." className={inp} />
           </div>
         </div>
 
-        {error && <p className="font-mono text-xs text-red-400 uppercase tracking-wider">{error}</p>}
-
-        <div className="flex gap-4 pt-2">
-          <button type="submit" disabled={saving} className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase px-8 py-3 rounded hover:brightness-110 transition-all disabled:opacity-50">
-            {saving ? 'Salvando...' : 'Salvar Post'}
+        {/* Ações */}
+        <div className="flex gap-3 pb-4">
+          <button type="submit" disabled={saving} className="flex-1 bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase py-3.5 rounded-xl hover:brightness-110 transition-all disabled:opacity-50">
+            {saving ? 'Salvando...' : form.status === 'published' ? '✅ Publicar Post' : '💾 Salvar Rascunho'}
           </button>
-          <button type="button" onClick={() => router.push('/cms')} className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors">
+          <button type="button" onClick={() => router.push('/cms')} className="px-6 font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors border border-[var(--outline-variant)] rounded-xl">
             Cancelar
           </button>
         </div>
