@@ -102,8 +102,8 @@ export default function NewPostPage() {
         status: form.status, featured: form.featured,
         content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
       }
-      if (form.category) body.category = form.category
-      if (form.author) body.author = form.author
+      if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
+      if (form.author) body.author = /^\d+$/.test(form.author) ? Number(form.author) : form.author
       if (form.coverImageUrl) body.coverImageUrl = form.coverImageUrl
       if (form.youtubeId) body.youtubeId = form.youtubeId
       if (form.externalLink) body.externalLink = form.externalLink

@@ -125,8 +125,8 @@ export default function EditPostPage() {
         status: form.status, featured: form.featured,
         content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
       }
-      if (form.category) body.category = form.category
-      body.author = form.author || null
+      if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
+      body.author = form.author ? (/^\d+$/.test(form.author) ? Number(form.author) : form.author) : null
       body.coverImageUrl = form.coverImageUrl || null
       body.youtubeId = form.youtubeId || null
       body.externalLink = form.externalLink || null
