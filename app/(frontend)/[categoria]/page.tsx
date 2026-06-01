@@ -55,22 +55,7 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <main>
-      <section className="bg-[var(--primary-container)] border-b border-[var(--outline-variant)]">
-        <div className="max-w-content mx-auto px-4 md:px-16 py-16">
-          <div className="flex items-center gap-2 text-[var(--secondary)] mb-4">
-            <span className="font-mono text-xs tracking-widest uppercase">Especialidade Jurídica</span>
-            <span className="h-px w-8 bg-[var(--secondary)]" />
-          </div>
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-[var(--on-surface)] mb-4">
-            {category.name}
-          </h1>
-          <p className="font-body text-lg text-[var(--primary)] max-w-2xl leading-relaxed">
-            {category.description || `Análises aprofundadas, jurisprudência e notícias sobre ${category.name} para o motorista brasileiro.`}
-          </p>
-        </div>
-      </section>
-
-      <section className="max-w-content mx-auto px-4 md:px-16 py-16">
+      <section className="max-w-content mx-auto px-4 md:px-16 pt-12 pb-16">
         {posts.length === 0 ? (
           <div className="text-center py-24">
             <p className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] mb-3">
