@@ -2,99 +2,168 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 const navLinks = [
   { label: 'Multas', href: '/multas' },
   { label: 'CNH', href: '/cnh' },
   { label: 'Radar', href: '/radar' },
-  { label: 'Fiscalização', href: '/fiscalizacao' },
-  { label: 'Leis', href: '/leis-de-transito' },
-  { label: 'Casos Reais', href: '/casos-reais' },
+  { label: 'Legislação', href: '/leis-de-transito' },
+  { label: 'Tecnologia', href: '/mobilidade-eletrica' },
+  { label: 'Cidadania', href: '/direitos-do-motorista' },
+  { label: 'Análise', href: '/contato' },
 ]
 
+const LOGO =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuB6Tm5UMKTE9Q5ektWrY3AzFp_OUS_tG-8wsEBzSfQu1ftMGf9Ihg3XQo2YIyNyRyhNUAe_VLoCqMStnLctC1AYKVE84CHVuQAdNptbzSA9rkQCStHULZiCtc75mu21KuIQeBWo76NUt31boM0aLSkd8FcnQ-wKCpRxJvt_c3jd98NS7de3r_DnQIGWlu_9zUNkPAJ_IXbPlrucnpXeS2fe6okq6xEBH80tVHBB_qNyUO5ska7niP6VXAKjfJ2W1Jn8n8QcBJ5r6g'
+
+function SearchIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+    </svg>
+  )
+}
+
+function RssIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a14 14 0 0114 14M5 12a7 7 0 017 7M6 18a1 1 0 100-2 1 1 0 000 2z" />
+    </svg>
+  )
+}
+
 export default function Header() {
+  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+
   return (
-    <header className="bg-[var(--surface-container-lowest)] border-b border-[var(--outline-variant)] sticky top-0 z-50">
-      <div className="max-w-content mx-auto px-4 md:px-16 py-0">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+    <header className="bg-[var(--primary-container)] border-b border-[var(--on-primary-fixed-variant)] sticky top-0 z-50">
+      <div className="max-w-content mx-auto px-4 md:px-16 py-4">
+        {/* Linha superior: logo + busca + ações */}
+        <div className="flex items-center justify-between w-full md:mb-4">
           <Link href="/" className="flex items-center gap-3 flex-none">
-            <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6Tm5UMKTE9Q5ektWrY3AzFp_OUS_tG-8wsEBzSfQu1ftMGf9Ihg3XQo2YIyNyRyhNUAe_VLoCqMStnLctC1AYKVE84CHVuQAdNptbzSA9rkQCStHULZiCtc75mu21KuIQeBWo76NUt31boM0aLSkd8FcnQ-wKCpRxJvt_c3jd98NS7de3r_DnQIGWlu_9zUNkPAJ_IXbPlrucnpXeS2fe6okq6xEBH80tVHBB_qNyUO5ska7niP6VXAKjfJ2W1Jn8n8QcBJ5r6g"
-              alt="Legal Drive"
-              width={120}
-              height={40}
-              className="h-9 w-auto object-contain"
-            />
+            <Image src={LOGO} alt="Legal Drive" width={56} height={48} className="h-11 w-auto object-contain" />
+            <span className="font-display text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-[var(--primary-fixed)]">
+              Legal Drive
+            </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
+          {/* Busca + ações (desktop) */}
+          <div className="hidden md:flex items-center gap-gutter">
+            <form
+              role="search"
+              onSubmit={(e) => e.preventDefault()}
+              className="relative"
+            >
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--primary-fixed-dim)]">
+                <SearchIcon />
+              </span>
+              <input
+                type="text"
+                aria-label="Buscar"
+                placeholder="Buscar leis, multas..."
+                className="pl-10 pr-4 py-2 bg-[var(--tertiary-container)] border-none focus:ring-2 focus:ring-[var(--secondary)] rounded-xl text-sm text-[var(--primary-fixed)] placeholder:text-[var(--primary-fixed-dim)] w-64 transition-all focus:outline-none"
+              />
+            </form>
+
+            <Link
+              href="/contato"
+              className="bg-[var(--secondary)] text-[var(--on-secondary)] px-6 py-2 font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:brightness-110 transition-all whitespace-nowrap"
+            >
+              Painel CNH
+            </Link>
+
+            <Link
+              href="/contato"
+              aria-label="RSS"
+              className="text-[var(--primary)] hover:text-[var(--secondary)] transition-colors"
+            >
+              <RssIcon />
+            </Link>
+          </div>
+
+          {/* Toggle mobile */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Menu"
+            className="md:hidden w-9 h-9 flex items-center justify-center text-[var(--primary)] hover:text-[var(--secondary)] transition-colors"
+          >
+            {mobileOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Linha inferior: navegação centralizada (desktop) */}
+        <nav className="hidden md:flex gap-gutter items-center w-full justify-center border-t border-[var(--on-primary-fixed-variant)] pt-4">
+          {navLinks.map((link) => {
+            const active = isActive(link.href)
+            return (
               <Link
                 key={link.href}
                 href={link.href}
-                className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors duration-150"
+                className={`font-mono text-xs tracking-widest uppercase transition-colors pb-1 ${
+                  active
+                    ? 'text-[var(--secondary)] border-b-2 border-[var(--secondary)]'
+                    : 'text-[var(--primary)] hover:text-[var(--secondary)]'
+                }`}
               >
                 {link.label}
               </Link>
-            ))}
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-4">
-            <Link
-              href="/contato"
-              className="hidden md:inline-flex items-center gap-2 bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-2 rounded hover:brightness-110 transition-all"
-            >
-              Análise Grátis
-            </Link>
-
-            {/* Mobile menu toggle */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Menu"
-              className="md:hidden w-9 h-9 flex items-center justify-center text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors"
-            >
-              {mobileOpen ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
+            )
+          })}
+        </nav>
       </div>
 
-      {/* Mobile Nav Drawer */}
+      {/* Drawer mobile */}
       {mobileOpen && (
-        <div className="md:hidden bg-[var(--surface-container-low)] border-t border-[var(--outline-variant)]">
-          <nav className="max-w-content mx-auto px-4 py-4 flex flex-col gap-1">
+        <div className="md:hidden bg-[var(--primary-container)] border-t border-[var(--on-primary-fixed-variant)]">
+          <div className="max-w-content mx-auto px-4 py-4 flex flex-col gap-1">
+            <form role="search" onSubmit={(e) => e.preventDefault()} className="relative mb-3">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--primary-fixed-dim)]">
+                <SearchIcon />
+              </span>
+              <input
+                type="text"
+                aria-label="Buscar"
+                placeholder="Buscar leis, multas..."
+                className="w-full pl-10 pr-4 py-2 bg-[var(--tertiary-container)] border-none focus:ring-2 focus:ring-[var(--secondary)] rounded-xl text-sm text-[var(--primary-fixed)] placeholder:text-[var(--primary-fixed-dim)] transition-all focus:outline-none"
+              />
+            </form>
+
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] py-3 px-3 rounded hover:bg-[var(--surface-container)] transition-colors"
+                className={`font-mono text-xs tracking-widest uppercase py-3 px-3 rounded transition-colors ${
+                  isActive(link.href)
+                    ? 'text-[var(--secondary)] bg-[var(--tertiary-container)]'
+                    : 'text-[var(--primary)] hover:text-[var(--secondary)] hover:bg-[var(--tertiary-container)]'
+                }`}
               >
                 {link.label}
               </Link>
             ))}
+
             <Link
               href="/contato"
               onClick={() => setMobileOpen(false)}
-              className="mt-3 flex items-center justify-center bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase py-3 rounded"
+              className="mt-3 flex items-center justify-center bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase py-3 rounded-full"
             >
-              Análise Grátis
+              Painel CNH
             </Link>
-          </nav>
+          </div>
         </div>
       )}
     </header>

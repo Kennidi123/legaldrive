@@ -12,7 +12,12 @@ async function get<T>(path: string): Promise<T | null> {
     })
     clearTimeout(timer)
     if (!res.ok) return null
-    return res.json()
+    // Só tenta parsear quando a resposta é realmente JSON. Se o backend estiver
+    // fora (ou a URL apontar para algo que devolve HTML com status 200), evita o
+    // crash "Unexpected token '<' ... is not valid JSON" e cai no fallback.
+    const contentType = res.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) return null
+    return (await res.json()) as T
   } catch { return null }
 }
 

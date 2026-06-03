@@ -1,0 +1,230 @@
+import Link from 'next/link'
+import Image from 'next/image'
+import type React from 'react'
+
+export interface RelatedItem {
+  id: string | number
+  label: string
+  title: string
+  href: string
+  img: string | null
+}
+
+interface ArticleLayoutProps {
+  /** Rótulo da editoria (ex.: "Fiscalização e Radar") */
+  label: string
+  title: string
+  cover: string
+  caption?: string
+  authorName: string
+  authorRole: string
+  avatar: string
+  dateStr: string
+  readingTime: number
+  tags: string[]
+  related: RelatedItem[]
+  whatsapp: string
+  newsletterTitle?: string
+  newsletterText?: string
+  /** Corpo do artigo (conteúdo real em prose ou fallback estático) */
+  children: React.ReactNode
+}
+
+/* Nível tonal navy do mockup (cards/citações/CTA) */
+const NAVY_1 = '#112240'
+
+function Icon({ d, className = 'w-5 h-5' }: { d: string; className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+    </svg>
+  )
+}
+const P = {
+  calendar: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+  clock: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+  share:
+    'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z',
+  link: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1',
+  gavel: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+  doc: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+}
+
+export default function ArticleLayout({
+  label,
+  title,
+  cover,
+  caption,
+  authorName,
+  authorRole,
+  avatar,
+  dateStr,
+  readingTime,
+  tags,
+  related,
+  whatsapp,
+  newsletterTitle = 'Radar Legal Drive',
+  newsletterText = 'Receba atualizações cruciais sobre leis de trânsito direto no seu e-mail.',
+  children,
+}: ArticleLayoutProps) {
+  return (
+    <main className="bg-[var(--primary-container)] text-[var(--on-surface)]">
+      <div className="max-w-content mx-auto px-4 md:px-16 py-12 grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+        {/* ============ ARTIGO ============ */}
+        <article className="lg:col-span-8">
+          <header className="mb-12">
+            <div className="flex items-center gap-2 text-[var(--secondary)] mb-4">
+              <span className="font-mono text-xs uppercase tracking-widest">{label}</span>
+              <span className="h-px w-8 bg-[var(--secondary)]" />
+            </div>
+            <h1 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--on-surface)] leading-tight mb-6">
+              {title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-6 py-6 border-y border-[var(--on-primary-fixed-variant)] mb-12">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[var(--secondary)] relative bg-[#112240]">
+                  <Image src={avatar} alt={authorName} fill sizes="40px" className="object-cover" />
+                </div>
+                <div>
+                  <p className="font-mono text-xs text-[var(--on-surface)]">{authorName}</p>
+                  <p className="font-mono text-[11px] text-[var(--on-surface-variant)]">{authorRole}</p>
+                </div>
+              </div>
+              <div className="h-8 w-px bg-[var(--on-primary-fixed-variant)] hidden md:block" />
+              <div className="flex items-center gap-2 text-[var(--on-surface-variant)] font-mono text-[11px]">
+                <Icon d={P.calendar} className="w-[18px] h-[18px]" /> {dateStr}
+              </div>
+              <div className="flex items-center gap-2 text-[var(--on-surface-variant)] font-mono text-[11px]">
+                <Icon d={P.clock} className="w-[18px] h-[18px]" /> {readingTime} min de leitura
+              </div>
+            </div>
+          </header>
+
+          <figure className="mb-12">
+            <div className="relative aspect-video w-full overflow-hidden rounded-xl" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+              <Image src={cover} alt={title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover" />
+            </div>
+            {caption && (
+              <figcaption className="mt-4 font-mono text-[11px] text-[var(--on-surface-variant)] italic text-center">
+                {caption}
+              </figcaption>
+            )}
+          </figure>
+
+          {/* Corpo do artigo */}
+          {children}
+
+          {/* Rodapé do artigo */}
+          <footer className="mt-16 pt-8 border-t border-[var(--on-primary-fixed-variant)]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <span className="font-mono text-xs text-[var(--on-surface-variant)]">Compartilhe este artigo:</span>
+                <div className="flex gap-2">
+                  <button className="w-10 h-10 flex items-center justify-center rounded-full border border-[var(--on-primary-fixed-variant)] hover:bg-[var(--secondary-container)] hover:text-[var(--on-secondary-container)] transition-colors">
+                    <Icon d={P.share} className="w-5 h-5" />
+                  </button>
+                  <button className="w-10 h-10 flex items-center justify-center rounded-full border border-[var(--on-primary-fixed-variant)] hover:bg-[var(--secondary-container)] hover:text-[var(--on-secondary-container)] transition-colors">
+                    <Icon d={P.link} className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((t) => (
+                  <span key={t} className="px-3 py-1 rounded-full font-mono text-[11px] text-[var(--on-surface-variant)]" style={{ background: '#233554' }}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Comentários */}
+            <section className="mt-16">
+              <h4 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-6">Comentários (12)</h4>
+              <div className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: NAVY_1 }}>
+                <textarea
+                  rows={3}
+                  placeholder="Adicione seu comentário ou dúvida..."
+                  className="w-full p-4 rounded-lg border-none focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-[#0a192f]/40 placeholder:text-[var(--on-surface-variant)] resize-none focus:outline-none"
+                />
+                <div className="flex justify-end mt-4">
+                  <button className="bg-[var(--primary-container)] text-[var(--primary)] border border-[var(--primary)] px-8 py-2 rounded-lg font-mono text-xs hover:bg-[var(--primary)] hover:text-[var(--on-primary)] transition-colors uppercase tracking-wider">
+                    Publicar
+                  </button>
+                </div>
+              </div>
+            </section>
+          </footer>
+        </article>
+
+        {/* ============ SIDEBAR ============ */}
+        <aside className="lg:col-span-4 space-y-12">
+          {/* CTA */}
+          <div className="p-8 rounded-xl flex flex-col gap-6 border border-[rgba(185,199,228,0.2)]" style={{ background: NAVY_1, boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+            <div className="w-12 h-12 bg-[var(--secondary)] rounded-xl flex items-center justify-center text-[var(--on-secondary)] shadow-lg">
+              <Icon d={P.gavel} className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-2">Foi multado injustamente?</h3>
+              <p className="font-body text-base text-[var(--on-surface-variant)]">
+                Deixe que a Legal Drive cuide da sua defesa. Análise técnica gratuita e especializada.
+              </p>
+            </div>
+            <Link
+              href={whatsapp}
+              className="inline-flex items-center justify-center gap-2 bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs py-4 px-6 rounded-lg hover:bg-[var(--secondary-container)] transition-colors shadow-lg uppercase tracking-wider"
+            >
+              <Icon d={P.doc} className="w-5 h-5" /> Iniciar Defesa Agora
+            </Link>
+          </div>
+
+          {/* Artigos Relacionados */}
+          <section>
+            <h3 className="font-mono text-xs text-[var(--secondary)] uppercase tracking-widest mb-6 border-b border-[var(--on-primary-fixed-variant)] pb-2">
+              Artigos Relacionados
+            </h3>
+            <div className="space-y-6">
+              {related.map((r) => (
+                <Link key={r.id} href={r.href} className="group block">
+                  <article className="flex gap-4">
+                    <div className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg border border-[var(--on-primary-fixed-variant)] relative bg-[#112240]">
+                      {r.img ? (
+                        <Image src={r.img} alt={r.title} fill sizes="96px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : null}
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[var(--secondary)] font-mono text-[11px] uppercase mb-1">{r.label}</span>
+                      <h4 className="font-mono text-xs text-[var(--on-surface)] leading-tight group-hover:text-[var(--secondary)] transition-colors">
+                        {r.title}
+                      </h4>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* Newsletter */}
+          <div className="p-8 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: '#233554' }}>
+            <h3 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-4">{newsletterTitle}</h3>
+            <p className="font-body text-base text-[var(--on-surface-variant)] mb-6">{newsletterText}</p>
+            <form action="/contato" method="GET" className="space-y-4">
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="Seu melhor e-mail"
+                className="w-full rounded-lg p-4 border border-[var(--on-primary-fixed-variant)] bg-[var(--primary-container)] focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] placeholder:text-[var(--on-surface-variant)] focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full bg-[var(--on-surface)] text-[var(--primary-container)] py-4 rounded-lg font-mono text-xs hover:bg-[var(--secondary)] hover:text-[var(--on-secondary)] transition-all uppercase tracking-widest"
+              >
+                Inscrever Agora
+              </button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </main>
+  )
+}

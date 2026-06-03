@@ -1,5 +1,15 @@
 {
   "permissions": {
+    "allow": [
+      "PowerShell(npm run dev)",
+      "PowerShell(node --no-experimental-webstorage -e \"console.log\\('typeof localStorage =', typeof localStorage\\)\")",
+      "PowerShell($env:NODE_OPTIONS = \"--no-experimental-webstorage\"; npm run dev)",
+      "PowerShell(node -e \"console.log\\('has flag:', process.allowedNodeEnvironmentFlags.has\\('--no-experimental-webstorage'\\)\\)\")",
+      "PowerShell(Stop-Process -Id 13844 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-NetTCPConnection -State Listen -LocalPort 3000,3001 -ErrorAction SilentlyContinue)",
+      "PowerShell(\"done\")",
+      "PowerShell(if \\(Test-Path .env\\) { Get-Content .env | Where-Object { $_ -match 'PAYLOAD|PORT|URL' } } else { \"sem .env\" })"
+    ],
     "additionalDirectories": [
       "c:\\Users\\kenne\\.claude\\projects\\c--Users-kenne-OneDrive-Desktop-PROJETOS-legaldrive\\memory"
     ]
