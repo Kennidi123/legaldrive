@@ -150,7 +150,7 @@ export default function EditPostPage() {
         body: JSON.stringify(body),
       })
       const data = await res.json()
-      if (!res.ok) { showToast(data.errors?.[0]?.message || 'Erro ao salvar', 'error'); setSaving(false); return }
+      if (!res.ok) { const msg = data.errors?.[0]?.message || data.message || data.error || `Erro ${res.status}`; console.error('[Admin] salvar post:', data); showToast(msg, 'error'); setSaving(false); return }
       showToast('Alterações salvas!', 'success')
       setTimeout(() => router.push('/admin'), 1000)
     } catch { showToast('Erro de conexão', 'error'); setSaving(false) }

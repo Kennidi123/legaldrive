@@ -119,7 +119,7 @@ export default function NewPostPage() {
         body: JSON.stringify(body),
       })
       const data = await res.json()
-      if (!res.ok) { showToast(data.errors?.[0]?.message || 'Erro ao criar post', 'error'); setSaving(false); return }
+      if (!res.ok) { const msg = data.errors?.[0]?.message || data.message || data.error || `Erro ${res.status}`; console.error('[Admin] criar post:', data); showToast(msg, 'error'); setSaving(false); return }
       showToast('Post criado com sucesso!', 'success')
       setTimeout(() => router.push('/admin'), 1200)
     } catch { showToast('Erro de conexão', 'error'); setSaving(false) }
