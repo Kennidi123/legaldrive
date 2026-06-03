@@ -34,10 +34,10 @@ const categories = [
   { label: 'Multas', href: '/multas' },
   { label: 'CNH', href: '/cnh' },
   { label: 'Radar', href: '/radar' },
-  { label: 'Fiscalização', href: '/fiscalizacao' },
-  { label: 'Leis', href: '/leis-de-transito' },
-  { label: 'Casos Reais', href: '/casos-reais' },
-  { label: 'Opinião', href: '/opiniao' },
+  { label: 'Legislação', href: '/leis-de-transito' },
+  { label: 'Tecnologia', href: '/mobilidade-eletrica' },
+  { label: 'Cidadania', href: '/direitos-do-motorista' },
+  { label: 'Análise', href: '/contato' },
 ]
 
 export default function Footer() {
