@@ -63,6 +63,7 @@ export default async function CmsDashboard() {
             <tbody>
               {posts.map((post: any) => {
                 const cat = typeof post.category === 'object' ? post.category : null
+                const scheduled = post.status === 'published' && post.publishedAt && new Date(post.publishedAt).getTime() > Date.now()
                 return (
                   <tr key={post.id} className="border-b border-[var(--outline-variant)] last:border-0 hover:bg-[var(--surface-container)] transition-colors">
                     <td className="px-5 py-3">
@@ -73,8 +74,8 @@ export default async function CmsDashboard() {
                       {cat?.name || '—'}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 rounded ${post.status === 'published' ? 'bg-green-900/40 text-green-400' : 'bg-yellow-900/40 text-yellow-400'}`}>
-                        {post.status === 'published' ? 'Publicado' : 'Rascunho'}
+                      <span className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 rounded ${scheduled ? 'bg-amber-900/40 text-amber-400' : post.status === 'published' ? 'bg-green-900/40 text-green-400' : 'bg-yellow-900/40 text-yellow-400'}`}>
+                        {scheduled ? 'Agendado' : post.status === 'published' ? 'Publicado' : 'Rascunho'}
                       </span>
                     </td>
                     <td className="px-5 py-3 font-mono text-xs text-[var(--outline)]">

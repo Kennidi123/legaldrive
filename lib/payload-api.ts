@@ -2,6 +2,14 @@ const BASE = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').re
 
 type PayloadList = { docs: any[]; totalDocs: number }
 
+// "Agora" arredondado ao minuto — habilita o agendamento: posts com publishedAt
+// no futuro só aparecem quando a hora chega. Arredondar ao minuto preserva o cache de 60s.
+function nowParam() {
+  const d = new Date()
+  d.setSeconds(0, 0)
+  return encodeURIComponent(d.toISOString())
+}
+
 async function get<T>(path: string): Promise<T | null> {
   try {
     const controller = new AbortController()
@@ -22,16 +30,16 @@ async function get<T>(path: string): Promise<T | null> {
 }
 
 export async function getFeaturedPosts(limit = 4) {
-  return get<PayloadList>(`/api/posts?where[featured][equals]=true&where[status][equals]=published&depth=2&limit=${limit}&sort=-publishedAt`)
+  return get<PayloadList>(`/api/posts?where[featured][equals]=true&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=2&limit=${limit}&sort=-publishedAt`)
 }
 
 export async function getLatestPosts(limit = 8) {
-  return get<PayloadList>(`/api/posts?where[status][equals]=published&depth=2&limit=${limit}&sort=-publishedAt`)
+  return get<PayloadList>(`/api/posts?where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=2&limit=${limit}&sort=-publishedAt`)
 }
 
 /** Destaque Principal da Home (post mais recente com featureLevel = principal). */
 export async function getMainFeatured() {
-  const res = await get<PayloadList>(`/api/posts?where[featureLevel][equals]=principal&where[status][equals]=published&depth=2&limit=1&sort=-publishedAt`)
+  const res = await get<PayloadList>(`/api/posts?where[featureLevel][equals]=principal&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=2&limit=1&sort=-publishedAt`)
   return res?.docs?.[0] ?? null
 }
 
@@ -42,6 +50,7 @@ export async function searchPosts(query: string, limit = 24) {
     `/api/posts?where[and][0][status][equals]=published` +
       `&where[and][1][or][0][title][like]=${q}` +
       `&where[and][1][or][1][excerpt][like]=${q}` +
+      `&where[and][2][publishedAt][less_than_equal]=${nowParam()}` +
       `&depth=2&limit=${limit}&sort=-publishedAt`,
   )
 }
@@ -56,20 +65,20 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 export async function getPostsByCategory(categorySlug: string, limit = 12) {
-  return get<PayloadList>(`/api/posts?where[category.slug][equals]=${encodeURIComponent(categorySlug)}&where[status][equals]=published&depth=2&limit=${limit}&sort=-publishedAt`)
+  return get<PayloadList>(`/api/posts?where[category.slug][equals]=${encodeURIComponent(categorySlug)}&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=2&limit=${limit}&sort=-publishedAt`)
 }
 
 export async function getPostBySlug(slug: string, depth = 2) {
-  const res = await get<PayloadList>(`/api/posts?where[slug][equals]=${encodeURIComponent(slug)}&where[status][equals]=published&depth=${depth}&limit=1`)
+  const res = await get<PayloadList>(`/api/posts?where[slug][equals]=${encodeURIComponent(slug)}&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=${depth}&limit=1`)
   return res?.docs[0] ?? null
 }
 
 export async function getAllPublishedPosts(limit = 500) {
-  return get<PayloadList>(`/api/posts?where[status][equals]=published&depth=1&limit=${limit}`)
+  return get<PayloadList>(`/api/posts?where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=1&limit=${limit}`)
 }
 
 export async function getRelatedPosts(categorySlug: string, excludeId: string | number, limit = 3) {
-  return get<PayloadList>(`/api/posts?where[category.slug][equals]=${encodeURIComponent(categorySlug)}&where[status][equals]=published&where[id][not_equals]=${excludeId}&depth=2&limit=${limit}&sort=-publishedAt`)
+  return get<PayloadList>(`/api/posts?where[category.slug][equals]=${encodeURIComponent(categorySlug)}&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&where[id][not_equals]=${excludeId}&depth=2&limit=${limit}&sort=-publishedAt`)
 }
 
 export async function getVideos(limit = 50) {

@@ -25,6 +25,12 @@ function lexicalToText(content: any): string {
   } catch { return '' }
 }
 
+function toLocalInput(iso: string): string {
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
   return (
     <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-lg shadow-xl font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${type === 'success' ? 'bg-green-900 text-green-300 border border-green-700' : 'bg-red-900 text-red-300 border border-red-700'}`}>
@@ -47,8 +53,8 @@ export default function EditPostPage() {
   const [creatingAuthor, setCreatingAuthor] = useState(false)
 
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', status: 'draft' as 'draft' | 'published',
-    featureLevel: 'normal', category: '', author: '', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
+    title: '', slug: '', excerpt: '', content: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
+    featureLevel: 'normal', scheduledAt: '', category: '', author: '', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
   })
 
   const showToast = useCallback((msg: string, type: 'success' | 'error') => {
@@ -67,13 +73,15 @@ export default function EditPostPage() {
       setCategories(cats?.docs || [])
       setAuthors(auths?.docs || [])
       if (post?.id) {
+        const scheduled = post.status === 'published' && post.publishedAt && new Date(post.publishedAt).getTime() > Date.now()
         setForm({
           title: post.title || '',
           slug: post.slug || '',
           excerpt: post.excerpt || '',
           content: lexicalToText(post.content),
-          status: post.status || 'draft',
+          status: scheduled ? 'scheduled' : (post.status || 'draft'),
           featureLevel: post.featureLevel || (post.featured ? 'destaque' : 'normal'),
+          scheduledAt: scheduled ? toLocalInput(post.publishedAt) : '',
           category: typeof post.category === 'object' ? post.category?.id : post.category || '',
           author: typeof post.author === 'object' ? post.author?.id : post.author || '',
           coverImageUrl: post.coverImageUrl || '',
@@ -118,12 +126,13 @@ export default function EditPostPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title || !form.slug || !form.excerpt) { showToast('Título, slug e resumo são obrigatórios.', 'error'); return }
+    if (form.status === 'scheduled' && !form.scheduledAt) { showToast('Defina a data e hora do agendamento.', 'error'); return }
     setSaving(true)
     try {
       const token = getToken()
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
-        status: form.status, featureLevel: form.featureLevel,
+        status: form.status === 'draft' ? 'draft' : 'published', featureLevel: form.featureLevel,
         content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
       }
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
@@ -133,6 +142,7 @@ export default function EditPostPage() {
       body.externalLink = form.externalLink || null
       if (form.readingTime) body.readingTime = Number(form.readingTime)
       if (form.status === 'published') body.publishedAt = new Date().toISOString()
+      if (form.status === 'scheduled') body.publishedAt = new Date(form.scheduledAt).toISOString()
 
       const res = await fetch(`${BACKEND}/api/posts/${id}`, {
         method: 'PATCH',
@@ -260,7 +270,8 @@ export default function EditPostPage() {
               <label className={lbl}>Status</label>
               <select name="status" value={form.status} onChange={handleChange} className={inp}>
                 <option value="draft">📝 Rascunho</option>
-                <option value="published">✅ Publicado</option>
+                <option value="published">✅ Publicar agora</option>
+                <option value="scheduled">🕒 Agendar</option>
               </select>
             </div>
             <div>
@@ -276,6 +287,14 @@ export default function EditPostPage() {
               </select>
             </div>
           </div>
+
+          {form.status === 'scheduled' && (
+            <div>
+              <label className={lbl}>Publicar em (data e hora)</label>
+              <input name="scheduledAt" type="datetime-local" value={form.scheduledAt} onChange={handleChange} className={inp} />
+              <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">O post é publicado automaticamente nesse horário.</p>
+            </div>
+          )}
         </div>
 
         <div className={sec}>
