@@ -128,18 +128,9 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <main className="bg-[var(--primary-container)] text-[var(--on-surface)]">
-      <div className="max-w-content mx-auto px-4 md:px-16 py-12 md:py-16">
-        {/* Cabeçalho da categoria */}
-        <header className="mb-10">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-8 h-px bg-[var(--secondary)]" />
-            <h1 className="text-[var(--secondary)] font-mono text-xs uppercase tracking-widest">{category.name}</h1>
-          </div>
-          {category.description && (
-            <p className="font-body text-lg text-[var(--primary)] max-w-3xl leading-relaxed">{category.description}</p>
-          )}
-          <hr className="mt-6 border-[var(--on-primary-fixed-variant)]" />
-        </header>
+      <div className="max-w-content mx-auto px-4 md:px-16 pt-6 pb-12 md:pb-16">
+        {/* Título acessível (não exibido) — a página começa pelo destaque */}
+        <h1 className="sr-only">{category.name}</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           {/* ===== Coluna principal: destaque + demais notícias ===== */}
