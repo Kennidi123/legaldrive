@@ -29,6 +29,12 @@ export async function getLatestPosts(limit = 8) {
   return get<PayloadList>(`/api/posts?where[status][equals]=published&depth=2&limit=${limit}&sort=-publishedAt`)
 }
 
+/** Destaque Principal da Home (post mais recente com featureLevel = principal). */
+export async function getMainFeatured() {
+  const res = await get<PayloadList>(`/api/posts?where[featureLevel][equals]=principal&where[status][equals]=published&depth=2&limit=1&sort=-publishedAt`)
+  return res?.docs?.[0] ?? null
+}
+
 export async function getCategories(limit = 50) {
   return get<PayloadList>(`/api/categories?limit=${limit}&sort=name`)
 }

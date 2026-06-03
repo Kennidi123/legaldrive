@@ -14,11 +14,11 @@ interface ArticleLayoutProps {
   /** Rótulo da editoria (ex.: "Fiscalização e Radar") */
   label: string
   title: string
-  cover: string
+  cover?: string | null
   caption?: string
   authorName: string
   authorRole: string
-  avatar: string
+  avatar?: string | null
   dateStr: string
   readingTime: number
   tags: string[]
@@ -82,8 +82,12 @@ export default function ArticleLayout({
             </h1>
             <div className="flex flex-wrap items-center gap-6 py-6 border-y border-[var(--on-primary-fixed-variant)] mb-12">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[var(--secondary)] relative bg-[#112240]">
-                  <Image src={avatar} alt={authorName} fill sizes="40px" className="object-cover" />
+                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[var(--secondary)] relative bg-[#112240] flex items-center justify-center">
+                  {avatar ? (
+                    <Image src={avatar} alt={authorName} fill sizes="40px" className="object-cover" />
+                  ) : (
+                    <span className="font-mono text-sm text-[var(--secondary)]">{authorName.charAt(0)}</span>
+                  )}
                 </div>
                 <div>
                   <p className="font-mono text-xs text-[var(--on-surface)]">{authorName}</p>
@@ -101,8 +105,10 @@ export default function ArticleLayout({
           </header>
 
           <figure className="mb-12">
-            <div className="relative aspect-video w-full overflow-hidden rounded-xl" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
-              <Image src={cover} alt={title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover" />
+            <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[var(--tertiary-container)]" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+              {cover ? (
+                <Image src={cover} alt={title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover" />
+              ) : null}
             </div>
             {caption && (
               <figcaption className="mt-4 font-mono text-[11px] text-[var(--on-surface-variant)] italic text-center">

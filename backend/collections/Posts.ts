@@ -5,7 +5,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'status', 'publishedAt', 'featured'],
+    defaultColumns: ['title', 'category', 'status', 'publishedAt', 'featureLevel'],
     description: 'Artigos, notícias e matérias do portal.',
   },
   access: { read: () => true },
@@ -33,11 +33,29 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: 'featureLevel',
+      type: 'select',
+      label: 'Destaque',
+      options: [
+        { label: 'Normal (vai para a lista de cards)', value: 'normal' },
+        { label: '⭐ Destaque (topo da categoria)', value: 'destaque' },
+        { label: '🏆 Destaque Principal (Home)', value: 'principal' },
+      ],
+      defaultValue: 'normal',
+      required: true,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Normal: aparece na lista de cards. Destaque: vai para o topo da categoria. Destaque Principal: aparece na Home. Ao definir um novo destaque, o anterior volta para a lista automaticamente (sempre vale o mais recente).',
+      },
+    },
+    {
+      // Legado — mantido por compatibilidade. Use "Destaque" acima.
       name: 'featured',
       type: 'checkbox',
-      label: '⭐ Destaque na Home',
+      label: '⭐ Destaque (legado)',
       defaultValue: false,
-      admin: { position: 'sidebar' },
+      admin: { position: 'sidebar', hidden: true },
     },
     {
       name: 'category',

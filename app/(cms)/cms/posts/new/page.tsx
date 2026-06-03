@@ -38,7 +38,7 @@ export default function NewPostPage() {
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', content: '', category: '',
     author: '', status: 'draft' as 'draft' | 'published',
-    featured: false, coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
+    featureLevel: 'normal', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
   })
 
   const showToast = useCallback((msg: string, type: 'success' | 'error') => {
@@ -100,7 +100,7 @@ export default function NewPostPage() {
       const token = getToken()
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
-        status: form.status, featured: form.featured,
+        status: form.status, featureLevel: form.featureLevel,
         content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
       }
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
@@ -231,11 +231,13 @@ export default function NewPostPage() {
               <label className={lbl}>Leitura (min)</label>
               <input name="readingTime" type="number" min="1" value={form.readingTime} onChange={handleChange} className={inp} />
             </div>
-            <div className="flex items-end pb-2">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input name="featured" type="checkbox" checked={form.featured} onChange={handleChange} className="w-4 h-4 accent-[var(--secondary)]" />
-                <span className="font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)] group-hover:text-[var(--on-surface)] transition-colors">⭐ Destaque Home</span>
-              </label>
+            <div>
+              <label className={lbl}>Destaque</label>
+              <select name="featureLevel" value={form.featureLevel} onChange={handleChange} className={inp}>
+                <option value="normal">Normal</option>
+                <option value="destaque">⭐ Destaque (categoria)</option>
+                <option value="principal">🏆 Destaque Principal (Home)</option>
+              </select>
             </div>
           </div>
         </div>

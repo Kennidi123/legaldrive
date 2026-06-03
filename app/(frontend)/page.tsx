@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { getLatestPosts, getVideos } from '@/lib/payload-api'
+import { getLatestPosts, getMainFeatured, getVideos } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
 import { buildMetadata } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
@@ -126,21 +126,25 @@ const P = {
    Página inicial (HOME) — layout editorial
    ============================================================ */
 export default async function HomePage() {
-  const [postsResult, videosResult] = await Promise.all([
+  const [mainDoc, postsResult, videosResult] = await Promise.all([
+    getMainFeatured(),
     getLatestPosts(16),
     getVideos(4),
   ])
 
+  const principal = mainDoc ? normalize(mainDoc) : null
   const real = (postsResult?.docs || []).map(normalize)
   const videos = (videosResult?.docs || []) as any[]
 
-  const heroMain = real[0] ?? fbHero
-  const heroSide = pick(real.slice(1, 3), fbSide)
-  const recent = pick(real.slice(3, 5), fbRecent)
-  const tech = pick(real.slice(5, 7), fbTech)
-  const maisLidas = pick(real.slice(0, 3), fbMaisLidas)
-  const listMultas = pick(real.slice(0, 3), fbListMultas)
-  const listLeis = pick(real.slice(3, 6), fbListLeis)
+  // Hero = Destaque Principal (featureLevel = principal); demais = notícias recentes (todas as categorias)
+  const heroMain = principal ?? real[0] ?? fbHero
+  const rest = real.filter((p) => p.id !== heroMain.id)
+  const heroSide = pick(rest.slice(0, 2), fbSide)
+  const recent = pick(rest.slice(2, 4), fbRecent)
+  const tech = pick(rest.slice(4, 6), fbTech)
+  const maisLidas = pick(rest.slice(0, 3), fbMaisLidas)
+  const listMultas = pick(rest.slice(0, 3), fbListMultas)
+  const listLeis = pick(rest.slice(3, 6), fbListLeis)
 
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '#'
 
