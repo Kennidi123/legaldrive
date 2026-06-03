@@ -3,15 +3,6 @@ import Image from 'next/image'
 
 const columns = [
   {
-    title: 'Plataforma',
-    links: [
-      { label: 'Dashboard', href: '/contato' },
-      { label: 'Planos', href: '/contato' },
-      { label: 'Como Funciona', href: '/sobre' },
-      { label: 'Blog', href: '/' },
-    ],
-  },
-  {
     title: 'Serviços',
     links: [
       { label: 'Recurso de Multas', href: '/contato' },
