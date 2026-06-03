@@ -31,6 +31,11 @@ export const metadata: Metadata = {
   description:
     'Inteligência jurídica aplicada ao Direito de Trânsito. Análise técnica sobre multas, CNH, radares e legislação para o motorista brasileiro.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://legaldrive.com.br'),
+  icons: {
+    icon: '/favicon.jpg',
+    shortcut: '/favicon.jpg',
+    apple: '/favicon.jpg',
+  },
   openGraph: {
     siteName: 'Legal Drive',
     locale: 'pt_BR',

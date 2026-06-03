@@ -15,9 +15,6 @@ const navLinks = [
   { label: 'Análise', href: '/contato' },
 ]
 
-const LOGO =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuB6Tm5UMKTE9Q5ektWrY3AzFp_OUS_tG-8wsEBzSfQu1ftMGf9Ihg3XQo2YIyNyRyhNUAe_VLoCqMStnLctC1AYKVE84CHVuQAdNptbzSA9rkQCStHULZiCtc75mu21KuIQeBWo76NUt31boM0aLSkd8FcnQ-wKCpRxJvt_c3jd98NS7de3r_DnQIGWlu_9zUNkPAJ_IXbPlrucnpXeS2fe6okq6xEBH80tVHBB_qNyUO5ska7niP6VXAKjfJ2W1Jn8n8QcBJ5r6g'
-
 function SearchIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -39,30 +36,28 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const isHome = pathname === '/'
 
   return (
     <header className="bg-[var(--primary-container)] border-b border-[var(--on-primary-fixed-variant)] sticky top-0 z-50">
       <div className="max-w-content mx-auto px-4 md:px-16 py-4">
         {/* Linha superior: logo + busca + ações */}
         <div className="flex items-center justify-between w-full md:mb-4">
-          <Link href="/" className="flex items-center gap-3 flex-none">
-            <Image src={LOGO} alt="Legal Drive" width={56} height={48} className="h-11 w-auto object-contain" />
-            <span className="font-display text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-[var(--primary-fixed)]">
-              Legal Drive
-            </span>
+          <Link href="/" className="flex items-center gap-2 flex-none">
+            <Image src="/logovariavel1.png" alt="Legal Drive" width={44} height={44} priority className="h-9 md:h-10 w-auto object-contain" />
+            {isHome && (
+              <Image src="/logo-somenteescrita.png" alt="Legal Drive" width={200} height={110} priority className="h-11 md:h-12 w-auto object-contain -ml-1" />
+            )}
           </Link>
 
           {/* Busca + ações (desktop) */}
           <div className="hidden md:flex items-center gap-gutter">
-            <form
-              role="search"
-              onSubmit={(e) => e.preventDefault()}
-              className="relative"
-            >
+            <form role="search" action="/busca" method="GET" className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--primary-fixed-dim)]">
                 <SearchIcon />
               </span>
               <input
+                name="q"
                 type="text"
                 aria-label="Buscar"
                 placeholder="Buscar leis, multas..."
@@ -129,11 +124,12 @@ export default function Header() {
       {mobileOpen && (
         <div className="md:hidden bg-[var(--primary-container)] border-t border-[var(--on-primary-fixed-variant)]">
           <div className="max-w-content mx-auto px-4 py-4 flex flex-col gap-1">
-            <form role="search" onSubmit={(e) => e.preventDefault()} className="relative mb-3">
+            <form role="search" action="/busca" method="GET" className="relative mb-3">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--primary-fixed-dim)]">
                 <SearchIcon />
               </span>
               <input
+                name="q"
                 type="text"
                 aria-label="Buscar"
                 placeholder="Buscar leis, multas..."

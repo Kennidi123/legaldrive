@@ -35,6 +35,17 @@ export async function getMainFeatured() {
   return res?.docs?.[0] ?? null
 }
 
+/** Busca posts publicados por termo (título ou resumo). */
+export async function searchPosts(query: string, limit = 24) {
+  const q = encodeURIComponent(query)
+  return get<PayloadList>(
+    `/api/posts?where[and][0][status][equals]=published` +
+      `&where[and][1][or][0][title][like]=${q}` +
+      `&where[and][1][or][1][excerpt][like]=${q}` +
+      `&depth=2&limit=${limit}&sort=-publishedAt`,
+  )
+}
+
 export async function getCategories(limit = 50) {
   return get<PayloadList>(`/api/categories?limit=${limit}&sort=name`)
 }

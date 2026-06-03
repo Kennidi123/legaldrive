@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { getCategories, getCategoryBySlug, getPostsByCategory } from '@/lib/payload-api'
+import { getCategories, getCategoryBySlug, getPostsByCategory, getLatestPosts } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
 import { buildMetadata } from '@/lib/seo'
-import NewsCard from '@/components/NewsCard'
+import ArticleSidebar, { type RelatedItem } from '@/components/ArticleSidebar'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,80 +92,113 @@ function fallbackList(catName: string): Story[] {
   }))
 }
 
+const FB_RELATED: RelatedItem[] = [
+  { id: 'fr1', label: 'Leis', title: 'Suspensão da CNH: O guia definitivo', href: '#', img: FB_IMG[1] },
+  { id: 'fr2', label: 'Casos Reais', title: 'Anulação de multa por bafômetro', href: '#', img: FB_IMG[2] },
+]
+
 export default async function CategoryPage({ params }: Props) {
   const { categoria } = await params
 
   const category =
     (await getCategoryBySlug(categoria)) || { name: slugToName(categoria), slug: categoria, description: null }
 
-  const postsResult = await getPostsByCategory(categoria, 30)
-  const real = (postsResult?.docs || []).map((d: any) => normalize(d, category.name, categoria))
+  const [postsResult, latestResult] = await Promise.all([
+    getPostsByCategory(categoria, 30),
+    getLatestPosts(8),
+  ])
 
+  const real = (postsResult?.docs || []).map((d: any) => normalize(d, category.name, categoria))
   const list = real.length > 0 ? real : fallbackList(category.name)
   // Destaque = post mais recente marcado como destaque/principal; senão o mais recente.
   const featured = list.find((p) => p.featureLevel === 'principal' || p.featureLevel === 'destaque') ?? list[0]
   const cards = list.filter((p) => p.id !== featured?.id)
 
+  // Artigos relacionados (sidebar): recentes de qualquer categoria, fora os já exibidos aqui
+  const relatedReal: RelatedItem[] = (latestResult?.docs || [])
+    .map((d: any) => {
+      const c = typeof d.category === 'object' && d.category ? d.category : { name: category.name, slug: categoria }
+      return { id: d.id, label: c.name, title: d.title, href: `/${c.slug}/${d.slug}`, img: getPostCoverImage(d) }
+    })
+    .filter((r: RelatedItem) => r.id !== featured?.id && !cards.some((c) => c.id === r.id))
+    .slice(0, 3)
+  const related = relatedReal.length > 0 ? relatedReal : FB_RELATED
+
+  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '/contato'
+
   return (
     <main className="bg-[var(--primary-container)] text-[var(--on-surface)]">
       <div className="max-w-content mx-auto px-4 md:px-16 py-12 md:py-16">
         {/* Cabeçalho da categoria */}
-        <header className="mb-12">
-          <div className="flex items-center gap-2 text-[var(--secondary)] font-mono text-xs uppercase tracking-widest mb-4">
+        <header className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
             <span className="w-8 h-px bg-[var(--secondary)]" />
-            {category.name}
+            <h1 className="text-[var(--secondary)] font-mono text-xs uppercase tracking-widest">{category.name}</h1>
           </div>
-          <h1 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--on-surface)] mb-4">
-            {category.name}
-          </h1>
           {category.description && (
             <p className="font-body text-lg text-[var(--primary)] max-w-3xl leading-relaxed">{category.description}</p>
           )}
-          <hr className="mt-10 border-[var(--on-primary-fixed-variant)]" />
+          <hr className="mt-6 border-[var(--on-primary-fixed-variant)]" />
         </header>
 
-        {featured && (
-          /* ===== Notícia em Destaque ===== */
-          <section className="mb-16 group">
-            <Link href={featured.href} className="block relative aspect-[21/9] overflow-hidden rounded-xl mb-6 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
-              {featured.coverImage ? (
-                <Image src={featured.coverImage} alt={featured.title} fill priority sizes="100vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-              ) : null}
-              <span className="absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-4 py-1 font-mono text-[11px] tracking-widest uppercase rounded-full shadow-lg">
-                Destaque
-              </span>
-            </Link>
-            <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-2 block">{featured.category}</span>
-            <Link href={featured.href}>
-              <h2 className="font-display text-2xl md:text-4xl font-bold leading-tight max-w-4xl group-hover:text-[var(--secondary)] transition-colors">
-                {featured.title}
-              </h2>
-            </Link>
-            <p className="text-[var(--primary)] text-lg leading-relaxed mt-4 max-w-3xl">{featured.excerpt}</p>
-          </section>
-        )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          {/* ===== Coluna principal: destaque + demais notícias ===== */}
+          <div className="lg:col-span-8 space-y-14">
+            {featured ? (
+              <article className="group">
+                <Link href={featured.href} className="block relative aspect-video overflow-hidden rounded-xl mb-6 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
+                  {featured.coverImage ? (
+                    <Image src={featured.coverImage} alt={featured.title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : null}
+                  <span className="absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-4 py-1 font-mono text-[11px] tracking-widest uppercase rounded-full shadow-lg">
+                    Destaque
+                  </span>
+                </Link>
+                <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-2 block">{featured.category}</span>
+                <Link href={featured.href}>
+                  <h2 className="font-display text-2xl md:text-4xl font-bold leading-tight group-hover:text-[var(--secondary)] transition-colors">
+                    {featured.title}
+                  </h2>
+                </Link>
+                <p className="text-[var(--primary)] text-lg leading-relaxed mt-4">{featured.excerpt}</p>
+              </article>
+            ) : (
+              <div className="text-center py-24">
+                <p className="font-mono text-xs tracking-widest uppercase text-[var(--outline)]">
+                  Nenhum artigo publicado nesta categoria
+                </p>
+              </div>
+            )}
 
-        {/* ===== Lista de cards ===== */}
-        {cards.length > 0 ? (
-          <section>
-            <div className="flex items-center gap-3 mb-8 border-l-4 border-[var(--secondary)] pl-4">
-              <h2 className="font-display text-[32px] font-bold">Mais Notícias</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-gutter gap-y-12">
-              {cards.map((c) => (
-                <NewsCard key={c.id} title={c.title} href={c.href} excerpt={c.excerpt} coverImage={c.coverImage} category={c.category} />
-              ))}
-            </div>
-          </section>
-        ) : (
-          !featured && (
-            <div className="text-center py-24">
-              <p className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] mb-3">
-                Nenhum artigo publicado nesta categoria
-              </p>
-            </div>
-          )
-        )}
+            {/* Demais notícias (abaixo do destaque) */}
+            {cards.length > 0 && (
+              <section>
+                <div className="flex items-center gap-3 mb-8 border-l-4 border-[var(--secondary)] pl-4">
+                  <h2 className="font-display text-2xl font-bold">Mais Notícias</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-gutter gap-y-10">
+                  {cards.map((c) => (
+                    <Link key={c.id} href={c.href} className="group block">
+                      <div className="relative aspect-video rounded-xl overflow-hidden mb-4 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
+                        {c.coverImage ? (
+                          <Image src={c.coverImage} alt={c.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                        ) : null}
+                      </div>
+                      <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>
+                      <h3 className="font-display text-xl font-semibold text-[var(--on-surface)] leading-snug group-hover:text-[var(--secondary)] transition-colors line-clamp-2">
+                        {c.title}
+                      </h3>
+                      {c.excerpt && <p className="text-[var(--on-surface-variant)] text-sm mt-2 line-clamp-2 leading-relaxed">{c.excerpt}</p>}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* ===== Sidebar: relacionados + CTA + newsletter ===== */}
+          <ArticleSidebar related={related} whatsapp={whatsapp} />
+        </div>
       </div>
     </main>
   )

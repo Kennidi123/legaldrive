@@ -49,11 +49,11 @@ export default function Footer() {
           <div className="md:col-span-3">
             <Link href="/" className="block mb-5">
               <Image
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6Tm5UMKTE9Q5ektWrY3AzFp_OUS_tG-8wsEBzSfQu1ftMGf9Ihg3XQo2YIyNyRyhNUAe_VLoCqMStnLctC1AYKVE84CHVuQAdNptbzSA9rkQCStHULZiCtc75mu21KuIQeBWo76NUt31boM0aLSkd8FcnQ-wKCpRxJvt_c3jd98NS7de3r_DnQIGWlu_9zUNkPAJ_IXbPlrucnpXeS2fe6okq6xEBH80tVHBB_qNyUO5ska7niP6VXAKjfJ2W1Jn8n8QcBJ5r6g"
+                src="/logovariavel2.png"
                 alt="Legal Drive"
-                width={120}
-                height={40}
-                className="h-8 w-auto object-contain"
+                width={44}
+                height={44}
+                className="h-10 w-auto object-contain"
               />
             </Link>
             <p className="text-[var(--on-surface-variant)] text-sm leading-relaxed mb-6">

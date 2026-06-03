@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { logoutAction } from './actions'
 
 export default async function CmsLayout({
@@ -20,9 +21,12 @@ export default async function CmsLayout({
       <header className="bg-[var(--surface-container-lowest)] border-b border-[var(--outline-variant)] sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <span className="font-mono text-xs tracking-widest uppercase text-[var(--secondary)] font-bold">
-              Legal Drive CMS
-            </span>
+            <Link href="/cms" className="flex items-center gap-2">
+              <Image src="/logovariavel3.png" alt="Legal Drive" width={32} height={32} className="h-7 w-auto object-contain" />
+              <span className="font-mono text-xs tracking-widest uppercase text-[var(--secondary)] font-bold">
+                Legal Drive CMS
+              </span>
+            </Link>
             <nav className="flex items-center gap-4">
               <Link href="/cms" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
                 Dashboard
