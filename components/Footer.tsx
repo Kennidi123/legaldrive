@@ -132,6 +132,16 @@ export default function Footer() {
           <p className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">
             CNPJ 00.000.000/0001-00
           </p>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">Desenvolvido por</span>
+            <Image
+              src="/Kennidi Anderson.png"
+              alt="Kennidi Anderson"
+              width={80}
+              height={24}
+              className="h-6 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+            />
+          </div>
         </div>
       </div>
     </footer>
