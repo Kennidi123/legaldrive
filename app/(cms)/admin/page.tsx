@@ -17,7 +17,7 @@ export default async function CmsDashboard() {
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-[var(--on-surface)]">Dashboard</h1>
         <Link
-          href="/cms/posts/new"
+          href="/admin/posts/new"
           className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-2.5 rounded hover:brightness-110 transition-all"
         >
           + Novo Post
@@ -47,7 +47,7 @@ export default async function CmsDashboard() {
         {posts.length === 0 ? (
           <div className="p-10 text-center">
             <p className="font-mono text-xs text-[var(--outline)] uppercase tracking-widest">Nenhum post ainda</p>
-            <Link href="/cms/posts/new" className="mt-4 inline-block font-mono text-xs text-[var(--secondary)] uppercase tracking-widest hover:underline">
+            <Link href="/admin/posts/new" className="mt-4 inline-block font-mono text-xs text-[var(--secondary)] uppercase tracking-widest hover:underline">
               Criar primeiro post →
             </Link>
           </div>
@@ -81,7 +81,7 @@ export default async function CmsDashboard() {
                       {new Date(post.updatedAt).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="px-5 py-3">
-                      <Link href={`/cms/posts/${post.id}`} className="font-mono text-xs text-[var(--secondary)] hover:underline uppercase tracking-widest">
+                      <Link href={`/admin/posts/${post.id}`} className="font-mono text-xs text-[var(--secondary)] hover:underline uppercase tracking-widest">
                         Editar
                       </Link>
                     </td>

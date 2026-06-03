@@ -27,13 +27,13 @@ export async function loginAction(formData: FormData) {
     path: '/',
   })
 
-  redirect('/cms')
+  redirect('/admin')
 }
 
 export async function logoutAction() {
   const cookieStore = await cookies()
   cookieStore.delete('cms_token')
-  redirect('/cms/login')
+  redirect('/admin-login')
 }
 
 export async function getToken(): Promise<string | null> {

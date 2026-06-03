@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload from '../../ImageUpload'
 
@@ -16,6 +16,15 @@ function slugify(text: string) {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
+function lexicalToText(content: any): string {
+  try {
+    const children = content?.root?.children || []
+    return children.map((node: any) =>
+      (node.children || []).map((c: any) => c.text || '').join('')
+    ).join('\n\n')
+  } catch { return '' }
+}
+
 function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
   return (
     <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-lg shadow-xl font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${type === 'success' ? 'bg-green-900 text-green-300 border border-green-700' : 'bg-red-900 text-red-300 border border-red-700'}`}>
@@ -24,21 +33,22 @@ function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
   )
 }
 
-export default function NewPostPage() {
+export default function EditPostPage() {
   const router = useRouter()
+  const { id } = useParams()
   const [categories, setCategories] = useState<any[]>([])
   const [authors, setAuthors] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [showAuthorForm, setShowAuthorForm] = useState(false)
   const [newAuthor, setNewAuthor] = useState({ name: '', role: '', avatarUrl: '' })
   const [creatingAuthor, setCreatingAuthor] = useState(false)
-  const [slugManual, setSlugManual] = useState(false)
 
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', category: '',
-    author: '', status: 'draft' as 'draft' | 'published',
-    featureLevel: 'normal', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
+    title: '', slug: '', excerpt: '', content: '', status: 'draft' as 'draft' | 'published',
+    featureLevel: 'normal', category: '', author: '', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
   })
 
   const showToast = useCallback((msg: string, type: 'success' | 'error') => {
@@ -50,23 +60,36 @@ export default function NewPostPage() {
     const token = getToken()
     const h = { Authorization: `JWT ${token}` }
     Promise.all([
+      fetch(`${BACKEND}/api/posts/${id}?depth=1`, { headers: h }).then(r => r.json()),
       fetch(`${BACKEND}/api/categories?limit=50&sort=name`, { headers: h }).then(r => r.json()),
       fetch(`${BACKEND}/api/authors?limit=50`, { headers: h }).then(r => r.json()),
-    ]).then(([cats, auths]) => {
+    ]).then(([post, cats, auths]) => {
       setCategories(cats?.docs || [])
       setAuthors(auths?.docs || [])
-      if ((cats?.docs || []).length === 0) showToast('Sem categorias. Acesse /api/seed para criar.', 'error')
+      if (post?.id) {
+        setForm({
+          title: post.title || '',
+          slug: post.slug || '',
+          excerpt: post.excerpt || '',
+          content: lexicalToText(post.content),
+          status: post.status || 'draft',
+          featureLevel: post.featureLevel || (post.featured ? 'destaque' : 'normal'),
+          category: typeof post.category === 'object' ? post.category?.id : post.category || '',
+          author: typeof post.author === 'object' ? post.author?.id : post.author || '',
+          coverImageUrl: post.coverImageUrl || '',
+          youtubeId: post.youtubeId || '',
+          externalLink: post.externalLink || '',
+          readingTime: post.readingTime?.toString() || '',
+        })
+      }
+      setLoading(false)
     })
-  }, [showToast])
+  }, [id])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value, type } = e.target
     const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    setForm(f => {
-      const next: any = { ...f, [name]: val }
-      if (name === 'title' && !slugManual) next.slug = slugify(value as string)
-      return next
-    })
+    setForm(f => ({ ...f, [name]: val }))
   }
 
   async function createAuthor() {
@@ -104,24 +127,41 @@ export default function NewPostPage() {
         content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
       }
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
-      if (form.author) body.author = /^\d+$/.test(form.author) ? Number(form.author) : form.author
-      if (form.coverImageUrl) body.coverImageUrl = form.coverImageUrl
-      if (form.youtubeId) body.youtubeId = form.youtubeId
-      if (form.externalLink) body.externalLink = form.externalLink
+      body.author = form.author ? (/^\d+$/.test(form.author) ? Number(form.author) : form.author) : null
+      body.coverImageUrl = form.coverImageUrl || null
+      body.youtubeId = form.youtubeId || null
+      body.externalLink = form.externalLink || null
       if (form.readingTime) body.readingTime = Number(form.readingTime)
       if (form.status === 'published') body.publishedAt = new Date().toISOString()
 
-      const res = await fetch(`${BACKEND}/api/posts`, {
-        method: 'POST',
+      const res = await fetch(`${BACKEND}/api/posts/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `JWT ${token}` },
         body: JSON.stringify(body),
       })
       const data = await res.json()
-      if (!res.ok) { showToast(data.errors?.[0]?.message || 'Erro ao criar post', 'error'); setSaving(false); return }
-      showToast('Post criado com sucesso!', 'success')
-      setTimeout(() => router.push('/cms'), 1200)
+      if (!res.ok) { showToast(data.errors?.[0]?.message || 'Erro ao salvar', 'error'); setSaving(false); return }
+      showToast('Alterações salvas!', 'success')
+      setTimeout(() => router.push('/admin'), 1000)
     } catch { showToast('Erro de conexão', 'error'); setSaving(false) }
   }
+
+  async function handleDelete() {
+    if (!confirm('Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.')) return
+    setDeleting(true)
+    try {
+      const token = getToken()
+      const res = await fetch(`${BACKEND}/api/posts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `JWT ${token}` },
+      })
+      if (!res.ok) { showToast('Erro ao excluir', 'error'); setDeleting(false); return }
+      showToast('Post excluído', 'success')
+      setTimeout(() => router.push('/admin'), 1000)
+    } catch { showToast('Erro de conexão', 'error'); setDeleting(false) }
+  }
+
+  if (loading) return <div className="font-mono text-xs text-[var(--outline)] uppercase tracking-widest py-20 text-center">Carregando post...</div>
 
   const inp = "w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors placeholder:text-[var(--outline)]"
   const lbl = "font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)] block mb-1.5"
@@ -133,44 +173,40 @@ export default function NewPostPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/cms" className="font-mono text-[10px] tracking-widest uppercase text-[var(--outline)] hover:text-[var(--secondary)] transition-colors">← Dashboard</Link>
-          <h1 className="font-display text-2xl font-bold text-[var(--on-surface)] mt-1">Novo Post</h1>
+          <Link href="/admin" className="font-mono text-[10px] tracking-widest uppercase text-[var(--outline)] hover:text-[var(--secondary)] transition-colors">← Dashboard</Link>
+          <h1 className="font-display text-2xl font-bold text-[var(--on-surface)] mt-1">Editar Post</h1>
         </div>
-        <div className="flex gap-3">
-          <button type="button" onClick={() => setForm(f => ({ ...f, status: 'draft' }))} className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-colors ${form.status === 'draft' ? 'bg-yellow-900/40 text-yellow-300 border-yellow-700' : 'border-[var(--outline-variant)] text-[var(--outline)]'}`}>Rascunho</button>
-          <button type="button" onClick={() => setForm(f => ({ ...f, status: 'published' }))} className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-colors ${form.status === 'published' ? 'bg-green-900/40 text-green-300 border-green-700' : 'border-[var(--outline-variant)] text-[var(--outline)]'}`}>Publicar</button>
-        </div>
+        <span className={`font-mono text-[10px] tracking-widest uppercase px-3 py-1.5 rounded-lg ${form.status === 'published' ? 'bg-green-900/40 text-green-400' : 'bg-yellow-900/40 text-yellow-400'}`}>
+          {form.status === 'published' ? 'Publicado' : 'Rascunho'}
+        </span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Título e Slug */}
         <div className={sec}>
           <div>
             <label className={lbl}>Título *</label>
-            <input name="title" value={form.title} onChange={handleChange} required placeholder="Ex: Novas regras para multas de radar em 2025" className={inp} />
+            <input name="title" value={form.title} onChange={handleChange} required className={inp} />
           </div>
           <div>
             <label className={lbl}>Slug (URL) *</label>
             <div className="flex gap-2">
-              <input name="slug" value={form.slug} onChange={e => { setSlugManual(true); handleChange(e) }} required placeholder="novas-regras-multas-radar-2025" className={inp} />
-              <button type="button" onClick={() => { setSlugManual(false); setForm(f => ({ ...f, slug: slugify(f.title) })) }} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
+              <input name="slug" value={form.slug} onChange={handleChange} required className={inp} />
+              <button type="button" onClick={() => setForm(f => ({ ...f, slug: slugify(f.title) }))} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
             </div>
           </div>
           <div>
-            <label className={lbl}>Resumo * <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(exibido nos cards)</span></label>
-            <textarea name="excerpt" value={form.excerpt} onChange={handleChange} required rows={3} placeholder="Breve descrição do artigo..." className={inp} />
+            <label className={lbl}>Resumo *</label>
+            <textarea name="excerpt" value={form.excerpt} onChange={handleChange} required rows={3} className={inp} />
           </div>
         </div>
 
-        {/* Conteúdo */}
         <div className={sec}>
           <div>
             <label className={lbl}>Conteúdo do Artigo</label>
-            <textarea name="content" value={form.content} onChange={handleChange} rows={14} placeholder="Escreva o conteúdo completo do artigo aqui..." className={`${inp} font-mono text-sm leading-relaxed`} />
+            <textarea name="content" value={form.content} onChange={handleChange} rows={14} className={`${inp} font-mono text-sm leading-relaxed`} />
           </div>
         </div>
 
-        {/* Classificação */}
         <div className={sec}>
           <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Classificação</p>
           <div className="grid grid-cols-2 gap-4">
@@ -242,7 +278,6 @@ export default function NewPostPage() {
           </div>
         </div>
 
-        {/* Mídia e Links */}
         <div className={sec}>
           <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Mídia & Links</p>
           <ImageUpload
@@ -260,12 +295,14 @@ export default function NewPostPage() {
           </div>
         </div>
 
-        {/* Ações */}
         <div className="flex gap-3 pb-4">
           <button type="submit" disabled={saving} className="flex-1 bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase py-3.5 rounded-xl hover:brightness-110 transition-all disabled:opacity-50">
-            {saving ? 'Salvando...' : form.status === 'published' ? '✅ Publicar Post' : '💾 Salvar Rascunho'}
+            {saving ? 'Salvando...' : '💾 Salvar Alterações'}
           </button>
-          <button type="button" onClick={() => router.push('/cms')} className="px-6 font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors border border-[var(--outline-variant)] rounded-xl">
+          <button type="button" onClick={handleDelete} disabled={deleting} className="px-6 font-mono text-xs tracking-widest uppercase text-red-400 hover:text-red-300 hover:bg-red-900/20 transition-colors border border-red-900/50 rounded-xl disabled:opacity-50">
+            {deleting ? 'Excluindo...' : '🗑 Excluir'}
+          </button>
+          <button type="button" onClick={() => router.push('/admin')} className="px-6 font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors border border-[var(--outline-variant)] rounded-xl">
             Cancelar
           </button>
         </div>

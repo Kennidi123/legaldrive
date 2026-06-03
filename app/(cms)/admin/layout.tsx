@@ -13,7 +13,28 @@ export default async function CmsLayout({
   const token = cookieStore.get('cms_token')?.value
 
   if (!token) {
-    redirect('/cms-login')
+    redirect('/admin-login')
+  }
+
+  // Segurança: valida a sessão no backend a cada acesso ao painel.
+  // Token ausente, inválido ou expirado → volta para o login.
+  const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
+  let authed = false
+  try {
+    const meRes = await fetch(`${BACKEND}/api/users/me`, {
+      headers: { Authorization: `JWT ${token}` },
+      cache: 'no-store',
+    })
+    if (meRes.ok) {
+      const me = await meRes.json()
+      authed = Boolean(me?.user)
+    }
+  } catch {
+    authed = false
+  }
+
+  if (!authed) {
+    redirect('/admin-login')
   }
 
   return (
@@ -21,17 +42,17 @@ export default async function CmsLayout({
       <header className="bg-[var(--surface-container-lowest)] border-b border-[var(--outline-variant)] sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/cms" className="flex items-center gap-2">
+            <Link href="/admin" className="flex items-center gap-2">
               <Image src="/logovariavel3.png" alt="Legal Drive" width={32} height={32} className="h-7 w-auto object-contain" />
               <span className="font-mono text-xs tracking-widest uppercase text-[var(--secondary)] font-bold">
                 Legal Drive CMS
               </span>
             </Link>
             <nav className="flex items-center gap-4">
-              <Link href="/cms" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
+              <Link href="/admin" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
                 Dashboard
               </Link>
-              <Link href="/cms/posts/new" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
+              <Link href="/admin/posts/new" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
                 Novo Post
               </Link>
               <Link href="/" target="_blank" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
