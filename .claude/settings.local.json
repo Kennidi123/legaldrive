@@ -8,7 +8,9 @@
       "PowerShell(Stop-Process -Id 13844 -Force -ErrorAction SilentlyContinue)",
       "PowerShell(Get-NetTCPConnection -State Listen -LocalPort 3000,3001 -ErrorAction SilentlyContinue)",
       "PowerShell(\"done\")",
-      "PowerShell(if \\(Test-Path .env\\) { Get-Content .env | Where-Object { $_ -match 'PAYLOAD|PORT|URL' } } else { \"sem .env\" })"
+      "PowerShell(if \\(Test-Path .env\\) { Get-Content .env | Where-Object { $_ -match 'PAYLOAD|PORT|URL' } } else { \"sem .env\" })",
+      "PowerShell(\"--- branches remotas conhecidas ---\")",
+      "PowerShell(\"--- ultimos commits locais \\(main\\) ---\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\kenne\\.claude\\projects\\c--Users-kenne-OneDrive-Desktop-PROJETOS-legaldrive\\memory"
