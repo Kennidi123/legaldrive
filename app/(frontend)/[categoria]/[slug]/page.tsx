@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPublishedPosts, getRelatedPosts } from '@/lib/payload-api'
-import { articleJsonLd, breadcrumbJsonLd, siteUrl } from '@/lib/seo'
+import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '@/lib/seo'
 import { lexicalToHTML, getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
 import VideoEmbed from '@/components/VideoEmbed'
@@ -31,19 +31,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = await getPostBySlug(slug, 1)
     if (!post) return {}
     const cat = typeof post.category === 'object' ? post.category : null
-    return {
-      title: post.seo?.metaTitle || post.title,
-      description: post.seo?.metaDesc || post.excerpt,
-      openGraph: {
-        title: post.seo?.metaTitle || post.title,
-        description: post.seo?.metaDesc || post.excerpt,
-        images: getPostCoverImage(post) ? [{ url: getPostCoverImage(post)! }] : [],
-        type: 'article',
-        publishedTime: post.publishedAt,
-        modifiedTime: post.updatedAt,
-      },
-      alternates: { canonical: cat ? `${siteUrl}/${cat.slug}/${post.slug}` : `${siteUrl}/${slug}` },
-    }
+    const author = typeof post.author === 'object' ? post.author : null
+    const tags = Array.isArray(post.tags)
+      ? post.tags.filter((t: any) => typeof t === 'object').map((t: any) => t.name)
+      : []
+    return buildArticleMetadata({
+      title: post.title,
+      metaTitle: post.seo?.metaTitle,
+      description: post.seo?.metaDesc,
+      excerpt: post.excerpt,
+      url: cat ? `/${cat.slug}/${post.slug}` : `/${slug}`,
+      image: getPostCoverImage(post),
+      publishedAt: post.publishedAt,
+      updatedAt: post.updatedAt,
+      authorName: author?.name,
+      section: cat?.name,
+      tags,
+    })
   } catch {
     return {}
   }
@@ -86,12 +90,14 @@ export default async function ArticlePage({ params }: Props) {
 
   const jsonLd = articleJsonLd({
     title: post.title,
-    description: post.excerpt,
+    description: post.seo?.metaDesc || post.excerpt,
     publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
     updatedAt: new Date(post.updatedAt),
-    author: author?.name || 'Legal Drive',
+    author: author?.name || 'Redação Legal Drive',
+    authorRole: author?.role,
     image: coverImage,
     url: fullUrl,
+    section: cat.name,
   })
 
   const breadcrumb = breadcrumbJsonLd([
@@ -122,6 +128,8 @@ export default async function ArticlePage({ params }: Props) {
         tags={tags.length > 0 ? tags : ['#LegalDrive']}
         related={related}
         whatsapp={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '/contato'}
+        shareUrl={articleUrl}
+        shareTitle={post.title}
       >
         <div className="article-prose max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
 

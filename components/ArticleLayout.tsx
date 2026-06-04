@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type React from 'react'
 import ArticleSidebar, { type RelatedItem } from './ArticleSidebar'
+import ShareButtons from './ShareButtons'
 
 export type { RelatedItem }
 
@@ -18,6 +19,10 @@ interface ArticleLayoutProps {
   tags: string[]
   related: RelatedItem[]
   whatsapp: string
+  /** Caminho relativo do artigo (ex.: /multas/novas-regras) para compartilhamento */
+  shareUrl: string
+  /** Título usado no texto de compartilhamento */
+  shareTitle: string
   newsletterTitle?: string
   newsletterText?: string
   /** Corpo do artigo (conteúdo real em prose ou fallback estático) */
@@ -55,6 +60,8 @@ export default function ArticleLayout({
   tags,
   related,
   whatsapp,
+  shareUrl,
+  shareTitle,
   newsletterTitle = 'Radar Legal Drive',
   newsletterText = 'Receba atualizações cruciais sobre leis de trânsito direto no seu e-mail.',
   children,
@@ -115,17 +122,7 @@ export default function ArticleLayout({
           {/* Rodapé do artigo */}
           <footer className="mt-16 pt-8 border-t border-[var(--on-primary-fixed-variant)]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <span className="font-mono text-xs text-[var(--on-surface-variant)]">Compartilhe este artigo:</span>
-                <div className="flex gap-2">
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full border border-[var(--on-primary-fixed-variant)] hover:bg-[var(--secondary-container)] hover:text-[var(--on-secondary-container)] transition-colors">
-                    <Icon d={P.share} className="w-5 h-5" />
-                  </button>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full border border-[var(--on-primary-fixed-variant)] hover:bg-[var(--secondary-container)] hover:text-[var(--on-secondary-container)] transition-colors">
-                    <Icon d={P.link} className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
+              <ShareButtons url={shareUrl} title={shareTitle} variant="bottom" />
               <div className="flex flex-wrap gap-2">
                 {tags.map((t) => (
                   <span key={t} className="px-3 py-1 rounded-full font-mono text-[11px] text-[var(--on-surface-variant)]" style={{ background: '#233554' }}>

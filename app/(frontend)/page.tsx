@@ -3,7 +3,7 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import { getLatestPosts, getMainFeatured, getVideos } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
 
 export const dynamic = 'force-dynamic'
@@ -149,7 +149,10 @@ export default async function HomePage() {
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '#'
 
   return (
-    <main className="bg-[var(--primary-container)] text-[var(--primary-fixed)]">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
+      <main className="bg-[var(--primary-container)] text-[var(--primary-fixed)]">
       <div className="max-w-content mx-auto px-4 md:px-16 py-16">
         {/* ============ HERO BENTO ============ */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-16">
@@ -451,6 +454,7 @@ export default async function HomePage() {
           </aside>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   )
 }

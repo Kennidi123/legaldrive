@@ -1,6 +1,8 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Chivo, Geist, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://legaldrive.com.br'
 
 const chivo = Chivo({
   subsets: ['latin'],
@@ -30,22 +32,59 @@ export const metadata: Metadata = {
   },
   description:
     'Inteligência jurídica aplicada ao Direito de Trânsito. Análise técnica sobre multas, CNH, radares e legislação para o motorista brasileiro.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://legaldrive.com.br'),
+  metadataBase: new URL(siteUrl),
+  applicationName: 'Legal Drive',
+  authors: [{ name: 'Legal Drive' }],
+  creator: 'Legal Drive',
+  publisher: 'Legal Drive',
+  category: 'Direito de Trânsito',
+  keywords: [
+    'direito de trânsito',
+    'multas de trânsito',
+    'recurso de multa',
+    'CNH suspensa',
+    'lei seca',
+    'radar',
+    'CTB',
+    'pontos na carteira',
+  ],
+  manifest: '/manifest.json',
+  alternates: { canonical: '/' },
   icons: {
     icon: '/favicon.jpg',
     shortcut: '/favicon.jpg',
     apple: '/favicon.jpg',
   },
+  formatDetection: { telephone: false },
   openGraph: {
     siteName: 'Legal Drive',
+    title: 'Legal Drive | Inteligência em Direito de Trânsito',
+    description:
+      'Inteligência jurídica aplicada ao Direito de Trânsito. Análise técnica sobre multas, CNH, radares e legislação para o motorista brasileiro.',
+    url: siteUrl,
     locale: 'pt_BR',
     type: 'website',
+    images: [{ url: `${siteUrl}/og`, width: 1200, height: 630, alt: 'Legal Drive — Inteligência em Direito de Trânsito' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Legal Drive | Inteligência em Direito de Trânsito',
+    description:
+      'Inteligência jurídica aplicada ao Direito de Trânsito. Multas, CNH, radares e legislação para o motorista brasileiro.',
+    images: [`${siteUrl}/og`],
+    site: '@legaldrive',
+    creator: '@legaldrive',
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#0a192f',
+  colorScheme: 'dark',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
