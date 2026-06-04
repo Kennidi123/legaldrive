@@ -147,7 +147,7 @@ export default function ContatoPage() {
             <div className="w-full lg:w-1/2 relative">
               <div className="absolute -top-6 -left-6 w-32 h-32 border-l-4 border-t-4 border-[var(--secondary)] opacity-30" />
               <div className="relative aspect-square w-full overflow-hidden rounded-lg" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
-                <Image src="/Erika Chagas.png" alt="Erika Chagas" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
+                <Image src="/erika-chagas.png" alt="Erika Chagas" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
               </div>
               <div className="absolute -bottom-6 -right-6 bg-[var(--secondary)] p-6 rounded-lg text-[var(--on-secondary)]" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
                 <p className="font-display text-xl font-bold mb-1">Erika Chagas</p>

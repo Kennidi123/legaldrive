@@ -126,7 +126,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">Desenvolvido por</span>
             <Image
-              src="/Kennidi Anderson.png"
+              src="/kennidi-anderson.png"
               alt="Kennidi Anderson"
               width={80}
               height={24}
