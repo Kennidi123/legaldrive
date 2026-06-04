@@ -11,7 +11,8 @@ const CATEGORIES = [
   { name: 'Cidadania', slug: 'direitos-do-motorista', description: 'Direitos do motorista, educação no trânsito e cidadania.' },
 ]
 
-const OBSOLETE_SLUGS = ['fiscalizacao', 'casos-reais']
+// Slugs que devem permanecer. Qualquer outra categoria é removida.
+const KEEP_SLUGS = CATEGORIES.map((c) => c.slug)
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
@@ -41,18 +42,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Remover categorias obsoletas (sem posts vinculados)
-    for (const slug of OBSOLETE_SLUGS) {
-      const found = await payload.find({ collection: 'categories', where: { slug: { equals: slug } }, limit: 1 })
-      if (found.totalDocs > 0) {
-        const cat = found.docs[0]
-        const posts = await payload.find({ collection: 'posts', where: { category: { equals: cat.id } }, limit: 1 })
-        if (posts.totalDocs === 0) {
-          await payload.delete({ collection: 'categories', id: cat.id })
-          steps.push(`🗑 Removida (obsoleta, sem posts): ${cat.name}`)
-        } else {
-          steps.push(`⚠ Mantida (tem posts vinculados): ${cat.name}`)
-        }
+    // Remover TODAS as categorias que não estão na lista oficial do menu
+    const all = await payload.find({ collection: 'categories', limit: 200 })
+    for (const cat of all.docs) {
+      if (KEEP_SLUGS.includes(cat.slug as string)) continue
+      try {
+        await payload.delete({ collection: 'categories', id: cat.id })
+        steps.push(`🗑 Removida (obsoleta): ${cat.name} (${cat.slug})`)
+      } catch (e) {
+        const m = e instanceof Error ? e.message : String(e)
+        steps.push(`✗ Falha ao remover ${cat.name}: ${m}`)
       }
     }
 
