@@ -32,7 +32,13 @@ export default function CmsLoginPage() {
         return
       }
 
-      const { token } = await res.json()
+      const { token, user } = await res.json()
+      // Só administradores entram no painel.
+      if (user?.role !== 'admin') {
+        setError('Acesso restrito a administradores')
+        setLoading(false)
+        return
+      }
       // Cookie de SESSÃO (sem expires): cai ao fechar o navegador → pede login de novo.
       const secure = window.location.protocol === 'https:' ? '; Secure' : ''
       document.cookie = `cms_token=${token}; path=/; SameSite=Lax${secure}`

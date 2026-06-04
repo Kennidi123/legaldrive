@@ -15,7 +15,24 @@ import { Videos } from './collections/Videos'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || '*'
+// Origens permitidas (CORS/CSRF). Nunca usar '*': isso permitiria que qualquer
+// site fizesse requisições autenticadas à API. Lista explícita por env + locais.
+const allowedOrigins = [
+  process.env.NEXT_PUBLIC_FRONTEND_URL,
+  process.env.NEXT_PUBLIC_SITE_URL,
+  'https://legaldrivemultas.com.br',
+  'https://www.legaldrivemultas.com.br',
+  'http://localhost:3000',
+].filter((o): o is string => Boolean(o))
+
+// Falha cedo em RUNTIME (não no build) se o secret estiver ausente: um secret
+// previsível permite forjar tokens de admin. Durante `next build` o secret pode
+// não estar disponível, então não bloqueamos a compilação.
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build'
+if (!process.env.PAYLOAD_SECRET && !isBuildPhase) {
+  throw new Error('PAYLOAD_SECRET não definido — configure um valor forte e único no ambiente.')
+}
+const PAYLOAD_SECRET = process.env.PAYLOAD_SECRET || 'build-only-placeholder-not-used-at-runtime'
 
 export default buildConfig({
   admin: {
@@ -25,9 +42,9 @@ export default buildConfig({
   },
   collections: [Posts, Categories, Videos, Authors, Tags, Media, Users],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || 'legaldrive-change-this-secret',
-  cors: [frontendUrl, 'http://localhost:3000'],
-  csrf: [frontendUrl, 'http://localhost:3000'],
+  secret: PAYLOAD_SECRET,
+  cors: allowedOrigins,
+  csrf: allowedOrigins,
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URL || '', max: 5 },
     migrationDir: path.resolve(dirname, 'migrations'),
