@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { publishedOrAuthenticated, isAuthenticated } from '../access'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -9,13 +8,7 @@ export const Posts: CollectionConfig = {
     defaultColumns: ['title', 'category', 'status', 'publishedAt', 'featureLevel'],
     description: 'Artigos, notícias e matérias do portal.',
   },
-  access: {
-    // Público vê só publicados; autenticados veem rascunhos também.
-    read: publishedOrAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
-  },
+  access: { read: () => true },
   fields: [
     // ── Sidebar ───────────────────────────────────────────
     {

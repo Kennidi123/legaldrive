@@ -17,9 +17,9 @@ export default async function CmsLayout({
   }
 
   // Segurança: valida a sessão no backend a cada acesso ao painel.
-  // Token ausente, inválido, expirado OU sem papel de admin → volta para o login.
+  // Token ausente, inválido ou expirado → volta para o login.
   const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
-  let isAdmin = false
+  let authed = false
   try {
     const meRes = await fetch(`${BACKEND}/api/users/me`, {
       headers: { Authorization: `JWT ${token}` },
@@ -27,14 +27,13 @@ export default async function CmsLayout({
     })
     if (meRes.ok) {
       const me = await meRes.json()
-      // Só administradores entram no painel — editores ou contas sem papel não passam.
-      isAdmin = me?.user?.role === 'admin'
+      authed = Boolean(me?.user)
     }
   } catch {
-    isAdmin = false
+    authed = false
   }
 
-  if (!isAdmin) {
+  if (!authed) {
     redirect('/admin-login')
   }
 
