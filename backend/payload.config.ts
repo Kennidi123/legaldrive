@@ -31,6 +31,9 @@ export default buildConfig({
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URL || '', max: 5 },
     migrationDir: path.resolve(dirname, 'migrations'),
+    // Sincroniza o schema automaticamente no start (cria colunas novas como
+    // feature_level sem precisar gerar/rodar migrations manualmente).
+    push: true,
   }),
   sharp,
 })
