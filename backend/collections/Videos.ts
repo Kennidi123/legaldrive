@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { extractYouTubeId } from '../youtube'
 
 export const Videos: CollectionConfig = {
   slug: 'videos',
@@ -20,8 +21,13 @@ export const Videos: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
-      label: 'ID do YouTube',
-      admin: { description: 'Ex: dQw4w9WgXcQ — apenas o ID, não a URL completa.' },
+      label: 'Link ou ID do YouTube',
+      admin: {
+        description: 'Cole o link do vídeo (ex: youtube.com/watch?v=... ou youtu.be/...) OU só o ID. O sistema extrai e guarda só o ID automaticamente.',
+      },
+      hooks: {
+        beforeChange: [({ value }) => (value ? extractYouTubeId(value) || value : value)],
+      },
     },
     {
       name: 'description',

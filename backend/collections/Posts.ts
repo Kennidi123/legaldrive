@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { extractYouTubeId } from '../youtube'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -132,8 +133,13 @@ export const Posts: CollectionConfig = {
     {
       name: 'youtubeId',
       type: 'text',
-      label: 'ID do Vídeo YouTube',
-      admin: { description: 'Ex: dQw4w9WgXcQ — apenas o ID, não a URL completa.' },
+      label: 'Link ou ID do Vídeo YouTube',
+      admin: {
+        description: 'Cole o link do vídeo (youtube.com/watch?v=... ou youtu.be/...) OU só o ID. O sistema extrai o ID automaticamente.',
+      },
+      hooks: {
+        beforeChange: [({ value }) => (value ? extractYouTubeId(value) || value : value)],
+      },
     },
     {
       name: 'externalLink',
