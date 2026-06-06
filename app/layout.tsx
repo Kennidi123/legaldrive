@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     'multas de trânsito',
     'recurso de multa',
     'CNH suspensa',
-    'lei seca',
+    'bafômetro',
     'radar',
     'CTB',
     'pontos na carteira',

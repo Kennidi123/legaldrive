@@ -5,7 +5,7 @@ import { buildMetadata } from '@/lib/seo'
 export const metadata = buildMetadata({
   title: 'Análise Gratuita do Seu Caso',
   description:
-    'Tecnologia aplicada à defesa de trânsito. Análise técnica gratuita para multas, CNH suspensa e casos de Lei Seca.',
+    'Tecnologia aplicada à defesa de trânsito. Análise técnica gratuita para multas, CNH suspensa e casos de Bafômetro.',
   slug: 'contato',
 })
 
@@ -102,7 +102,7 @@ export default function ContatoPage() {
                   <input type="tel" placeholder="WhatsApp" className={inputCls} />
                   <select className={inputCls} defaultValue="CNH Suspensa">
                     <option>CNH Suspensa</option>
-                    <option>Lei Seca</option>
+                    <option>Bafômetro</option>
                     <option>Multas Indevidas</option>
                   </select>
                   <button type="submit" className="w-full bg-[var(--secondary)] text-[var(--on-secondary)] py-4 font-mono text-sm rounded-lg uppercase font-bold hover:brightness-110 transition-all">
@@ -126,7 +126,7 @@ export default function ContatoPage() {
             {[
               { icon: P.doc, title: 'Defesa de CNH', text: 'Estratégias técnicas para reverter processos de suspensão e cassação do direito de dirigir.' },
               { icon: P.speed, title: 'Multas de Radar', text: 'Análise de conformidade técnica de radares e sinalização para anulação de infrações.' },
-              { icon: P.shield, title: 'Lei Seca', text: 'Assessoria jurídica especializada para infrações do Art. 165 e 165-A do CTB.' },
+              { icon: P.shield, title: 'Bafômetro', text: 'Assessoria jurídica especializada para infrações do Art. 165 e 165-A do CTB.' },
             ].map((s) => (
               <div key={s.title} className="bg-[var(--surface-container-low)] p-8 border border-[var(--outline-variant)] hover:border-[var(--secondary)] transition-colors group rounded-lg">
                 <span className="text-[var(--secondary)] mb-4 block group-hover:scale-110 transition-transform w-fit">
@@ -211,7 +211,7 @@ export default function ContatoPage() {
             {/* Bafômetro (tertiary) */}
             <div className="bg-[var(--tertiary-container)] text-[var(--on-tertiary)] p-8 rounded-xl flex flex-col justify-between">
               <div>
-                <span className="text-[var(--secondary)] font-mono text-[11px] uppercase mb-4 block">Lei Seca</span>
+                <span className="text-[var(--secondary)] font-mono text-[11px] uppercase mb-4 block">Bafômetro</span>
                 <h3 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-4">Bafômetro Irregular</h3>
                 <p className="text-[var(--on-tertiary-container)] italic">
                   &ldquo;Anulação por falta de aferição obrigatória do Inmetro no equipamento.&rdquo;

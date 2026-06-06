@@ -33,17 +33,17 @@ const categories = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[var(--surface-container-lowest)] border-t border-[var(--outline-variant)]">
+    <footer className="dark-section border-t border-[var(--outline-variant)]">
       <div className="max-w-content mx-auto px-4 md:px-16 pt-16 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
           {/* Brand */}
           <div className="md:col-span-3">
             <Link href="/" className="block mb-5">
               <Image
-                src="/logovariavel1.png"
+                src="/logo-completa.png"
                 alt="Legal Drive"
-                width={44}
-                height={44}
+                width={180}
+                height={48}
                 className="h-10 w-auto object-contain"
               />
             </Link>

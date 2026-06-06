@@ -44,6 +44,30 @@
 }
 
 /* ============================================================
+   SEÇÃO ESCURA (cabeçalho/rodapé) — navy da marca sobre o site branco
+   Redefine os tokens localmente: texto claro sobre fundo azul-escuro.
+   ============================================================ */
+.dark-section {
+  --primary-container: #0a192f;
+  --surface-container-lowest: #0a192f;
+  --surface-container-low: #112240;
+  --surface-container: #112240;
+  --surface-container-high: #1a2d4a;
+  --on-surface: #e6f1ff;
+  --on-surface-variant: #aab8d0;
+  --on-background: #e6f1ff;
+  --outline: #6b7a99;
+  --outline-variant: #2a3f5f;
+  --primary: #b9c7e4;
+  --primary-fixed: #e6f1ff;
+  --primary-fixed-dim: #aab8d0;
+  --on-primary-fixed-variant: #2a3f5f;
+  --tertiary-container: #112240;
+  background-color: #0a192f;
+  color: #e6f1ff;
+}
+
+/* ============================================================
    BASE STYLES
    ============================================================ */
 *, *::before, *::after {

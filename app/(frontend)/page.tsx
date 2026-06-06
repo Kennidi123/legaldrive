@@ -72,7 +72,7 @@ const fbSide: Story[] = [
 
 const fbRecent: Story[] = [
   { id: 'fb-n1', title: 'Como recorrer de multa por bafômetro mesmo após a recusa do teste.', href: '#', excerpt: 'Entenda os argumentos jurídicos e as falhas procedimentais que podem anular o auto de infração em casos de recusa.', coverImage: IMG.news1, category: 'Multas & CNH' },
-  { id: 'fb-n2', title: 'Blitz da Lei Seca: Seus direitos e deveres durante a abordagem policial.', href: '#', excerpt: 'Um guia prático sobre como se comportar e o que a legislação permite durante uma fiscalização de trânsito urbana.', coverImage: IMG.news2, category: 'Fiscalização' },
+  { id: 'fb-n2', title: 'Blitz do Bafômetro: Seus direitos e deveres durante a abordagem policial.', href: '#', excerpt: 'Um guia prático sobre como se comportar e o que a legislação permite durante uma fiscalização de trânsito urbana.', coverImage: IMG.news2, category: 'Fiscalização' },
 ]
 
 const fbTech: Story[] = [
