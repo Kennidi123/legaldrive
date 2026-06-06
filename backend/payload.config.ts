@@ -22,6 +22,7 @@ export default buildConfig({
     user: Users.slug,
     meta: { titleSuffix: '— Legal Drive CMS' },
     importMap: { baseDir: path.resolve(dirname) },
+    css: path.resolve(dirname, 'styles/admin.css'),
   },
   collections: [Posts, Categories, Videos, Authors, Tags, Media, Users],
   editor: lexicalEditor(),

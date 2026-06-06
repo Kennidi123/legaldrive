@@ -1,6 +1,60 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { extractYouTubeId } from '../youtube'
+
+/**
+ * Grupo de mídia reutilizável que vai ENTRE os blocos de texto da notícia.
+ * O editor escolhe: Nenhuma (só texto) / Imagem (upload) / Vídeo (link YouTube).
+ * Os campos aparecem de forma condicional — só mostra o input escolhido.
+ */
+const mediaBlock = (name: string, label: string): Field => ({
+  name,
+  type: 'group',
+  label,
+  admin: {
+    description:
+      'Opcional. Escolha uma imagem (upload) OU um link de vídeo do YouTube para aparecer aqui. Deixe em "Nenhuma" para mostrar somente o texto.',
+  },
+  fields: [
+    {
+      name: 'tipo',
+      type: 'radio',
+      label: 'O que mostrar neste ponto?',
+      defaultValue: 'none',
+      options: [
+        { label: 'Nenhuma (só texto)', value: 'none' },
+        { label: '🖼️ Imagem', value: 'image' },
+        { label: '🎬 Vídeo do YouTube', value: 'video' },
+      ],
+      admin: { layout: 'horizontal' },
+    },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Imagem (upload)',
+      admin: { condition: (_, sibling) => sibling?.tipo === 'image' },
+    },
+    {
+      name: 'caption',
+      type: 'text',
+      label: 'Legenda da imagem (opcional)',
+      admin: { condition: (_, sibling) => sibling?.tipo === 'image' },
+    },
+    {
+      name: 'video',
+      type: 'text',
+      label: 'Link ou ID do vídeo do YouTube',
+      admin: {
+        condition: (_, sibling) => sibling?.tipo === 'video',
+        description: 'Cole o link (youtube.com/watch?v=... ou youtu.be/...) OU só o ID. O sistema extrai o ID automaticamente.',
+      },
+      hooks: {
+        beforeChange: [({ value }) => (value ? extractYouTubeId(value) || value : value)],
+      },
+    },
+  ],
+})
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -87,83 +141,125 @@ export const Posts: CollectionConfig = {
       label: 'Tempo de Leitura (min)',
       admin: { position: 'sidebar' },
     },
-    // ── Main content ──────────────────────────────────────
+    // ── Conteúdo principal (em abas) ──────────────────────
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-      label: 'Título',
-    },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      label: 'Slug (URL)',
-      admin: { description: 'Ex: novas-regras-de-radares-2024' },
-    },
-    {
-      name: 'excerpt',
-      type: 'textarea',
-      required: true,
-      label: 'Resumo',
-      admin: { description: 'Texto curto exibido nos cards e listagens.' },
-    },
-    {
-      name: 'coverImage',
-      type: 'upload',
-      relationTo: 'media',
-      label: 'Imagem de Capa (upload)',
-    },
-    {
-      name: 'coverImageUrl',
-      type: 'text',
-      label: 'Imagem de Capa (URL externa)',
-      admin: { description: 'Use para imagens hospedadas externamente. O upload tem prioridade.' },
-    },
-    {
-      name: 'content',
-      type: 'richText',
-      label: 'Conteúdo',
-      required: true,
-      editor: lexicalEditor({
-        features: ({ defaultFeatures }) => [...defaultFeatures],
-      }),
-    },
-    {
-      name: 'youtubeId',
-      type: 'text',
-      label: 'Link ou ID do Vídeo YouTube',
-      admin: {
-        description: 'Cole o link do vídeo (youtube.com/watch?v=... ou youtu.be/...) OU só o ID. O sistema extrai o ID automaticamente.',
-      },
-      hooks: {
-        beforeChange: [({ value }) => (value ? extractYouTubeId(value) || value : value)],
-      },
-    },
-    {
-      name: 'externalLink',
-      type: 'text',
-      label: 'Link Externo',
-      admin: { description: 'URL de fonte externa ou notícia original. Ex: https://g1.globo.com/...' },
-    },
-    // ── SEO ───────────────────────────────────────────────
-    {
-      name: 'seo',
-      type: 'group',
-      label: 'SEO',
-      fields: [
+      type: 'tabs',
+      tabs: [
         {
-          name: 'metaTitle',
-          type: 'text',
-          label: 'Meta Título',
-          admin: { description: 'Deixe em branco para usar o título do artigo.' },
+          label: '📝 Notícia',
+          description: 'Escreva a notícia em até 3 partes. Entre cada parte você pode colocar uma imagem ou um vídeo. Se deixar vazio, aparece só o texto.',
+          fields: [
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+              label: 'Título',
+            },
+            {
+              name: 'slug',
+              type: 'text',
+              required: true,
+              unique: true,
+              label: 'Slug (URL)',
+              admin: { description: 'Ex: novas-regras-de-radares-2024' },
+            },
+            {
+              name: 'excerpt',
+              type: 'textarea',
+              required: true,
+              label: 'Resumo',
+              admin: { description: 'Texto curto exibido nos cards e listagens.' },
+            },
+            // 1ª parte — Início
+            {
+              name: 'content',
+              type: 'richText',
+              label: '1️⃣ Texto — Início da Notícia',
+              required: true,
+              editor: lexicalEditor({
+                features: ({ defaultFeatures }) => [...defaultFeatures],
+              }),
+            },
+            mediaBlock('mediaInicial', '🎞️ Mídia após o início'),
+            // 2ª parte — Meio
+            {
+              name: 'contentMeio',
+              type: 'richText',
+              label: '2️⃣ Texto — Meio da Notícia (opcional)',
+              editor: lexicalEditor({
+                features: ({ defaultFeatures }) => [...defaultFeatures],
+              }),
+            },
+            mediaBlock('mediaMeio', '🎞️ Mídia após o meio'),
+            // 3ª parte — Final
+            {
+              name: 'contentFinal',
+              type: 'richText',
+              label: '3️⃣ Texto — Final da Notícia (opcional)',
+              editor: lexicalEditor({
+                features: ({ defaultFeatures }) => [...defaultFeatures],
+              }),
+            },
+            mediaBlock('mediaFinal', '🎞️ Mídia após o final'),
+          ],
         },
         {
-          name: 'metaDesc',
-          type: 'textarea',
-          label: 'Meta Descrição',
-          admin: { description: 'Deixe em branco para usar o resumo.' },
+          label: '🖼️ Capa & Links',
+          fields: [
+            {
+              name: 'coverImage',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Imagem de Capa (upload)',
+            },
+            {
+              name: 'coverImageUrl',
+              type: 'text',
+              label: 'Imagem de Capa (URL externa)',
+              admin: { description: 'Use para imagens hospedadas externamente. O upload tem prioridade.' },
+            },
+            {
+              name: 'youtubeId',
+              type: 'text',
+              label: 'Vídeo de Capa (YouTube) — legado',
+              admin: {
+                description: 'Opcional. Vídeo exibido no fim da notícia. Prefira usar os campos de mídia entre os textos. Cole o link ou o ID.',
+              },
+              hooks: {
+                beforeChange: [({ value }) => (value ? extractYouTubeId(value) || value : value)],
+              },
+            },
+            {
+              name: 'externalLink',
+              type: 'text',
+              label: 'Link Externo (fonte)',
+              admin: { description: 'URL de fonte externa ou notícia original. Ex: https://g1.globo.com/...' },
+            },
+          ],
+        },
+        {
+          label: '🔍 SEO',
+          fields: [
+            {
+              name: 'seo',
+              type: 'group',
+              label: 'SEO',
+              fields: [
+                {
+                  name: 'metaTitle',
+                  type: 'text',
+                  label: 'Meta Título',
+                  admin: { description: 'Deixe em branco para usar o título do artigo.' },
+                },
+                {
+                  name: 'metaDesc',
+                  type: 'textarea',
+                  label: 'Meta Descrição',
+                  admin: { description: 'Deixe em branco para usar o resumo.' },
+                },
+              ],
+            },
+          ],
         },
       ],
     },

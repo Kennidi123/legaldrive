@@ -1,0 +1,55 @@
+/* ───────────────────────────────────────────────
+   Legal Drive — tema do painel admin (Payload CMS)
+   Toques de marca leves e seguros (navy + laranja),
+   além de tipografia um pouco maior para facilitar o uso.
+   ─────────────────────────────────────────────── */
+
+:root {
+  --legaldrive-navy: #0a192f;
+  --legaldrive-navy-soft: #112240;
+  --legaldrive-orange: #e07b00;
+  --legaldrive-orange-dark: #c96c00;
+}
+
+/* Labels dos campos mais legíveis */
+.field-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Descrições com bom contraste */
+.field-description {
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+
+/* Botão primário (Salvar/Publicar) na cor da marca */
+.btn--style-primary {
+  background: var(--legaldrive-orange);
+  border-color: var(--legaldrive-orange);
+  color: #ffffff;
+}
+.btn--style-primary:hover,
+.btn--style-primary:focus {
+  background: var(--legaldrive-orange-dark);
+  border-color: var(--legaldrive-orange-dark);
+}
+
+/* Abas do editor de notícia com destaque navy quando ativas */
+.tabs-field__tab-button--active {
+  color: var(--legaldrive-navy);
+  border-bottom-color: var(--legaldrive-orange);
+  font-weight: 600;
+}
+
+/* Cabeçalho da navegação lateral com a marca */
+.nav__brand,
+.nav-toggler {
+  color: var(--legaldrive-navy);
+}
+
+/* Cartões/grupos com leve respiro para uma leitura mais limpa */
+.group-field__wrap,
+.tabs-field {
+  scroll-margin-top: 80px;
+}

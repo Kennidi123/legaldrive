@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPublishedPosts, getRelatedPosts } from '@/lib/payload-api'
 import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '@/lib/seo'
-import { lexicalToHTML, getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
+import { getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
+import ArticleBody from '@/components/ArticleBody'
 import VideoEmbed from '@/components/VideoEmbed'
 import type { Metadata } from 'next'
 
@@ -84,7 +85,6 @@ export default async function ArticlePage({ params }: Props) {
     : []
   const coverImage = getPostCoverImage(post)
   const avatarUrl = getAuthorAvatar(author)
-  const htmlContent = lexicalToHTML(post.content)
   const articleUrl = `/${cat.slug}/${post.slug}`
   const fullUrl = `${siteUrl}${articleUrl}`
 
@@ -131,7 +131,7 @@ export default async function ArticlePage({ params }: Props) {
         shareUrl={articleUrl}
         shareTitle={post.title}
       >
-        <div className="article-prose max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <ArticleBody post={post} />
 
         {post.youtubeId && (
           <div className="my-8">
