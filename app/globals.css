@@ -6,38 +6,41 @@
    KINETIC JURIS — Design System CSS Variables
    ============================================================ */
 :root {
-  --surface: #101415;
-  --surface-dim: #101415;
-  --surface-bright: #363a3b;
-  --surface-container-lowest: #0b0f10;
-  --surface-container-low: #191c1e;
-  --surface-container: #1d2022;
-  --surface-container-high: #272a2c;
-  --surface-container-highest: #323537;
-  --on-surface: #e0e3e5;
-  --on-surface-variant: #c5c6cd;
-  --outline: #8f9097;
-  --outline-variant: #44474d;
-  --primary: #b9c7e4;
-  --on-primary: #233148;
-  --primary-container: #0a192f;
-  --primary-fixed: #d6e3ff;
-  --primary-fixed-dim: #b9c7e4;
+  /* Superfícies — branco e cinzas claros */
+  --surface: #ffffff;
+  --surface-dim: #eef1f4;
+  --surface-bright: #ffffff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f8fafc;
+  --surface-container: #f1f5f9;
+  --surface-container-high: #e9eef3;
+  --surface-container-highest: #e2e8f0;
+  /* Textos */
+  --on-surface: #14181b;          /* texto principal (quase preto) */
+  --on-surface-variant: #4b5563;  /* texto secundário (cinza médio) */
+  --outline: #6b7280;
+  --outline-variant: #d8dee5;     /* bordas claras */
+  --primary: #1e3a5f;             /* slate escuro — usado como texto/realce */
+  --on-primary: #ffffff;
+  --primary-container: #ffffff;   /* FUNDO PRINCIPAL → branco */
+  --primary-fixed: #1e3a5f;       /* texto escuro */
+  --primary-fixed-dim: #56627a;   /* texto mudo */
   --on-primary-fixed: #0d1c32;
-  --on-primary-fixed-variant: #39475f;
-  --secondary: #ffb86b;
-  --on-secondary: #492900;
-  --secondary-container: #ed9000;
-  --on-secondary-container: #583300;
+  --on-primary-fixed-variant: #e2e8f0;  /* usado como bordas/divisores → claro */
+  /* Acento laranja da marca (mais profundo p/ contraste no branco) */
+  --secondary: #e07b00;
+  --on-secondary: #ffffff;
+  --secondary-container: #ffe2c0;
+  --on-secondary-container: #8a4b00;
   --secondary-fixed: #ffdcbc;
-  --secondary-fixed-dim: #ffb86b;
-  --tertiary: #b6c6ed;
-  --tertiary-container: #061836;
+  --secondary-fixed-dim: #e07b00;
+  --tertiary: #3a5a8f;
+  --tertiary-container: #eef2f7;  /* placeholder de imagem → claro */
   --on-tertiary: #20304f;
-  --on-tertiary-container: #7282a5;
-  --error: #ffb4ab;
-  --background: #101415;
-  --on-background: #e0e3e5;
+  --on-tertiary-container: #5a6b85;
+  --error: #c0392b;
+  --background: #ffffff;
+  --on-background: #14181b;
 }
 
 /* ============================================================
@@ -49,6 +52,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Aumenta proporcionalmente todo texto/espaçamento baseado em rem (Tailwind) */
+  font-size: 17.5px;
 }
 
 body {
@@ -77,9 +82,9 @@ body {
    ============================================================ */
 .article-prose {
   color: var(--on-surface-variant);
-  font-size: 18px;
-  line-height: 1.7;
-  max-width: 680px;
+  font-size: 1.22rem;
+  line-height: 1.75;
+  max-width: 720px;
 }
 
 .article-prose p {
@@ -88,8 +93,8 @@ body {
 
 .article-prose h2 {
   font-family: var(--font-chivo), sans-serif;
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 1.85rem;
+  font-weight: 700;
   color: var(--on-surface);
   margin-top: 3rem;
   margin-bottom: 1rem;
@@ -97,7 +102,7 @@ body {
 
 .article-prose h3 {
   font-family: var(--font-chivo), sans-serif;
-  font-size: 20px;
+  font-size: 1.45rem;
   font-weight: 600;
   color: var(--on-surface);
   margin-top: 2rem;
@@ -126,10 +131,10 @@ body {
   margin: 2rem 0;
   font-style: italic;
   color: var(--on-surface);
-  font-size: 20px;
+  font-size: 1.4rem;
   font-family: var(--font-chivo), sans-serif;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .article-prose a {
@@ -201,18 +206,22 @@ body {
 
 .section-title {
   font-family: var(--font-chivo), sans-serif;
-  font-size: 32px;
+  font-size: 2.25rem;
   font-weight: 700;
   color: var(--on-surface);
-  border-left: 3px solid var(--secondary);
+  border-left: 4px solid var(--secondary);
   padding-left: 1rem;
 }
 
 .card-base {
   background: var(--surface-container);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--outline-variant);
   border-radius: 8px;
-  transition: border-color 150ms ease, transform 150ms ease;
+  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card-base:hover {
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.18);
 }
 
 .card-base:hover {

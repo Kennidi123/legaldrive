@@ -9,16 +9,16 @@ export const metadata = buildMetadata({
   slug: 'contato',
 })
 
-/* Níveis tonais navy específicos deste mockup */
+/* Níveis tonais claros desta página */
 const C = {
-  bg: '#0a192f', // background / primary-container
-  lowest: '#040b15', // surface-container-lowest
-  container: '#081426', // surface-container / low
-  high: '#0d1e38', // surface-container-high
-  highest: '#102341', // surface-variant / bright
-  borderv: '#1f2d42', // outline-variant
-  outline: '#4a5d7c', // outline
-  onPrimaryContainer: '#74829d',
+  bg: '#ffffff', // background / primary-container
+  lowest: '#ffffff', // surface-container-lowest
+  container: '#f8fafc', // surface-container / low
+  high: '#f1f5f9', // surface-container-high
+  highest: '#e9eef3', // surface-variant / bright
+  borderv: '#d8dee5', // outline-variant
+  outline: '#6b7280', // outline
+  onPrimaryContainer: '#56627a',
 }
 
 const IMG = {
@@ -60,14 +60,14 @@ export default function ContatoPage() {
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '#'
 
   const inputCls =
-    'w-full rounded-lg p-3 text-[var(--on-surface)] bg-[#081426] border border-[#1f2d42] focus:ring-2 focus:ring-[var(--secondary)] focus:border-[var(--secondary)] focus:outline-none transition-all placeholder:text-[#4a5d7c]'
+    'w-full rounded-lg p-3 text-[var(--on-surface)] bg-[var(--surface-container-low)] border border-[var(--outline-variant)] focus:ring-2 focus:ring-[var(--secondary)] focus:border-[var(--secondary)] focus:outline-none transition-all placeholder:text-[var(--on-surface-variant)]'
 
   return (
     <main className="w-full bg-[var(--primary-container)] text-[var(--on-background)]">
       {/* ============ HERO ============ */}
       <section className="relative overflow-hidden py-24 lg:py-32 bg-[var(--primary-container)]">
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#0a192f] via-transparent to-[#0a192f]" />
+          <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-transparent to-white" />
           <Image src={IMG.hero} alt="" fill priority sizes="100vw" className="object-cover" />
         </div>
         <div className="max-w-content mx-auto px-4 md:px-16 relative z-20">
@@ -76,10 +76,10 @@ export default function ContatoPage() {
               <span className="text-[var(--secondary)] font-mono text-xs tracking-widest uppercase block mb-4">
                 Tecnologia Aplicada à Defesa de Trânsito
               </span>
-              <h1 className="font-display text-4xl md:text-6xl font-extrabold text-white mb-6 leading-[1.05]">
+              <h1 className="font-display text-4xl md:text-6xl font-extrabold text-[var(--on-surface)] mb-6 leading-[1.05]">
                 Proteja seu direito de dirigir com inteligência.
               </h1>
-              <p className="font-body text-lg text-[#74829d] mb-8 max-w-xl leading-relaxed">
+              <p className="font-body text-lg text-[var(--on-surface-variant)] mb-8 max-w-xl leading-relaxed">
                 O Legal Drive utiliza análise de dados e jurisprudência avançada para anular multas injustas e recuperar
                 CNHs suspensas. Soluções rápidas, técnicas e definitivas.
               </p>
@@ -95,7 +95,7 @@ export default function ContatoPage() {
 
             {/* Card Consulta Rápida */}
             <div className="hidden lg:block">
-              <div className="bg-[#0d1e38] p-8 rounded-xl border border-[#1f2d42]" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+              <div className="bg-[var(--surface-container-low)] p-8 rounded-xl border border-[var(--outline-variant)]" style={{ boxShadow: '0 6px 24px -10px rgba(0,0,0,0.15)' }}>
                 <h3 className="font-display text-2xl font-semibold text-[var(--primary)] mb-6 text-center">Consulta Rápida</h3>
                 <form className="space-y-4">
                   <input type="text" placeholder="Seu Nome" className={inputCls} />
@@ -116,7 +116,7 @@ export default function ContatoPage() {
       </section>
 
       {/* ============ SOLUÇÕES ============ */}
-      <section id="servicos" className="py-24 bg-[#040b15]">
+      <section id="servicos" className="py-24 bg-[var(--surface-container)]">
         <div className="max-w-content mx-auto px-4 md:px-16">
           <div className="text-center mb-16">
             <h2 className="font-display text-[32px] font-bold text-[var(--on-background)] mb-4">Nossas Soluções</h2>
@@ -128,7 +128,7 @@ export default function ContatoPage() {
               { icon: P.speed, title: 'Multas de Radar', text: 'Análise de conformidade técnica de radares e sinalização para anulação de infrações.' },
               { icon: P.shield, title: 'Lei Seca', text: 'Assessoria jurídica especializada para infrações do Art. 165 e 165-A do CTB.' },
             ].map((s) => (
-              <div key={s.title} className="bg-[#081426] p-8 border border-[#1f2d42] hover:border-[var(--secondary)] transition-colors group rounded-lg">
+              <div key={s.title} className="bg-[var(--surface-container-low)] p-8 border border-[var(--outline-variant)] hover:border-[var(--secondary)] transition-colors group rounded-lg">
                 <span className="text-[var(--secondary)] mb-4 block group-hover:scale-110 transition-transform w-fit">
                   <Icon d={s.icon} className="w-10 h-10" />
                 </span>
@@ -146,10 +146,10 @@ export default function ContatoPage() {
           <div className="flex flex-col lg:flex-row gap-16 items-center">
             <div className="w-full lg:w-1/2 relative">
               <div className="absolute -top-6 -left-6 w-32 h-32 border-l-4 border-t-4 border-[var(--secondary)] opacity-30" />
-              <div className="relative aspect-square w-full overflow-hidden rounded-lg" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+              <div className="relative aspect-square w-full overflow-hidden rounded-lg" style={{ boxShadow: '0 6px 24px -10px rgba(0,0,0,0.15)' }}>
                 <Image src="/erika-chagas.png" alt="Erika Chagas" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
               </div>
-              <div className="absolute -bottom-6 -right-6 bg-[var(--secondary)] p-6 rounded-lg text-[var(--on-secondary)]" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+              <div className="absolute -bottom-6 -right-6 bg-[var(--secondary)] p-6 rounded-lg text-[var(--on-secondary)]" style={{ boxShadow: '0 6px 24px -10px rgba(0,0,0,0.15)' }}>
                 <p className="font-display text-xl font-bold mb-1">Erika Chagas</p>
                 <p className="font-mono text-[11px] uppercase tracking-widest opacity-80">Founder &amp; CEO Legal Drive</p>
               </div>
@@ -171,12 +171,12 @@ export default function ContatoPage() {
               <div className="mt-12 flex gap-12 items-center">
                 <div>
                   <p className="text-3xl font-display font-bold text-[var(--secondary)]">15k+</p>
-                  <p className="font-mono text-[11px] uppercase text-[#4a5d7c]">Casos Resolvidos</p>
+                  <p className="font-mono text-[11px] uppercase text-[var(--on-surface-variant)]">Casos Resolvidos</p>
                 </div>
-                <div className="w-px h-12 bg-[#1f2d42]" />
+                <div className="w-px h-12 bg-[var(--outline-variant)]" />
                 <div>
                   <p className="text-3xl font-display font-bold text-[var(--secondary)]">92%</p>
-                  <p className="font-mono text-[11px] uppercase text-[#4a5d7c]">Taxa de Sucesso</p>
+                  <p className="font-mono text-[11px] uppercase text-[var(--on-surface-variant)]">Taxa de Sucesso</p>
                 </div>
               </div>
             </div>
@@ -185,7 +185,7 @@ export default function ContatoPage() {
       </section>
 
       {/* ============ CASES (BENTO) ============ */}
-      <section id="cases" className="py-24 bg-[#040b15]">
+      <section id="cases" className="py-24 bg-[var(--surface-container)]">
         <div className="max-w-content mx-auto px-4 md:px-16">
           <div className="mb-16">
             <h2 className="font-display text-[32px] font-bold text-[var(--on-background)]">Vereditos Recentes</h2>
@@ -193,7 +193,7 @@ export default function ContatoPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Vitória Crítica */}
-            <div className="md:col-span-2 bg-[#0d1e38] p-8 rounded-xl border border-[#1f2d42] relative overflow-hidden group">
+            <div className="md:col-span-2 bg-[var(--surface-container-low)] p-8 rounded-xl border border-[var(--outline-variant)] relative overflow-hidden group">
               <div className="relative z-10">
                 <span className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-[11px] px-3 py-1 rounded uppercase mb-4 inline-block">Vitória Crítica</span>
                 <h3 className="font-display text-2xl font-semibold text-[var(--primary)] mb-4">Suspensão de CNH Anulada</h3>
@@ -221,14 +221,14 @@ export default function ContatoPage() {
             </div>
 
             {/* Frotas */}
-            <div className="bg-[#081426] p-8 rounded-xl border border-[#1f2d42]">
+            <div className="bg-[var(--surface-container-low)] p-8 rounded-xl border border-[var(--outline-variant)]">
               <span className="text-[var(--secondary)] font-mono text-[11px] uppercase mb-4 block">Frotas</span>
               <h3 className="font-display text-2xl font-semibold text-[var(--primary)] mb-4">Gestão de Pontos</h3>
               <p className="text-[var(--on-surface-variant)]">Redução de 40% nos custos com multas para transportadora logística.</p>
             </div>
 
             {/* Monitoramento */}
-            <div className="md:col-span-2 bg-[var(--primary-container)] p-8 rounded-xl flex flex-col md:flex-row gap-8 items-center border border-[#1f2d42]">
+            <div className="md:col-span-2 bg-[var(--primary-container)] p-8 rounded-xl flex flex-col md:flex-row gap-8 items-center border border-[var(--outline-variant)]">
               <div className="md:w-1/3 w-full">
                 <div className="relative w-full h-32 overflow-hidden rounded-lg">
                   <Image src={IMG.monitoring} alt="Monitoramento ativo" fill sizes="(max-width:768px) 100vw, 20vw" className="object-cover opacity-80" />
@@ -236,7 +236,7 @@ export default function ContatoPage() {
               </div>
               <div className="md:w-2/3">
                 <h3 className="font-display text-2xl font-semibold text-[var(--secondary)] mb-2">Monitoramento Ativo</h3>
-                <p className="text-[#74829d] text-sm">
+                <p className="text-[var(--on-surface-variant)] text-sm">
                   Nossa tecnologia varre diários oficiais diariamente para alertar clientes antes mesmo da notificação
                   chegar em casa.
                 </p>
@@ -247,11 +247,11 @@ export default function ContatoPage() {
       </section>
 
       {/* ============ CONVERSÃO FINAL ============ */}
-      <section id="contato" className="py-24 bg-[var(--primary-container)] border-t border-[#1f2d42]">
+      <section id="contato" className="py-24 bg-[var(--primary-container)] border-t border-[var(--outline-variant)]">
         <div className="max-w-content mx-auto px-4 md:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <div>
-              <h2 className="font-display text-4xl md:text-5xl font-extrabold text-white mb-8 leading-tight">
+              <h2 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--on-surface)] mb-8 leading-tight">
                 Recupere sua liberdade agora.
               </h2>
               <p className="font-body text-lg text-[var(--on-surface-variant)] mb-12">
@@ -260,21 +260,21 @@ export default function ContatoPage() {
               </p>
               <div className="space-y-8">
                 <div className="flex items-start gap-4">
-                  <span className="text-[var(--secondary)] bg-[#081426] p-4 rounded-xl inline-flex">
+                  <span className="text-[var(--secondary)] bg-[var(--surface-container-low)] p-4 rounded-xl inline-flex">
                     <Icon d={P.headset} />
                   </span>
                   <div>
                     <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Fale Conosco</p>
-                    <p className="text-xl text-white">(11) 99999-9999</p>
+                    <p className="text-xl text-[var(--on-surface)]">(11) 99999-9999</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <span className="text-[var(--secondary)] bg-[#081426] p-4 rounded-xl inline-flex">
+                  <span className="text-[var(--secondary)] bg-[var(--surface-container-low)] p-4 rounded-xl inline-flex">
                     <Icon d={P.pin} />
                   </span>
                   <div>
                     <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Atendimento</p>
-                    <p className="text-xl text-white">Nacional (Online &amp; Presencial)</p>
+                    <p className="text-xl text-[var(--on-surface)]">Nacional (Online &amp; Presencial)</p>
                   </div>
                 </div>
               </div>
@@ -284,7 +284,7 @@ export default function ContatoPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#25D366] text-white px-8 py-4 rounded-full font-bold flex items-center justify-center gap-3 transition-transform hover:scale-105 w-full md:w-fit"
-                  style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}
+                  style={{ boxShadow: '0 6px 24px -10px rgba(0,0,0,0.15)' }}
                 >
                   <WhatsAppIcon className="w-6 h-6" /> Chamar no WhatsApp
                 </Link>
@@ -292,20 +292,20 @@ export default function ContatoPage() {
             </div>
 
             {/* Formulário de Defesa */}
-            <div className="bg-[#0d1e38] p-8 rounded-2xl border border-[#1f2d42]" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+            <div className="bg-[var(--surface-container-low)] p-8 rounded-2xl border border-[var(--outline-variant)]" style={{ boxShadow: '0 6px 24px -10px rgba(0,0,0,0.15)' }}>
               <h3 className="font-display text-2xl font-semibold text-[var(--primary)] mb-8">Formulário de Defesa</h3>
               <form className="space-y-6">
                 <div>
-                  <label className="block font-mono text-[11px] text-[#4a5d7c] uppercase mb-2">Nome Completo</label>
+                  <label className="block font-mono text-[11px] text-[var(--on-surface-variant)] uppercase mb-2">Nome Completo</label>
                   <input type="text" placeholder="Digite seu nome" className={`${inputCls} p-4`} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-mono text-[11px] text-[#4a5d7c] uppercase mb-2">WhatsApp</label>
+                    <label className="block font-mono text-[11px] text-[var(--on-surface-variant)] uppercase mb-2">WhatsApp</label>
                     <input type="tel" placeholder="(00) 00000-0000" className={`${inputCls} p-4`} />
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] text-[#4a5d7c] uppercase mb-2">Urgência</label>
+                    <label className="block font-mono text-[11px] text-[var(--on-surface-variant)] uppercase mb-2">Urgência</label>
                     <select className={`${inputCls} p-4`} defaultValue="Baixa">
                       <option>Baixa</option>
                       <option>Média (Prazo correndo)</option>
@@ -314,7 +314,7 @@ export default function ContatoPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] text-[#4a5d7c] uppercase mb-2">O que aconteceu?</label>
+                  <label className="block font-mono text-[11px] text-[var(--on-surface-variant)] uppercase mb-2">O que aconteceu?</label>
                   <textarea
                     rows={4}
                     placeholder="Descreva brevemente sua multa ou situação da CNH"
@@ -324,7 +324,7 @@ export default function ContatoPage() {
                 <button type="submit" className="w-full bg-[var(--secondary)] text-[var(--on-secondary)] py-5 rounded-lg font-mono text-sm uppercase font-bold transition-transform hover:scale-[1.02] active:scale-100">
                   Enviar para Avaliação Técnica
                 </button>
-                <p className="font-mono text-[10px] text-center text-[#4a5d7c] uppercase tracking-wider">
+                <p className="font-mono text-[10px] text-center text-[var(--on-surface-variant)] uppercase tracking-wider">
                   Seus dados estão protegidos pela LGPD.
                 </p>
               </form>

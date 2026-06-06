@@ -57,7 +57,7 @@ export default function CmsLoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-[var(--surface-container-high)] rounded-lg border border-[rgba(255,255,255,0.07)] p-8 space-y-5"
+          className="bg-[var(--surface-container-high)] rounded-lg border border-[var(--outline-variant)] p-8 space-y-5"
         >
           <div>
             <label className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] block mb-2">

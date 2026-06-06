@@ -64,7 +64,7 @@ export default function ArticleCard({
           {excerpt}
         </p>
 
-        <div className="flex items-center gap-3 pt-2 border-t border-[rgba(255,255,255,0.06)]">
+        <div className="flex items-center gap-3 pt-2 border-t border-[var(--outline-variant)]">
           {publishedAt && (
             <span className="font-mono text-[11px] text-[var(--outline)] uppercase tracking-wider">
               {formatDate(publishedAt)}

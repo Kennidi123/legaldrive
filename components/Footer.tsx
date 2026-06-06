@@ -40,7 +40,7 @@ export default function Footer() {
           <div className="md:col-span-3">
             <Link href="/" className="block mb-5">
               <Image
-                src="/logo-completa.png"
+                src="/logovariavel1.png"
                 alt="Legal Drive"
                 width={44}
                 height={44}

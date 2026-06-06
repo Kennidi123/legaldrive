@@ -16,7 +16,7 @@ interface ArticleSidebarProps {
   newsletterText?: string
 }
 
-const NAVY_1 = '#112240'
+const CARD_BG = '#f1f5f9'
 
 function Icon({ d, className = 'w-5 h-5' }: { d: string; className?: string }) {
   return (
@@ -46,7 +46,7 @@ export default function ArticleSidebar({
             {related.map((r) => (
               <Link key={r.id} href={r.href} className="group block">
                 <article className="flex gap-4">
-                  <div className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg border border-[var(--on-primary-fixed-variant)] relative bg-[#112240]">
+                  <div className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg border border-[var(--on-primary-fixed-variant)] relative bg-[var(--surface-container-high)]">
                     {r.img ? (
                       <Image src={r.img} alt={r.title} fill sizes="96px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : null}
@@ -65,7 +65,7 @@ export default function ArticleSidebar({
       )}
 
       {/* CTA */}
-      <div className="p-8 rounded-xl flex flex-col gap-6 border border-[rgba(185,199,228,0.2)]" style={{ background: NAVY_1, boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+      <div className="p-8 rounded-xl flex flex-col gap-6 border border-[var(--outline-variant)]" style={{ background: CARD_BG, boxShadow: '0 14px 32px -18px rgba(0,0,0,0.25)' }}>
         <div className="w-12 h-12 bg-[var(--secondary)] rounded-xl flex items-center justify-center text-[var(--on-secondary)] shadow-lg">
           <Icon d={GAVEL} className="w-7 h-7" />
         </div>
@@ -84,7 +84,7 @@ export default function ArticleSidebar({
       </div>
 
       {/* Newsletter */}
-      <div className="p-8 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: '#233554' }}>
+      <div className="p-8 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: '#eef2f7' }}>
         <h3 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-4">{newsletterTitle}</h3>
         <p className="font-body text-base text-[var(--on-surface-variant)] mb-6">{newsletterText}</p>
         <form action="/contato" method="GET" className="space-y-4">

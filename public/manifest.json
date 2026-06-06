@@ -4,8 +4,8 @@
   "description": "Inteligência jurídica em Direito de Trânsito para o motorista brasileiro.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#101415",
-  "theme_color": "#ffb86b",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/logovariavel1.png",

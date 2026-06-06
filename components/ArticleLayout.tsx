@@ -29,8 +29,8 @@ interface ArticleLayoutProps {
   children: React.ReactNode
 }
 
-/* Nível tonal navy do mockup (cards/citações/CTA) */
-const NAVY_1 = '#112240'
+/* Tom de superfície clara para cards/citações/CTA */
+const CARD_BG = '#f1f5f9'
 
 function Icon({ d, className = 'w-5 h-5' }: { d: string; className?: string }) {
   return (
@@ -81,7 +81,7 @@ export default function ArticleLayout({
             </h1>
             <div className="flex flex-wrap items-center gap-6 py-6 border-y border-[var(--on-primary-fixed-variant)] mb-12">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[var(--secondary)] relative bg-[#112240] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[var(--secondary)] relative bg-[var(--surface-container-high)] flex items-center justify-center">
                   {avatar ? (
                     <Image src={avatar} alt={authorName} fill sizes="40px" className="object-cover" />
                   ) : (
@@ -125,7 +125,7 @@ export default function ArticleLayout({
               <ShareButtons url={shareUrl} title={shareTitle} variant="bottom" />
               <div className="flex flex-wrap gap-2">
                 {tags.map((t) => (
-                  <span key={t} className="px-3 py-1 rounded-full font-mono text-[11px] text-[var(--on-surface-variant)]" style={{ background: '#233554' }}>
+                  <span key={t} className="px-3 py-1 rounded-full font-mono text-[11px] text-[var(--on-surface-variant)]" style={{ background: '#e9eef3' }}>
                     {t}
                   </span>
                 ))}
@@ -135,11 +135,11 @@ export default function ArticleLayout({
             {/* Comentários */}
             <section className="mt-16">
               <h4 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-6">Comentários (12)</h4>
-              <div className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: NAVY_1 }}>
+              <div className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: CARD_BG }}>
                 <textarea
                   rows={3}
                   placeholder="Adicione seu comentário ou dúvida..."
-                  className="w-full p-4 rounded-lg border-none focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-[#0a192f]/40 placeholder:text-[var(--on-surface-variant)] resize-none focus:outline-none"
+                  className="w-full p-4 rounded-lg border border-[var(--outline-variant)] focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-white placeholder:text-[var(--on-surface-variant)] resize-none focus:outline-none"
                 />
                 <div className="flex justify-end mt-4">
                   <button className="bg-[var(--primary-container)] text-[var(--primary)] border border-[var(--primary)] px-8 py-2 rounded-lg font-mono text-xs hover:bg-[var(--primary)] hover:text-[var(--on-primary)] transition-colors uppercase tracking-wider">

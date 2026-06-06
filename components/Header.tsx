@@ -46,7 +46,7 @@ export default function Header() {
           <Link href="/" className="flex items-center gap-2 flex-none">
             <Image src="/logovariavel1.png" alt="Legal Drive" width={44} height={44} priority className="h-9 md:h-10 w-auto object-contain" />
             {isHome && (
-              <Image src="/logo-somenteescrita.png" alt="Legal Drive" width={280} height={150} priority className="h-14 md:h-16 w-auto object-contain -ml-2" />
+              <Image src="/logo-somenteescrita.png" alt="Legal Drive" width={280} height={150} priority className="h-14 md:h-16 w-auto object-contain -ml-2 invert" />
             )}
           </Link>
 

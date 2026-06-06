@@ -144,7 +144,7 @@ export default async function ArticlePage({ params }: Props) {
             href={post.externalLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 flex items-center gap-3 p-4 rounded-lg border border-[var(--on-primary-fixed-variant)] hover:border-[var(--secondary)] transition-colors group bg-[#112240]"
+            className="mt-8 flex items-center gap-3 p-4 rounded-lg border border-[var(--on-primary-fixed-variant)] hover:border-[var(--secondary)] transition-colors group bg-[var(--surface-container-low)]"
           >
             <svg className="w-5 h-5 text-[var(--secondary)] flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

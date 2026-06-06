@@ -32,7 +32,7 @@ export default async function CmsDashboard() {
           { label: 'Rascunhos', value: posts.filter((p: any) => p.status === 'draft').length },
           { label: 'Categorias', value: categories.length },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[var(--surface-container-high)] rounded-lg border border-[rgba(255,255,255,0.07)] p-5">
+          <div key={stat.label} className="bg-[var(--surface-container-high)] rounded-lg border border-[var(--outline-variant)] p-5">
             <p className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] mb-1">{stat.label}</p>
             <p className="font-display text-3xl font-bold text-[var(--secondary)]">{stat.value}</p>
           </div>
@@ -40,7 +40,7 @@ export default async function CmsDashboard() {
       </div>
 
       {/* Posts list */}
-      <div className="bg-[var(--surface-container-high)] rounded-lg border border-[rgba(255,255,255,0.07)] overflow-hidden">
+      <div className="bg-[var(--surface-container-high)] rounded-lg border border-[var(--outline-variant)] overflow-hidden">
         <div className="p-5 border-b border-[var(--outline-variant)]">
           <h2 className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)]">Posts Recentes</h2>
         </div>

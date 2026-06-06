@@ -127,7 +127,7 @@ export default function NewPostPage() {
 
   const inp = "w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors placeholder:text-[var(--outline)]"
   const lbl = "font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)] block mb-1.5"
-  const sec = "bg-[var(--surface-container-high)] border border-[rgba(255,255,255,0.06)] rounded-xl p-6 space-y-5"
+  const sec = "bg-[var(--surface-container-high)] border border-[var(--outline-variant)] rounded-xl p-6 space-y-5"
 
   return (
     <div className="max-w-3xl space-y-6">
