@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload from '../../ImageUpload'
+import MediaField from '../../MediaField'
+import { textToLexical, cleanMedia, emptyMedia, type MediaValue } from '../../content-utils'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -36,10 +38,13 @@ export default function NewPostPage() {
   const [slugManual, setSlugManual] = useState(false)
 
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', category: '',
+    title: '', slug: '', excerpt: '', content: '', contentMeio: '', contentFinal: '', category: '',
     author: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
     featureLevel: 'normal', scheduledAt: '', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
   })
+  const [mediaInicial, setMediaInicial] = useState<MediaValue>({ ...emptyMedia })
+  const [mediaMeio, setMediaMeio] = useState<MediaValue>({ ...emptyMedia })
+  const [mediaFinal, setMediaFinal] = useState<MediaValue>({ ...emptyMedia })
 
   const showToast = useCallback((msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -102,7 +107,12 @@ export default function NewPostPage() {
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
         status: form.status === 'draft' ? 'draft' : 'published', featureLevel: form.featureLevel,
-        content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
+        content: textToLexical(form.content),
+        contentMeio: form.contentMeio ? textToLexical(form.contentMeio) : null,
+        contentFinal: form.contentFinal ? textToLexical(form.contentFinal) : null,
+        mediaInicial: cleanMedia(mediaInicial),
+        mediaMeio: cleanMedia(mediaMeio),
+        mediaFinal: cleanMedia(mediaFinal),
       }
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
       if (form.author) body.author = /^\d+$/.test(form.author) ? Number(form.author) : form.author
@@ -164,12 +174,30 @@ export default function NewPostPage() {
           </div>
         </div>
 
-        {/* Conteúdo */}
+        {/* Conteúdo em 3 partes com mídia intercalada */}
         <div className={sec}>
+          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Conteúdo do Artigo</p>
+          <p className="font-sans text-[11px] text-[var(--outline)] normal-case tracking-normal -mt-3">
+            Escreva em até 3 partes. Entre cada parte você pode colocar uma imagem ou um vídeo. Deixe vazio para mostrar só o texto.
+          </p>
+
           <div>
-            <label className={lbl}>Conteúdo do Artigo</label>
-            <textarea name="content" value={form.content} onChange={handleChange} rows={14} placeholder="Escreva o conteúdo completo do artigo aqui..." className={`${inp} font-mono text-sm leading-relaxed`} />
+            <label className={lbl}>1️⃣ Texto — Início</label>
+            <textarea name="content" value={form.content} onChange={handleChange} rows={10} placeholder="Escreva a abertura da notícia aqui..." className={`${inp} font-mono text-sm leading-relaxed`} />
           </div>
+          <MediaField label="🎞️ Mídia após o início" value={mediaInicial} onChange={setMediaInicial} />
+
+          <div>
+            <label className={lbl}>2️⃣ Texto — Meio <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
+            <textarea name="contentMeio" value={form.contentMeio} onChange={handleChange} rows={8} placeholder="Continue a notícia (opcional)..." className={`${inp} font-mono text-sm leading-relaxed`} />
+          </div>
+          <MediaField label="🎞️ Mídia após o meio" value={mediaMeio} onChange={setMediaMeio} />
+
+          <div>
+            <label className={lbl}>3️⃣ Texto — Final <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
+            <textarea name="contentFinal" value={form.contentFinal} onChange={handleChange} rows={8} placeholder="Conclusão da notícia (opcional)..." className={`${inp} font-mono text-sm leading-relaxed`} />
+          </div>
+          <MediaField label="🎞️ Mídia após o final" value={mediaFinal} onChange={setMediaFinal} />
         </div>
 
         {/* Classificação */}

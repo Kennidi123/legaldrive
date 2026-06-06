@@ -86,23 +86,9 @@ export function getPostCoverImage(post: {
   return normalizeImageUrl(post.coverImageUrl)
 }
 
-/** URL de um upload de mídia (campo `upload` populado em depth >= 1). */
-export function getMediaUrl(media?: { url?: string } | null | number): string | null {
-  if (media && typeof media === 'object' && media.url) {
-    return normalizeImageUrl(media.url)
-  }
-  return null
-}
-
-/** Dimensões naturais de um upload de mídia (para preservar a proporção). */
-export function getMediaDimensions(media?: { width?: number; height?: number } | null | number): {
-  width: number
-  height: number
-} {
-  if (media && typeof media === 'object' && media.width && media.height) {
-    return { width: media.width, height: media.height }
-  }
-  return { width: 1200, height: 675 }
+/** Normaliza uma URL de mídia (corrige host interno do container). */
+export function normalizeMediaUrl(url?: string | null): string | null {
+  return normalizeImageUrl(url ?? null)
 }
 
 export function getAuthorAvatar(author: {

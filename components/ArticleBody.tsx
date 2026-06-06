@@ -1,10 +1,10 @@
-import Image from 'next/image'
-import { lexicalToHTML, getMediaUrl, getMediaDimensions } from '@/lib/lexical'
+/* eslint-disable @next/next/no-img-element */
+import { lexicalToHTML, normalizeMediaUrl } from '@/lib/lexical'
 import VideoEmbed from './VideoEmbed'
 
 interface MediaGroup {
   tipo?: 'none' | 'image' | 'video' | null
-  image?: { url?: string; width?: number; height?: number; alt?: string } | null | number
+  imageUrl?: string | null
   caption?: string | null
   video?: string | null
 }
@@ -32,17 +32,14 @@ function MediaBlock({ media, title }: { media?: MediaGroup | null; title: string
   }
 
   if (media.tipo === 'image') {
-    const url = getMediaUrl(media.image)
+    const url = normalizeMediaUrl(media.imageUrl)
     if (!url) return null
-    const { width, height } = getMediaDimensions(media.image)
     return (
       <figure className="my-10">
-        <Image
+        <img
           src={url}
           alt={media.caption || title}
-          width={width}
-          height={height}
-          sizes="(max-width: 1024px) 100vw, 66vw"
+          loading="lazy"
           className="w-full h-auto rounded-xl bg-[var(--tertiary-container)]"
           style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.35)' }}
         />

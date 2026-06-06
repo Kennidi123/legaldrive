@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload from '../../ImageUpload'
+import MediaField from '../../MediaField'
+import { textToLexical, lexicalToText, cleanMedia, mediaFromPost, emptyMedia, type MediaValue } from '../../content-utils'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -14,15 +16,6 @@ function getToken() {
 
 function slugify(text: string) {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-}
-
-function lexicalToText(content: any): string {
-  try {
-    const children = content?.root?.children || []
-    return children.map((node: any) =>
-      (node.children || []).map((c: any) => c.text || '').join('')
-    ).join('\n\n')
-  } catch { return '' }
 }
 
 function toLocalInput(iso: string): string {
@@ -53,9 +46,12 @@ export default function EditPostPage() {
   const [creatingAuthor, setCreatingAuthor] = useState(false)
 
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
+    title: '', slug: '', excerpt: '', content: '', contentMeio: '', contentFinal: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
     featureLevel: 'normal', scheduledAt: '', category: '', author: '', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
   })
+  const [mediaInicial, setMediaInicial] = useState<MediaValue>({ ...emptyMedia })
+  const [mediaMeio, setMediaMeio] = useState<MediaValue>({ ...emptyMedia })
+  const [mediaFinal, setMediaFinal] = useState<MediaValue>({ ...emptyMedia })
 
   const showToast = useCallback((msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -79,6 +75,8 @@ export default function EditPostPage() {
           slug: post.slug || '',
           excerpt: post.excerpt || '',
           content: lexicalToText(post.content),
+          contentMeio: lexicalToText(post.contentMeio),
+          contentFinal: lexicalToText(post.contentFinal),
           status: scheduled ? 'scheduled' : (post.status || 'draft'),
           featureLevel: post.featureLevel || (post.featured ? 'destaque' : 'normal'),
           scheduledAt: scheduled ? toLocalInput(post.publishedAt) : '',
@@ -89,6 +87,9 @@ export default function EditPostPage() {
           externalLink: post.externalLink || '',
           readingTime: post.readingTime?.toString() || '',
         })
+        setMediaInicial(mediaFromPost(post.mediaInicial))
+        setMediaMeio(mediaFromPost(post.mediaMeio))
+        setMediaFinal(mediaFromPost(post.mediaFinal))
       }
       setLoading(false)
     })
@@ -133,7 +134,12 @@ export default function EditPostPage() {
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
         status: form.status === 'draft' ? 'draft' : 'published', featureLevel: form.featureLevel,
-        content: { root: { children: [{ type: 'paragraph', children: [{ type: 'text', text: form.content, version: 1 }], version: 1, direction: 'ltr', format: '', indent: 0 }], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
+        content: textToLexical(form.content),
+        contentMeio: form.contentMeio ? textToLexical(form.contentMeio) : null,
+        contentFinal: form.contentFinal ? textToLexical(form.contentFinal) : null,
+        mediaInicial: cleanMedia(mediaInicial),
+        mediaMeio: cleanMedia(mediaMeio),
+        mediaFinal: cleanMedia(mediaFinal),
       }
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
       body.author = form.author ? (/^\d+$/.test(form.author) ? Number(form.author) : form.author) : null
@@ -211,10 +217,28 @@ export default function EditPostPage() {
         </div>
 
         <div className={sec}>
+          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Conteúdo do Artigo</p>
+          <p className="font-sans text-[11px] text-[var(--outline)] normal-case tracking-normal -mt-3">
+            Escreva em até 3 partes. Entre cada parte você pode colocar uma imagem ou um vídeo. Deixe vazio para mostrar só o texto.
+          </p>
+
           <div>
-            <label className={lbl}>Conteúdo do Artigo</label>
-            <textarea name="content" value={form.content} onChange={handleChange} rows={14} className={`${inp} font-mono text-sm leading-relaxed`} />
+            <label className={lbl}>1️⃣ Texto — Início</label>
+            <textarea name="content" value={form.content} onChange={handleChange} rows={10} className={`${inp} font-mono text-sm leading-relaxed`} />
           </div>
+          <MediaField label="🎞️ Mídia após o início" value={mediaInicial} onChange={setMediaInicial} />
+
+          <div>
+            <label className={lbl}>2️⃣ Texto — Meio <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
+            <textarea name="contentMeio" value={form.contentMeio} onChange={handleChange} rows={8} className={`${inp} font-mono text-sm leading-relaxed`} />
+          </div>
+          <MediaField label="🎞️ Mídia após o meio" value={mediaMeio} onChange={setMediaMeio} />
+
+          <div>
+            <label className={lbl}>3️⃣ Texto — Final <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
+            <textarea name="contentFinal" value={form.contentFinal} onChange={handleChange} rows={8} className={`${inp} font-mono text-sm leading-relaxed`} />
+          </div>
+          <MediaField label="🎞️ Mídia após o final" value={mediaFinal} onChange={setMediaFinal} />
         </div>
 
         <div className={sec}>

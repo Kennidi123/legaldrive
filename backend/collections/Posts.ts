@@ -13,7 +13,7 @@ const mediaBlock = (name: string, label: string): Field => ({
   label,
   admin: {
     description:
-      'Opcional. Escolha uma imagem (upload) OU um link de vídeo do YouTube para aparecer aqui. Deixe em "Nenhuma" para mostrar somente o texto.',
+      'Opcional. Escolha uma imagem OU um link de vídeo do YouTube para aparecer aqui. Deixe em "Nenhuma" para mostrar somente o texto.',
   },
   fields: [
     {
@@ -29,11 +29,13 @@ const mediaBlock = (name: string, label: string): Field => ({
       admin: { layout: 'horizontal' },
     },
     {
-      name: 'image',
-      type: 'upload',
-      relationTo: 'media',
-      label: 'Imagem (upload)',
-      admin: { condition: (_, sibling) => sibling?.tipo === 'image' },
+      name: 'imageUrl',
+      type: 'text',
+      label: 'Imagem (URL)',
+      admin: {
+        condition: (_, sibling) => sibling?.tipo === 'image',
+        description: 'URL da imagem. No painel customizado o upload preenche este campo automaticamente.',
+      },
     },
     {
       name: 'caption',
