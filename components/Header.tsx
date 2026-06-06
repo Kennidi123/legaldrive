@@ -36,18 +36,14 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
-  const isHome = pathname === '/'
 
   return (
     <header className="dark-section border-b border-[var(--on-primary-fixed-variant)] sticky top-0 z-50">
       <div className="max-w-content mx-auto px-4 md:px-16 py-4">
         {/* Linha superior: logo + busca + ações */}
         <div className="flex items-center justify-between w-full md:mb-4">
-          <Link href="/" className="flex items-center gap-2 flex-none">
-            <Image src="/logovariavel1.png" alt="Legal Drive" width={44} height={44} priority className="h-9 md:h-10 w-auto object-contain" />
-            {isHome && (
-              <Image src="/logo-somenteescrita.png" alt="Legal Drive" width={280} height={150} priority className="h-14 md:h-16 w-auto object-contain -ml-2" />
-            )}
+          <Link href="/" className="flex items-center flex-none">
+            <Image src="/logo-completa.png" alt="Legal Drive" width={200} height={54} priority className="h-10 md:h-12 w-auto object-contain" />
           </Link>
 
           {/* Busca + ações (desktop) */}

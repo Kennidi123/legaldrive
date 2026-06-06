@@ -46,6 +46,7 @@ const P = {
   check: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
   headset: 'M18 8a6 6 0 00-12 0v5a2 2 0 002 2h1v-7a3 3 0 016 0v7h1a2 2 0 002-2V8z',
   pin: 'M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z',
+  mail: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
 }
 
 function WhatsAppIcon({ className = 'w-6 h-6' }: { className?: string }) {
@@ -258,14 +259,32 @@ export default function ContatoPage() {
                 Não espere o prazo do recurso acabar. Nossa equipe técnica está pronta para analisar seu caso e traçar a
                 melhor estratégia de defesa.
               </p>
-              <div className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <span className="text-[var(--secondary)] bg-[var(--surface-container-low)] p-4 rounded-xl inline-flex">
+                    <WhatsAppIcon />
+                  </span>
+                  <div>
+                    <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Celular / WhatsApp</p>
+                    <a href="tel:+5511993982259" className="text-xl text-[var(--on-surface)] hover:text-[var(--secondary)] transition-colors">(11) 99398-2259</a>
+                  </div>
+                </div>
                 <div className="flex items-start gap-4">
                   <span className="text-[var(--secondary)] bg-[var(--surface-container-low)] p-4 rounded-xl inline-flex">
                     <Icon d={P.headset} />
                   </span>
                   <div>
-                    <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Fale Conosco</p>
-                    <p className="text-xl text-[var(--on-surface)]">(11) 99999-9999</p>
+                    <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Telefone Fixo</p>
+                    <a href="tel:+551152865004" className="text-xl text-[var(--on-surface)] hover:text-[var(--secondary)] transition-colors">(11) 5286-5004</a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <span className="text-[var(--secondary)] bg-[var(--surface-container-low)] p-4 rounded-xl inline-flex">
+                    <Icon d={P.mail} />
+                  </span>
+                  <div>
+                    <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">E-mail</p>
+                    <a href="mailto:contato@legaldrivemultas.com.br" className="text-xl text-[var(--on-surface)] hover:text-[var(--secondary)] transition-colors break-all">contato@legaldrivemultas.com.br</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -273,8 +292,12 @@ export default function ContatoPage() {
                     <Icon d={P.pin} />
                   </span>
                   <div>
-                    <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Atendimento</p>
-                    <p className="text-xl text-[var(--on-surface)]">Nacional (Online &amp; Presencial)</p>
+                    <p className="font-mono text-[var(--primary)] uppercase text-xs mb-1">Endereço</p>
+                    <p className="text-lg text-[var(--on-surface)] leading-relaxed">
+                      Avenida Ordem e Progresso, 157, sala 1104<br />
+                      Barra Funda — São Paulo/SP · CEP 01141-030
+                    </p>
+                    <p className="font-mono text-[11px] text-[var(--on-surface-variant)] mt-2">CNPJ 38.464.173/0001-33</p>
                   </div>
                 </div>
               </div>

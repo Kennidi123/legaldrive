@@ -50,6 +50,28 @@ export default function Footer() {
             <p className="text-[var(--on-surface-variant)] text-sm leading-relaxed mb-6">
               Inteligência jurídica a serviço do motorista brasileiro. Tecnologia e expertise para sua mobilidade.
             </p>
+
+            <ul className="space-y-2 mb-6 text-sm text-[var(--on-surface-variant)]">
+              <li>
+                <a href="tel:+5511993982259" className="hover:text-[var(--secondary)] transition-colors">
+                  📱 (11) 99398-2259 <span className="text-[var(--outline)]">· WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a href="tel:+551152865004" className="hover:text-[var(--secondary)] transition-colors">
+                  ☎️ (11) 5286-5004
+                </a>
+              </li>
+              <li>
+                <a href="mailto:contato@legaldrivemultas.com.br" className="hover:text-[var(--secondary)] transition-colors break-all">
+                  ✉️ contato@legaldrivemultas.com.br
+                </a>
+              </li>
+              <li className="leading-relaxed">
+                📍 Avenida Ordem e Progresso, 157, sala 1104 — Barra Funda, São Paulo/SP · CEP 01141-030
+              </li>
+            </ul>
+
             <div className="flex gap-4">
               <a
                 href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '#'}
@@ -121,7 +143,7 @@ export default function Footer() {
             © 2024 Legal Drive Inteligência Jurídica. Todos os direitos reservados.
           </p>
           <p className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">
-            CNPJ 00.000.000/0001-00
+            CNPJ 38.464.173/0001-33
           </p>
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">Desenvolvido por</span>
