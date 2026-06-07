@@ -100,6 +100,7 @@ export default function NewPostPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title || !form.slug || !form.excerpt) { showToast('Título, slug e resumo são obrigatórios.', 'error'); return }
+    if (!form.coverImageUrl) { showToast('A imagem de capa é obrigatória.', 'error'); return }
     if (form.status === 'scheduled' && !form.scheduledAt) { showToast('Defina a data e hora do agendamento.', 'error'); return }
     setSaving(true)
     try {
@@ -285,7 +286,7 @@ export default function NewPostPage() {
         <div className={sec}>
           <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Mídia & Links</p>
           <ImageUpload
-            label="Imagem de Capa"
+            label="Imagem de Capa *"
             value={form.coverImageUrl}
             onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
           />

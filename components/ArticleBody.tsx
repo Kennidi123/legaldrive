@@ -36,13 +36,17 @@ function MediaBlock({ media, title }: { media?: MediaGroup | null; title: string
     if (!url) return null
     return (
       <figure className="my-10">
-        <img
-          src={url}
-          alt={media.caption || title}
-          loading="lazy"
-          className="w-full h-auto rounded-xl bg-[var(--tertiary-container)]"
+        <div
+          className="relative w-full aspect-video overflow-hidden rounded-xl bg-[var(--tertiary-container)]"
           style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.35)' }}
-        />
+        >
+          <img
+            src={url}
+            alt={media.caption || title}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
         {media.caption && (
           <figcaption className="mt-3 font-mono text-[11px] text-[var(--on-surface-variant)] italic text-center">
             {media.caption}

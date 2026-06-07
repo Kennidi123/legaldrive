@@ -49,19 +49,32 @@ export default buildConfig({
   },
   collections: [Posts, Categories, Videos, Authors, Tags, Media, Users],
   onInit: async (payload) => {
+    const db = payload.db as unknown as {
+      pool?: { query: (sql: string) => Promise<unknown> }
+      drizzle?: { execute: (sql: string) => Promise<unknown> }
+    }
+    const runSql = async (sql: string) => {
+      if (db.pool?.query) return db.pool.query(sql)
+      if (db.drizzle?.execute) return db.drizzle.execute(sql)
+    }
+
     try {
-      const db = payload.db as unknown as {
-        pool?: { query: (sql: string) => Promise<unknown> }
-        drizzle?: { execute: (sql: string) => Promise<unknown> }
-      }
-      if (db.pool?.query) {
-        await db.pool.query(ENSURE_POSTS_COLUMNS)
-      } else if (db.drizzle?.execute) {
-        await db.drizzle.execute(ENSURE_POSTS_COLUMNS)
-      }
+      await runSql(ENSURE_POSTS_COLUMNS)
       payload.logger.info('[init] Colunas de mídia/segmentos garantidas na tabela posts.')
     } catch (err) {
       payload.logger.error(err, '[init] Falha ao garantir colunas novas em posts')
+    }
+
+    // Reset único e controlado: apaga TODAS as notícias quando RESET_POSTS=true.
+    // Use uma vez (defina a variável → redeploy) e DEPOIS remova a variável,
+    // senão os posts serão apagados de novo a cada reinício do backend.
+    if (process.env.RESET_POSTS === 'true') {
+      try {
+        await runSql('TRUNCATE TABLE posts RESTART IDENTITY CASCADE;')
+        payload.logger.warn('[init] RESET_POSTS=true → TODAS as notícias foram apagadas. REMOVA a variável RESET_POSTS agora para não repetir.')
+      } catch (err) {
+        payload.logger.error(err, '[init] Falha ao apagar notícias (RESET_POSTS)')
+      }
     }
   },
   editor: lexicalEditor(),
