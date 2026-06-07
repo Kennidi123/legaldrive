@@ -50,10 +50,23 @@ páginas React no FRONTEND que falam com a API REST do backend. Detalhes:
   (`textToLexical`, `lexicalToText`, `cleanMedia`, `mediaFromPost`, tipo `MediaValue`).
 - Seletor de mídia (Nenhuma/Imagem/Vídeo): `app/(cms)/admin/MediaField.tsx`.
 
+- Excluir notícia: pelos **cards do dashboard** (`DeletePostButton.tsx` → server action
+  `deletePostAction` em `actions.ts`) ou pelo botão Excluir dentro da edição.
+
 Ao mudar o formato de uma notícia, geralmente é preciso mexer em **3 lugares**:
 1. `backend/collections/Posts.ts` (schema)
 2. `app/(cms)/admin/posts/new` e `.../[id]` (formulário do CMS)
 3. `components/ArticleBody.tsx` + `lib/lexical.ts` (renderização no site)
+
+## Login do admin (trocar e-mail/senha)
+
+O login fica no banco (coleção `Users`), não no código. **Nunca** hardcode senha no repo
+(é público). Duas formas de trocar:
+1. **Painel nativo do Payload**: `https://api.legaldrivemultas.com.br/admin` → entrar com o
+   login atual → conta (canto inferior esquerdo) → editar e-mail + "Change Password".
+2. **Via env (Coolify)**: definir `ADMIN_UPSERT=true`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` no
+   backend → redeploy (o `onInit` atualiza/cria o usuário) → **remover as 3 variáveis** e
+   redeployar de novo.
 
 ## Modelo de conteúdo — a Notícia (Posts)
 
@@ -168,7 +181,13 @@ NEXT_PUBLIC_SITE_URL          # URL canônica p/ SEO
 NEXT_PUBLIC_WHATSAPP_CHANNEL  # link do WhatsApp (usado em botões/CTA)
 NEXT_PUBLIC_YOUTUBE_CHANNEL   # link do canal do YouTube
 RESET_POSTS                   # (temporária) 'true' apaga todos os posts no boot do backend
+ADMIN_UPSERT                  # (temporária) 'true' aplica a troca de login do admin no boot
+ADMIN_EMAIL                   # (temporária) novo e-mail do admin (usado com ADMIN_UPSERT)
+ADMIN_PASSWORD                # (temporária) nova senha do admin (usado com ADMIN_UPSERT)
 ```
+
+As três últimas (`ADMIN_*`) e `RESET_POSTS` são **temporárias**: defina no Coolify, faça
+redeploy e **REMOVA depois**. Nunca deixe senha fixa em variável nem no código.
 
 ## Segurança — NÃO reintroduzir
 
