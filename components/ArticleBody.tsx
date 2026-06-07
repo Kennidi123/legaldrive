@@ -35,7 +35,7 @@ function MediaBlock({ media, title }: { media?: MediaGroup | null; title: string
     const url = normalizeMediaUrl(media.imageUrl)
     if (!url) return null
     return (
-      <figure className="my-10">
+      <figure className="my-10 mx-auto md:max-w-sm">
         <div
           className="relative w-full aspect-video overflow-hidden rounded-xl bg-[var(--tertiary-container)]"
           style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.35)' }}
