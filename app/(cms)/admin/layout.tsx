@@ -48,26 +48,31 @@ export default async function CmsLayout({
                 Legal Drive CMS
               </span>
             </Link>
-            <nav className="flex items-center gap-4">
-              <Link href="/admin" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
+            <nav className="hidden sm:flex items-center gap-5">
+              <Link href="/admin" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
                 Dashboard
               </Link>
-              <Link href="/admin/posts/new" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
-                Novo Post
-              </Link>
-              <Link href="/" target="_blank" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
+              <Link href="/" target="_blank" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
                 Ver Site ↗
               </Link>
             </nav>
           </div>
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors"
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/posts/new"
+              className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-[10px] font-bold tracking-widest uppercase px-4 py-2 rounded-lg hover:brightness-110 transition-all"
             >
-              Sair
-            </button>
-          </form>
+              + Nova Notícia
+            </Link>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors"
+              >
+                Sair
+              </button>
+            </form>
+          </div>
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>

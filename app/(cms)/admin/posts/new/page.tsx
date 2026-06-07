@@ -26,6 +26,18 @@ function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
   )
 }
 
+function SectionHeader({ icon, title, desc }: { icon: string; title: string; desc?: string }) {
+  return (
+    <div className="flex items-start gap-3 mb-5 pb-4 border-b border-[var(--outline-variant)]">
+      <span className="text-xl leading-none mt-0.5">{icon}</span>
+      <div>
+        <h2 className="font-display text-base font-bold text-[var(--on-surface)] leading-tight">{title}</h2>
+        {desc && <p className="font-sans text-[11px] text-[var(--outline)] mt-0.5 leading-snug">{desc}</p>}
+      </div>
+    </div>
+  )
+}
+
 export default function NewPostPage() {
   const router = useRouter()
   const [categories, setCategories] = useState<any[]>([])
@@ -136,179 +148,184 @@ export default function NewPostPage() {
     } catch { showToast('Erro de conexão', 'error'); setSaving(false) }
   }
 
-  const inp = "w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] transition-colors placeholder:text-[var(--outline)]"
+  const inp = "w-full bg-[var(--surface-container-low)] border border-[var(--outline-variant)] text-[var(--on-surface)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] focus:ring-2 focus:ring-[var(--secondary)]/20 transition-all placeholder:text-[var(--outline)]"
   const lbl = "font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)] block mb-1.5"
-  const sec = "bg-[var(--surface-container-high)] border border-[var(--outline-variant)] rounded-xl p-6 space-y-5"
+  const card = "bg-[var(--surface-container-high)] border border-[var(--outline-variant)] rounded-2xl p-6 shadow-sm"
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="space-y-6">
       {toast && <Toast {...toast} />}
 
-      <div className="flex items-center justify-between">
-        <div>
-          <Link href="/admin" className="font-mono text-[10px] tracking-widest uppercase text-[var(--outline)] hover:text-[var(--secondary)] transition-colors">← Dashboard</Link>
-          <h1 className="font-display text-2xl font-bold text-[var(--on-surface)] mt-1">Novo Post</h1>
-        </div>
-        <div className="flex gap-3">
-          <button type="button" onClick={() => setForm(f => ({ ...f, status: 'draft' }))} className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-colors ${form.status === 'draft' ? 'bg-yellow-900/40 text-yellow-300 border-yellow-700' : 'border-[var(--outline-variant)] text-[var(--outline)]'}`}>Rascunho</button>
-          <button type="button" onClick={() => setForm(f => ({ ...f, status: 'published' }))} className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-lg border transition-colors ${form.status === 'published' ? 'bg-green-900/40 text-green-300 border-green-700' : 'border-[var(--outline-variant)] text-[var(--outline)]'}`}>Publicar</button>
-        </div>
+      {/* Top bar */}
+      <div>
+        <Link href="/admin" className="font-mono text-[10px] tracking-widest uppercase text-[var(--outline)] hover:text-[var(--secondary)] transition-colors">← Dashboard</Link>
+        <h1 className="font-display text-3xl font-bold text-[var(--on-surface)] mt-1">Nova Notícia</h1>
+        <p className="font-sans text-sm text-[var(--outline)] mt-1">Preencha as informações, organize o conteúdo e publique.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Título e Slug */}
-        <div className={sec}>
-          <div>
-            <label className={lbl}>Título *</label>
-            <input name="title" value={form.title} onChange={handleChange} required placeholder="Ex: Novas regras para multas de radar em 2025" className={inp} />
-          </div>
-          <div>
-            <label className={lbl}>Slug (URL) *</label>
-            <div className="flex gap-2">
-              <input name="slug" value={form.slug} onChange={e => { setSlugManual(true); handleChange(e) }} required placeholder="novas-regras-multas-radar-2025" className={inp} />
-              <button type="button" onClick={() => { setSlugManual(false); setForm(f => ({ ...f, slug: slugify(f.title) })) }} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* ===== COLUNA PRINCIPAL ===== */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Informações básicas */}
+          <div className={card}>
+            <SectionHeader icon="📝" title="Informações Básicas" />
+            <div className="space-y-5">
+              <div>
+                <label className={lbl}>Título *</label>
+                <input name="title" value={form.title} onChange={handleChange} required placeholder="Ex: Novas regras para multas de radar em 2025" className={`${inp} text-base`} />
+              </div>
+              <div>
+                <label className={lbl}>Slug (URL) *</label>
+                <div className="flex gap-2">
+                  <input name="slug" value={form.slug} onChange={e => { setSlugManual(true); handleChange(e) }} required placeholder="novas-regras-multas-radar-2025" className={inp} />
+                  <button type="button" onClick={() => { setSlugManual(false); setForm(f => ({ ...f, slug: slugify(f.title) })) }} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] hover:border-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>Resumo * <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(exibido nos cards)</span></label>
+                <textarea name="excerpt" value={form.excerpt} onChange={handleChange} required rows={3} placeholder="Breve descrição do artigo..." className={inp} />
+              </div>
             </div>
           </div>
-          <div>
-            <label className={lbl}>Resumo * <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(exibido nos cards)</span></label>
-            <textarea name="excerpt" value={form.excerpt} onChange={handleChange} required rows={3} placeholder="Breve descrição do artigo..." className={inp} />
+
+          {/* Conteúdo em 3 partes com mídia intercalada */}
+          <div className={card}>
+            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Escreva em até 3 partes. Entre cada parte você pode colocar uma imagem ou um vídeo. Deixe vazio para mostrar só o texto." />
+            <div className="space-y-5">
+              <div>
+                <label className={lbl}>1️⃣ Texto — Início</label>
+                <textarea name="content" value={form.content} onChange={handleChange} rows={9} placeholder="Escreva a abertura da notícia aqui..." className={`${inp} leading-relaxed`} />
+              </div>
+              <MediaField label="🎞️ Mídia após o início" value={mediaInicial} onChange={setMediaInicial} />
+
+              <div>
+                <label className={lbl}>2️⃣ Texto — Meio <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
+                <textarea name="contentMeio" value={form.contentMeio} onChange={handleChange} rows={7} placeholder="Continue a notícia (opcional)..." className={`${inp} leading-relaxed`} />
+              </div>
+              <MediaField label="🎞️ Mídia após o meio" value={mediaMeio} onChange={setMediaMeio} />
+
+              <div>
+                <label className={lbl}>3️⃣ Texto — Final <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
+                <textarea name="contentFinal" value={form.contentFinal} onChange={handleChange} rows={7} placeholder="Conclusão da notícia (opcional)..." className={`${inp} leading-relaxed`} />
+              </div>
+              <MediaField label="🎞️ Mídia após o final" value={mediaFinal} onChange={setMediaFinal} />
+            </div>
           </div>
         </div>
 
-        {/* Conteúdo em 3 partes com mídia intercalada */}
-        <div className={sec}>
-          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Conteúdo do Artigo</p>
-          <p className="font-sans text-[11px] text-[var(--outline)] normal-case tracking-normal -mt-3">
-            Escreva em até 3 partes. Entre cada parte você pode colocar uma imagem ou um vídeo. Deixe vazio para mostrar só o texto.
-          </p>
-
-          <div>
-            <label className={lbl}>1️⃣ Texto — Início</label>
-            <textarea name="content" value={form.content} onChange={handleChange} rows={10} placeholder="Escreva a abertura da notícia aqui..." className={`${inp} font-mono text-sm leading-relaxed`} />
-          </div>
-          <MediaField label="🎞️ Mídia após o início" value={mediaInicial} onChange={setMediaInicial} />
-
-          <div>
-            <label className={lbl}>2️⃣ Texto — Meio <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
-            <textarea name="contentMeio" value={form.contentMeio} onChange={handleChange} rows={8} placeholder="Continue a notícia (opcional)..." className={`${inp} font-mono text-sm leading-relaxed`} />
-          </div>
-          <MediaField label="🎞️ Mídia após o meio" value={mediaMeio} onChange={setMediaMeio} />
-
-          <div>
-            <label className={lbl}>3️⃣ Texto — Final <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
-            <textarea name="contentFinal" value={form.contentFinal} onChange={handleChange} rows={8} placeholder="Conclusão da notícia (opcional)..." className={`${inp} font-mono text-sm leading-relaxed`} />
-          </div>
-          <MediaField label="🎞️ Mídia após o final" value={mediaFinal} onChange={setMediaFinal} />
-        </div>
-
-        {/* Classificação */}
-        <div className={sec}>
-          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Classificação</p>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={lbl}>Categoria *</label>
-              <select name="category" value={form.category} onChange={handleChange} required className={inp}>
-                <option value="">Selecionar categoria...</option>
-                {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className={`${lbl} mb-0`}>Autor</label>
-                <button type="button" onClick={() => setShowAuthorForm(v => !v)} className="font-mono text-[10px] text-[var(--secondary)] hover:underline">
-                  {showAuthorForm ? '✕ Fechar' : '+ Novo Autor'}
-                </button>
+        {/* ===== BARRA LATERAL ===== */}
+        <aside className="space-y-6 lg:sticky lg:top-20">
+          {/* Publicação */}
+          <div className={card}>
+            <SectionHeader icon="🚀" title="Publicação" />
+            <div className="space-y-4">
+              <div>
+                <label className={lbl}>Status</label>
+                <select name="status" value={form.status} onChange={handleChange} className={inp}>
+                  <option value="draft">📝 Rascunho</option>
+                  <option value="published">✅ Publicar agora</option>
+                  <option value="scheduled">🕒 Agendar</option>
+                </select>
               </div>
-              <select name="author" value={form.author} onChange={handleChange} className={inp}>
-                <option value="">Sem autor</option>
-                {authors.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {showAuthorForm && (
-            <div className="bg-[var(--surface-container-low)] border border-[var(--outline-variant)] rounded-lg p-4 space-y-3">
-              <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)]">Criar Novo Autor</p>
-              <div className="grid grid-cols-2 gap-3">
+              {form.status === 'scheduled' && (
                 <div>
-                  <label className={lbl}>Nome *</label>
-                  <input value={newAuthor.name} onChange={e => setNewAuthor(a => ({ ...a, name: e.target.value }))} placeholder="Dr. João Silva" className={inp} />
+                  <label className={lbl}>Publicar em (data e hora)</label>
+                  <input name="scheduledAt" type="datetime-local" value={form.scheduledAt} onChange={handleChange} className={inp} />
+                  <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">O post é publicado automaticamente nesse horário.</p>
                 </div>
-                <div>
-                  <label className={lbl}>Cargo</label>
-                  <input value={newAuthor.role} onChange={e => setNewAuthor(a => ({ ...a, role: e.target.value }))} placeholder="Advogado de Trânsito" className={inp} />
-                </div>
-              </div>
-              <ImageUpload
-                label="Foto do Autor"
-                value={newAuthor.avatarUrl}
-                onChange={url => setNewAuthor(a => ({ ...a, avatarUrl: url }))}
-              />
-              <button type="button" onClick={createAuthor} disabled={creatingAuthor || !newAuthor.name.trim()} className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-lg hover:brightness-110 transition-all disabled:opacity-50">
-                {creatingAuthor ? 'Criando...' : 'Criar Autor'}
+              )}
+              <button type="submit" disabled={saving} className="w-full bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase py-3.5 rounded-xl hover:brightness-110 transition-all disabled:opacity-50">
+                {saving ? 'Salvando...' : form.status === 'published' ? '✅ Publicar' : form.status === 'scheduled' ? '🕒 Agendar' : '💾 Salvar Rascunho'}
+              </button>
+              <button type="button" onClick={() => router.push('/admin')} className="w-full font-mono text-[10px] tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors py-2">
+                Cancelar
               </button>
             </div>
-          )}
+          </div>
 
-          <div className="grid grid-cols-3 gap-4 pt-1">
-            <div>
-              <label className={lbl}>Status</label>
-              <select name="status" value={form.status} onChange={handleChange} className={inp}>
-                <option value="draft">📝 Rascunho</option>
-                <option value="published">✅ Publicar agora</option>
-                <option value="scheduled">🕒 Agendar</option>
-              </select>
-            </div>
-            <div>
-              <label className={lbl}>Leitura (min)</label>
-              <input name="readingTime" type="number" min="1" value={form.readingTime} onChange={handleChange} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Destaque</label>
-              <select name="featureLevel" value={form.featureLevel} onChange={handleChange} className={inp}>
-                <option value="normal">Normal</option>
-                <option value="destaque">⭐ Destaque (categoria)</option>
-                <option value="principal">🏆 Destaque Principal (Home)</option>
-              </select>
+          {/* Capa & Links */}
+          <div className={card}>
+            <SectionHeader icon="🖼️" title="Capa & Links" />
+            <div className="space-y-4">
+              <ImageUpload
+                label="Imagem de Capa *"
+                value={form.coverImageUrl}
+                onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
+              />
+              <div>
+                <label className={lbl}>Vídeo YouTube (ID)</label>
+                <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="dQw4w9WgXcQ" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte)</span></label>
+                <input name="externalLink" type="url" value={form.externalLink} onChange={handleChange} placeholder="https://g1.globo.com/..." className={inp} />
+              </div>
             </div>
           </div>
 
-          {form.status === 'scheduled' && (
-            <div>
-              <label className={lbl}>Publicar em (data e hora)</label>
-              <input name="scheduledAt" type="datetime-local" value={form.scheduledAt} onChange={handleChange} className={inp} />
-              <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">O post é publicado automaticamente nesse horário.</p>
+          {/* Classificação */}
+          <div className={card}>
+            <SectionHeader icon="🗂️" title="Classificação" />
+            <div className="space-y-4">
+              <div>
+                <label className={lbl}>Categoria *</label>
+                <select name="category" value={form.category} onChange={handleChange} required className={inp}>
+                  <option value="">Selecionar categoria...</option>
+                  {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className={`${lbl} mb-0`}>Autor</label>
+                  <button type="button" onClick={() => setShowAuthorForm(v => !v)} className="font-mono text-[10px] text-[var(--secondary)] hover:underline">
+                    {showAuthorForm ? '✕ Fechar' : '+ Novo'}
+                  </button>
+                </div>
+                <select name="author" value={form.author} onChange={handleChange} className={inp}>
+                  <option value="">Sem autor</option>
+                  {authors.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </div>
+
+              {showAuthorForm && (
+                <div className="bg-[var(--surface-container-low)] border border-[var(--outline-variant)] rounded-lg p-4 space-y-3">
+                  <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--on-surface-variant)]">Criar Novo Autor</p>
+                  <div>
+                    <label className={lbl}>Nome *</label>
+                    <input value={newAuthor.name} onChange={e => setNewAuthor(a => ({ ...a, name: e.target.value }))} placeholder="Dr. João Silva" className={inp} />
+                  </div>
+                  <div>
+                    <label className={lbl}>Cargo</label>
+                    <input value={newAuthor.role} onChange={e => setNewAuthor(a => ({ ...a, role: e.target.value }))} placeholder="Advogado de Trânsito" className={inp} />
+                  </div>
+                  <ImageUpload
+                    label="Foto do Autor"
+                    value={newAuthor.avatarUrl}
+                    onChange={url => setNewAuthor(a => ({ ...a, avatarUrl: url }))}
+                  />
+                  <button type="button" onClick={createAuthor} disabled={creatingAuthor || !newAuthor.name.trim()} className="w-full bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-lg hover:brightness-110 transition-all disabled:opacity-50">
+                    {creatingAuthor ? 'Criando...' : 'Criar Autor'}
+                  </button>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={lbl}>Leitura (min)</label>
+                  <input name="readingTime" type="number" min="1" value={form.readingTime} onChange={handleChange} placeholder="5" className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Destaque</label>
+                  <select name="featureLevel" value={form.featureLevel} onChange={handleChange} className={inp}>
+                    <option value="normal">Normal</option>
+                    <option value="destaque">⭐ Categoria</option>
+                    <option value="principal">🏆 Home</option>
+                  </select>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Mídia e Links */}
-        <div className={sec}>
-          <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Mídia & Links</p>
-          <ImageUpload
-            label="Imagem de Capa *"
-            value={form.coverImageUrl}
-            onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
-          />
-          <div>
-            <label className={lbl}>Vídeo YouTube (ID)</label>
-            <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="dQw4w9WgXcQ" className={inp} />
           </div>
-          <div>
-            <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte original ou notícia)</span></label>
-            <input name="externalLink" type="url" value={form.externalLink} onChange={handleChange} placeholder="https://g1.globo.com/..." className={inp} />
-          </div>
-        </div>
-
-        {/* Ações */}
-        <div className="flex gap-3 pb-4">
-          <button type="submit" disabled={saving} className="flex-1 bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase py-3.5 rounded-xl hover:brightness-110 transition-all disabled:opacity-50">
-            {saving ? 'Salvando...' : form.status === 'published' ? '✅ Publicar Post' : '💾 Salvar Rascunho'}
-          </button>
-          <button type="button" onClick={() => router.push('/admin')} className="px-6 font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors border border-[var(--outline-variant)] rounded-xl">
-            Cancelar
-          </button>
-        </div>
+        </aside>
       </form>
     </div>
   )
