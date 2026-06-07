@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -39,6 +40,18 @@ export async function logoutAction() {
 export async function getToken(): Promise<string | null> {
   const cookieStore = await cookies()
   return cookieStore.get('cms_token')?.value ?? null
+}
+
+export async function deletePostAction(id: string | number) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/posts/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `JWT ${token}` },
+    cache: 'no-store',
+  })
+  if (!res.ok) return { error: 'Erro ao excluir a notícia' }
+  revalidatePath('/admin')
+  return { success: true }
 }
 
 export async function apiGet(path: string) {

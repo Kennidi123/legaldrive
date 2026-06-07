@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { apiGet } from './actions'
 import { getPostCoverImage } from '@/lib/lexical'
+import DeletePostButton from './DeletePostButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -129,6 +130,7 @@ export default async function CmsDashboard() {
                         <Link href={`/admin/posts/${post.id}`} className="font-mono text-[9px] text-[var(--secondary)] hover:underline uppercase tracking-widest font-bold">
                           Editar
                         </Link>
+                        <DeletePostButton id={post.id} title={post.title} />
                       </div>
                     </div>
                   </div>
