@@ -17,16 +17,16 @@ const mediaBlock = (name: string, label: string): Field => ({
   },
   fields: [
     {
+      // Texto (não 'radio'/'select') de propósito: evita criar um ENUM no
+      // Postgres, que faz o `push: true` falhar ao sincronizar o schema em
+      // produção. Valores aceitos: 'none' | 'image' | 'video'.
       name: 'tipo',
-      type: 'radio',
+      type: 'text',
       label: 'O que mostrar neste ponto?',
       defaultValue: 'none',
-      options: [
-        { label: 'Nenhuma (só texto)', value: 'none' },
-        { label: '🖼️ Imagem', value: 'image' },
-        { label: '🎬 Vídeo do YouTube', value: 'video' },
-      ],
-      admin: { layout: 'horizontal' },
+      admin: {
+        description: 'Preenchido pelo painel: none (só texto), image ou video.',
+      },
     },
     {
       name: 'imageUrl',
