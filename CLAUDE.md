@@ -187,6 +187,6 @@ executem DDL/operações destrutivas sem autenticação forte. O `SETUP_SECRET` 
 
 ## Dados de contato da empresa
 
-CNPJ 38.464.173/0001-33 · Avenida Ordem e Progresso, 157, sala 1104 — Barra Funda,
+CNPJ 58.389.187/0001-47 · Avenida Ordem e Progresso, 157, sala 1104 — Barra Funda,
 São Paulo/SP · CEP 01141-030 · Celular/WhatsApp (11) 99398-2259 · Fixo (11) 5286-5004 ·
 contato@legaldrivemultas.com.br. (No site em `components/Footer.tsx` e `app/(frontend)/contato`.)

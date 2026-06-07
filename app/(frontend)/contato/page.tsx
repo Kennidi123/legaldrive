@@ -297,7 +297,7 @@ export default function ContatoPage() {
                       Avenida Ordem e Progresso, 157, sala 1104<br />
                       Barra Funda — São Paulo/SP · CEP 01141-030
                     </p>
-                    <p className="font-mono text-[11px] text-[var(--on-surface-variant)] mt-2">CNPJ 38.464.173/0001-33</p>
+                    <p className="font-mono text-[11px] text-[var(--on-surface-variant)] mt-2">CNPJ 58.389.187/0001-47</p>
                   </div>
                 </div>
               </div>

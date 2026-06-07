@@ -143,7 +143,7 @@ export default function Footer() {
             © 2024 Legal Drive Inteligência Jurídica. Todos os direitos reservados.
           </p>
           <p className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">
-            CNPJ 38.464.173/0001-33
+            CNPJ 58.389.187/0001-47
           </p>
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">Desenvolvido por</span>
