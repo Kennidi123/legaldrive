@@ -76,6 +76,30 @@ export default buildConfig({
         payload.logger.error(err, '[init] Falha ao apagar notícias (RESET_POSTS)')
       }
     }
+
+    // Atualiza/cria o login do admin a partir de variáveis de ambiente (a senha NÃO
+    // fica no código). Defina ADMIN_UPSERT=true, ADMIN_EMAIL e ADMIN_PASSWORD no
+    // backend → redeploy → e DEPOIS REMOVA as três variáveis.
+    if (process.env.ADMIN_UPSERT === 'true' && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+      try {
+        const email = process.env.ADMIN_EMAIL.trim()
+        const password = process.env.ADMIN_PASSWORD
+        const byEmail = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1 })
+        if (byEmail.docs.length > 0) {
+          await payload.update({ collection: 'users', id: byEmail.docs[0].id, data: { password } })
+        } else {
+          const anyUser = await payload.find({ collection: 'users', limit: 1, sort: 'createdAt' })
+          if (anyUser.docs.length > 0) {
+            await payload.update({ collection: 'users', id: anyUser.docs[0].id, data: { email, password } })
+          } else {
+            await payload.create({ collection: 'users', data: { email, password } })
+          }
+        }
+        payload.logger.warn('[init] ADMIN_UPSERT aplicado: login do admin atualizado. REMOVA ADMIN_UPSERT/ADMIN_EMAIL/ADMIN_PASSWORD agora.')
+      } catch (err) {
+        payload.logger.error(err, '[init] Falha ao aplicar ADMIN_UPSERT')
+      }
+    }
   },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'legaldrive-change-this-secret',
