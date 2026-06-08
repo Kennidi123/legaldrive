@@ -90,9 +90,27 @@ desktop, **pequenas e centralizadas** (`md:max-w-sm mx-auto`); no mobile, largur
 Outros campos: `title`, `slug`, `excerpt`, `coverImageUrl` (capa — **obrigatória no CMS**),
 `coverImage` (upload, legado), `youtubeId` (vídeo de capa legado), `externalLink`,
 `category`, `author`, `tags`, `readingTime`, `status` (draft/published),
-`featureLevel` (`normal`/`destaque`/`principal`), `publishedAt` (agendamento), `seo`.
+`featureLevel` (`normal`/`destaque`/`principal`), `publishedAt` (agendamento), `seo`,
+`views` (contador de visualizações — ver seção abaixo).
 
 Coleções: `Posts`, `Categories`, `Authors`, `Tags`, `Media`, `Videos`, `Users`.
+
+## Contador de visualizações (views)
+
+Cada notícia tem um campo `views` (integer) que conta quantas pessoas abriram a notícia.
+É **só para o painel admin** (não aparece no site público). Não usa Google Analytics.
+
+Como funciona:
+- `components/ViewTracker.tsx` (client) roda na página da notícia e faz `POST` em
+  `${NEXT_PUBLIC_PAYLOAD_URL}/api/posts/<id>/view`. Usa `sessionStorage` (`viewed:<id>`)
+  para contar **no máximo 1 por sessão/post** (F5 não infla). Renderiza `null`.
+- `backend/app/api/posts/[id]/view/route.ts` (endpoint público) faz um `UPDATE posts SET
+  views = COALESCE(views, 0) + 1 WHERE id = $1 RETURNING views` — **atômico** (sem corrida)
+  e **não altera `updated_at`**. É público porque é uma operação NÃO destrutiva (não viola
+  a regra de segurança de DDL/destrutivo). Tem CORS travado em `NEXT_PUBLIC_FRONTEND_URL`.
+- No `Posts.ts` o campo `views` é `number`, readOnly, na sidebar do /admin nativo.
+- O dashboard (`app/(cms)/admin/page.tsx`) mostra `👁 N` por card e o total na estatística
+  "Visualizações".
 
 ## Banco de dados e schema (ARMADILHA IMPORTANTE)
 
@@ -125,7 +143,7 @@ app/
   og/route.tsx         imagem Open Graph dinâmica (1200x630)
 components/            Header, Footer, ArticleLayout, ArticleBody, ArticleSidebar,
                        ArticleCard(+Horizontal), FeaturedHero, CategoryTabs/Badge,
-                       VideoEmbed, ShareButtons, WhatsAppBanner
+                       VideoEmbed, ShareButtons, WhatsAppBanner, ViewTracker (conta views)
 lib/
   payload-api.ts       funções de fetch da API (getPostBySlug, getLatestPosts, etc.)
   lexical.ts           lexicalToHTML + helpers de imagem (getPostCoverImage, normalizeMediaUrl)
@@ -135,7 +153,7 @@ backend/
   payload.config.ts    config do Payload (onInit, cors, db, admin.css)
   collections/         Posts, Categories, Authors, Tags, Media, Videos, Users
   app/(payload)/       rotas do Payload (/admin, /api)
-  app/api/             upload-image, image/[id]
+  app/api/             upload-image, image/[id], posts/[id]/view (contador de views)
   youtube.ts           cópia do extractYouTubeId p/ o backend
   styles/admin.css     marca no /admin nativo do Payload
 ```
