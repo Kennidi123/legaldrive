@@ -76,7 +76,7 @@ export default function ArticleLayout({
               <span className="font-mono text-xs uppercase tracking-widest">{label}</span>
               <span className="h-px w-8 bg-[var(--secondary)]" />
             </div>
-            <h1 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--on-surface)] leading-tight mb-6">
+            <h1 className="font-display text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl md:leading-tight font-extrabold text-[var(--on-surface)] mb-6">
               {title}
             </h1>
             <div className="flex flex-wrap items-center gap-6 py-6 border-y border-[var(--on-primary-fixed-variant)] mb-12">
