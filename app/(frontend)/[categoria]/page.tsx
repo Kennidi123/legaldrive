@@ -110,9 +110,10 @@ export default async function CategoryPage({ params }: Props) {
 
   const real = (postsResult?.docs || []).map((d: any) => normalize(d, category.name, categoria))
   const list = real.length > 0 ? real : fallbackList(category.name)
-  // Destaque = post mais recente marcado como destaque/principal; senão o mais recente.
-  const featured = list.find((p) => p.featureLevel === 'principal' || p.featureLevel === 'destaque') ?? list[0]
-  const cards = list.filter((p) => p.id !== featured?.id)
+  // Hero (Destaque) = só posts marcados como Destaque/Principal (o mais recente).
+  // Posts "normais" NÃO são promovidos ao topo — vão para a lista "Mais Notícias".
+  const featured = list.find((p) => p.featureLevel === 'principal' || p.featureLevel === 'destaque') ?? null
+  const cards = featured ? list.filter((p) => p.id !== featured.id) : list
 
   // Artigos relacionados (sidebar): recentes de qualquer categoria, fora os já exibidos aqui
   const relatedReal: RelatedItem[] = (latestResult?.docs || [])
@@ -153,13 +154,13 @@ export default async function CategoryPage({ params }: Props) {
                 </Link>
                 <p className="text-[var(--primary)] text-lg leading-relaxed mt-4">{featured.excerpt}</p>
               </article>
-            ) : (
+            ) : cards.length === 0 ? (
               <div className="text-center py-24">
                 <p className="font-mono text-xs tracking-widest uppercase text-[var(--outline)]">
                   Nenhum artigo publicado nesta categoria
                 </p>
               </div>
-            )}
+            ) : null}
 
             {/* Demais notícias (abaixo do destaque) */}
             {cards.length > 0 && (
