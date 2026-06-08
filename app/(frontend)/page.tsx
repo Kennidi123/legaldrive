@@ -80,6 +80,12 @@ const fbTech: Story[] = [
   { id: 'fb-t2', title: 'Cidades Inteligentes: O futuro das multas eletrônicas.', href: '#', excerpt: 'A integração de sensores IoT na malha rodoviária e o impacto jurídico na privacidade do cidadão.', coverImage: IMG.tech2, category: 'Tecnologia' },
 ]
 
+const fbCivica: Story[] = [
+  { id: 'fb-c1', title: 'Educação & Respeito no Trânsito', href: '#', excerpt: 'Dicas práticas para uma convivência mais segura entre pedestres e motoristas.', coverImage: null, category: 'Cidadania' },
+  { id: 'fb-c2', title: 'Seus Direitos como Condutor', href: '#', excerpt: 'O que fazer quando você se sente injustiçado por uma autoridade de trânsito.', coverImage: null, category: 'Cidadania' },
+  { id: 'fb-c3', title: 'Ação Comunitária por um Trânsito Melhor', href: '#', excerpt: 'Como solicitar melhorias na sinalização do seu bairro de forma legal.', coverImage: null, category: 'Cidadania' },
+]
+
 const fbMaisLidas: Story[] = [
   { id: 'fb-r1', title: 'A verdade sobre a multa de 40 pontos.', href: '#', excerpt: '', coverImage: null, category: 'CNH' },
   { id: 'fb-r2', title: 'Como cancelar multas de bafômetro.', href: '#', excerpt: '', coverImage: null, category: 'Jurídico' },
@@ -126,11 +132,12 @@ const P = {
    Página inicial (HOME) — layout editorial
    ============================================================ */
 export default async function HomePage() {
-  const [mainDoc, postsResult, videosResult, techResult] = await Promise.all([
+  const [mainDoc, postsResult, videosResult, techResult, civicaResult] = await Promise.all([
     getMainFeatured(),
     getLatestPosts(16),
     getVideos(4),
     getPostsByCategory('mobilidade-eletrica', 4),
+    getPostsByCategory('direitos-do-motorista', 3),
   ])
 
   const principal = mainDoc ? normalize(mainDoc) : null
@@ -138,6 +145,9 @@ export default async function HomePage() {
   const videos = (videosResult?.docs || []) as any[]
   // Notícias reais da categoria Tecnologia (slug: mobilidade-eletrica)
   const techDocs = (techResult?.docs || []).map(normalize)
+  // Notícias reais da categoria Cidadania (slug: direitos-do-motorista)
+  const civicaDocs = (civicaResult?.docs || []).map(normalize)
+  const civica = pick(civicaDocs.slice(0, 3), fbCivica)
 
   // Hero = Destaque Principal (featureLevel = principal); demais = notícias recentes (todas as categorias)
   const heroMain = principal ?? real[0] ?? fbHero
@@ -360,20 +370,23 @@ export default async function HomePage() {
               ))}
             </div>
 
-            {/* Cidadania no Trânsito */}
+            {/* Cidadania no Trânsito — notícias reais da categoria */}
             <section className="mt-16 pt-16 border-t border-[var(--on-primary-fixed-variant)]">
               <h2 className="font-display text-[32px] font-bold mb-8">Cidadania no Trânsito</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { icon: P.heart, title: 'Educação & Respeito', text: 'Dicas práticas para uma convivência mais segura entre pedestres e motoristas.' },
-                  { icon: P.balance, title: 'Seus Direitos', text: 'O que fazer quando você se sente injustiçado por uma autoridade de trânsito.' },
-                  { icon: P.groups, title: 'Ação Comunitária', text: 'Como solicitar melhorias na sinalização do seu bairro de forma legal.' },
-                ].map((c) => (
-                  <div key={c.title} className="text-center p-6 bg-[var(--tertiary-container)] rounded-xl border border-[var(--on-primary-fixed-variant)] hover:border-[var(--secondary)] transition-colors">
-                    <span className="text-[var(--secondary)] inline-flex justify-center mb-4"><Icon d={c.icon} className="w-9 h-9" /></span>
-                    <h4 className="font-mono text-sm tracking-wide mb-2">{c.title}</h4>
-                    <p className="font-mono text-xs text-[var(--primary)] leading-relaxed">{c.text}</p>
-                  </div>
+                {civica.map((c) => (
+                  <article key={c.id} className="group">
+                    <Link href={c.href} className="block relative aspect-video rounded-xl overflow-hidden mb-4 bg-[var(--tertiary-container)] border border-[var(--on-primary-fixed-variant)]">
+                      {c.coverImage ? (
+                        <Image src={c.coverImage} alt={c.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover group-hover:scale-105 transition-transform" />
+                      ) : null}
+                    </Link>
+                    <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>
+                    <Link href={c.href}>
+                      <h3 className="font-display text-xl font-semibold leading-snug group-hover:text-[var(--secondary)] transition-colors line-clamp-2">{c.title}</h3>
+                    </Link>
+                    <p className="text-[var(--primary)] text-sm mt-2 line-clamp-2">{c.excerpt}</p>
+                  </article>
                 ))}
               </div>
             </section>
