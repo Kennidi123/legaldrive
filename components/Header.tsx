@@ -94,6 +94,20 @@ export default function Header() {
           </button>
         </div>
 
+        {/* Busca (mobile) — sempre visível no cabeçalho */}
+        <form role="search" action="/busca" method="GET" className="md:hidden relative mt-3">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--primary-fixed-dim)]">
+            <SearchIcon />
+          </span>
+          <input
+            name="q"
+            type="text"
+            aria-label="Buscar"
+            placeholder="Buscar leis, multas..."
+            className="w-full pl-10 pr-4 py-2 bg-[var(--tertiary-container)] border-none focus:ring-2 focus:ring-[var(--secondary)] rounded-xl text-sm text-[var(--primary-fixed)] placeholder:text-[var(--primary-fixed-dim)] transition-all focus:outline-none"
+          />
+        </form>
+
         {/* Linha inferior: navegação centralizada (desktop) */}
         <nav className="hidden md:flex gap-gutter items-center w-full justify-center border-t border-[var(--on-primary-fixed-variant)] pt-2.5">
           {navLinks.map((link) => {
@@ -119,19 +133,6 @@ export default function Header() {
       {mobileOpen && (
         <div className="md:hidden bg-[var(--primary-container)] border-t border-[var(--on-primary-fixed-variant)]">
           <div className="max-w-content mx-auto px-4 py-4 flex flex-col gap-1">
-            <form role="search" action="/busca" method="GET" className="relative mb-3">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--primary-fixed-dim)]">
-                <SearchIcon />
-              </span>
-              <input
-                name="q"
-                type="text"
-                aria-label="Buscar"
-                placeholder="Buscar leis, multas..."
-                className="w-full pl-10 pr-4 py-2 bg-[var(--tertiary-container)] border-none focus:ring-2 focus:ring-[var(--secondary)] rounded-xl text-sm text-[var(--primary-fixed)] placeholder:text-[var(--primary-fixed-dim)] transition-all focus:outline-none"
-              />
-            </form>
-
             {navLinks.map((link) => (
               <Link
                 key={link.href}
