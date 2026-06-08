@@ -105,10 +105,10 @@ body {
    ARTICLE CONTENT PROSE
    ============================================================ */
 .article-prose {
-  color: var(--on-surface-variant);
+  color: var(--on-surface);
   font-size: 1.22rem;
   line-height: 1.75;
-  max-width: 720px;
+  max-width: none;
 }
 
 .article-prose p {

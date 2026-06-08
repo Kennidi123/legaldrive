@@ -307,10 +307,6 @@ export default function EditPostPage() {
                 onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
               />
               <div>
-                <label className={lbl}>Vídeo YouTube (ID)</label>
-                <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="dQw4w9WgXcQ" className={inp} />
-              </div>
-              <div>
                 <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte)</span></label>
                 <input name="externalLink" type="url" value={form.externalLink} onChange={handleChange} placeholder="https://g1.globo.com/..." className={inp} />
               </div>
