@@ -144,14 +144,14 @@ export default function Footer() {
           <p className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">
             CNPJ 58.389.187/0001-47
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="font-mono text-[10px] text-[var(--outline)] uppercase tracking-wider">Desenvolvido por</span>
             <Image
               src="/kennidi-anderson.png"
               alt="Kennidi Anderson"
-              width={80}
-              height={24}
-              className="h-6 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+              width={140}
+              height={42}
+              className="h-10 w-auto object-contain opacity-95 hover:opacity-100 transition-opacity"
             />
           </div>
         </div>
