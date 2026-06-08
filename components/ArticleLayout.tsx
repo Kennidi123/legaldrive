@@ -80,31 +80,9 @@ export default function ArticleLayout({
               <span className="text-[var(--on-surface-variant)]">—</span>
               <span className="font-mono text-xs tracking-widest text-[var(--on-surface-variant)] line-clamp-1">{title}</span>
             </div>
-            <h1 className="font-display text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl md:leading-tight font-extrabold text-[var(--on-surface)] mb-6">
+            <h1 className="font-display text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl md:leading-tight font-extrabold text-[var(--on-surface)]">
               {title}
             </h1>
-            <div className="flex flex-wrap items-center gap-6 py-6 border-y border-[var(--on-primary-fixed-variant)] mb-12">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[var(--secondary)] relative bg-[var(--surface-container-high)] flex items-center justify-center">
-                  {avatar ? (
-                    <Image src={avatar} alt={authorName} fill sizes="40px" className="object-cover" />
-                  ) : (
-                    <span className="font-mono text-sm text-[var(--secondary)]">{authorName.charAt(0)}</span>
-                  )}
-                </div>
-                <div>
-                  <p className="font-mono text-xs text-[var(--on-surface)]">{authorName}</p>
-                  <p className="font-mono text-[11px] text-[var(--on-surface-variant)]">{authorRole}</p>
-                </div>
-              </div>
-              <div className="h-8 w-px bg-[var(--on-primary-fixed-variant)] hidden md:block" />
-              <div className="flex items-center gap-2 text-[var(--on-surface-variant)] font-mono text-[11px]">
-                <Icon d={P.calendar} className="w-[18px] h-[18px]" /> {dateStr}
-              </div>
-              <div className="flex items-center gap-2 text-[var(--on-surface-variant)] font-mono text-[11px]">
-                <Icon d={P.clock} className="w-[18px] h-[18px]" /> {readingTime} min de leitura
-              </div>
-            </div>
           </header>
 
           <figure className="mb-12">
