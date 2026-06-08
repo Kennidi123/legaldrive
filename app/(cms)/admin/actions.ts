@@ -54,6 +54,37 @@ export async function deletePostAction(id: string | number) {
   return { success: true }
 }
 
+export async function createVideoAction(data: { title: string; youtubeId: string; description?: string }) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/videos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `JWT ${token}` },
+    body: JSON.stringify({
+      title: data.title,
+      youtubeId: data.youtubeId,
+      description: data.description || undefined,
+      publishedAt: new Date().toISOString(),
+    }),
+    cache: 'no-store',
+  })
+  const json = await res.json()
+  if (!res.ok) return { error: json.errors?.[0]?.message || 'Erro ao adicionar o vídeo' }
+  revalidatePath('/admin/videos')
+  return { success: true }
+}
+
+export async function deleteVideoAction(id: string | number) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/videos/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `JWT ${token}` },
+    cache: 'no-store',
+  })
+  if (!res.ok) return { error: 'Erro ao excluir o vídeo' }
+  revalidatePath('/admin/videos')
+  return { success: true }
+}
+
 export async function apiGet(path: string) {
   const token = await getToken()
   const res = await fetch(`${BACKEND}${path}`, {

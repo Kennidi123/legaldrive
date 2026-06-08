@@ -52,6 +52,9 @@ export default async function CmsLayout({
               <Link href="/admin" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
                 Dashboard
               </Link>
+              <Link href="/admin/videos" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
+                Vídeos
+              </Link>
               <Link href="/" target="_blank" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
                 Ver Site ↗
               </Link>

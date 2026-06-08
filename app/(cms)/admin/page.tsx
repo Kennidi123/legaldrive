@@ -42,12 +42,20 @@ export default async function CmsDashboard() {
           <h1 className="font-display text-3xl font-bold text-[var(--on-surface)]">Dashboard</h1>
           <p className="font-sans text-sm text-[var(--outline)] mt-1">Gerencie as notícias do portal.</p>
         </div>
-        <Link
-          href="/admin/posts/new"
-          className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:brightness-110 transition-all shadow-sm"
-        >
-          + Nova Notícia
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/videos"
+            className="border border-[var(--outline-variant)] text-[var(--on-surface-variant)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:border-[var(--secondary)] hover:text-[var(--secondary)] transition-all"
+          >
+            🎬 Vídeos
+          </Link>
+          <Link
+            href="/admin/posts/new"
+            className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:brightness-110 transition-all shadow-sm"
+          >
+            + Nova Notícia
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
