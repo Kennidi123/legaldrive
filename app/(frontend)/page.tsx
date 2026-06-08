@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { getLatestPosts, getMainFeatured, getVideos } from '@/lib/payload-api'
+import { getLatestPosts, getMainFeatured, getVideos, getPostsByCategory } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
@@ -126,22 +126,25 @@ const P = {
    Página inicial (HOME) — layout editorial
    ============================================================ */
 export default async function HomePage() {
-  const [mainDoc, postsResult, videosResult] = await Promise.all([
+  const [mainDoc, postsResult, videosResult, techResult] = await Promise.all([
     getMainFeatured(),
     getLatestPosts(16),
     getVideos(4),
+    getPostsByCategory('mobilidade-eletrica', 4),
   ])
 
   const principal = mainDoc ? normalize(mainDoc) : null
   const real = (postsResult?.docs || []).map(normalize)
   const videos = (videosResult?.docs || []) as any[]
+  // Notícias reais da categoria Tecnologia (slug: mobilidade-eletrica)
+  const techDocs = (techResult?.docs || []).map(normalize)
 
   // Hero = Destaque Principal (featureLevel = principal); demais = notícias recentes (todas as categorias)
   const heroMain = principal ?? real[0] ?? fbHero
   const rest = real.filter((p) => p.id !== heroMain.id)
   const heroSide = pick(rest.slice(0, 2), fbSide)
   const recent = pick(rest.slice(2, 4), fbRecent)
-  const tech = pick(rest.slice(4, 6), fbTech)
+  const tech = pick(techDocs.slice(0, 2), fbTech)
   const maisLidas = pick(rest.slice(0, 3), fbMaisLidas)
   const listMultas = pick(rest.slice(0, 3), fbListMultas)
   const listLeis = pick(rest.slice(3, 6), fbListLeis)
@@ -372,27 +375,6 @@ export default async function HomePage() {
                     <p className="font-mono text-xs text-[var(--primary)] leading-relaxed">{c.text}</p>
                   </div>
                 ))}
-              </div>
-            </section>
-
-            {/* Análises Críticas */}
-            <section className="mt-16">
-              <div className="bg-[var(--tertiary-container)] p-8 rounded-xl">
-                <h2 className="font-display text-[32px] font-bold mb-6 flex items-center gap-3">
-                  <span className="text-[var(--secondary)]"><Icon d={P.review} /></span> Análises Críticas
-                </h2>
-                <div className="space-y-8">
-                  <article className="border-l-2 border-[var(--secondary)] pl-6">
-                    <h3 className="font-display text-2xl font-semibold mb-2">A &lsquo;Indústria da Multa&rsquo; ou Falha na Gestão Pública?</h3>
-                    <p className="text-[var(--primary)] text-lg italic mb-2">&ldquo;A fiscalização eletrônica deve servir à segurança, não ao orçamento. Precisamos de uma reforma no destino das arrecadações.&rdquo;</p>
-                    <span className="text-[var(--secondary)] font-mono text-[11px]">Por Legal Drive — Editorial</span>
-                  </article>
-                  <article className="border-l-2 border-[var(--on-primary-fixed-variant)] pl-6">
-                    <h3 className="font-display text-2xl font-semibold mb-2">O Anacronismo da Lei de Trânsito Brasileira</h3>
-                    <p className="text-[var(--primary)] text-base mb-2">Uma análise profunda sobre por que o CTB demora tanto para se adaptar às novas realidades da micromobilidade elétrica urbana.</p>
-                    <span className="text-[var(--secondary)] font-mono text-[11px]">Análise Especial</span>
-                  </article>
-                </div>
               </div>
             </section>
           </div>
