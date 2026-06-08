@@ -18,6 +18,9 @@ function serializeNodes(nodes: LexicalNode[]): string {
     .map((node) => {
       if (node.type === 'text') {
         let text = (node.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        // Preserva quebras de linha digitadas (posts antigos guardavam o texto
+        // inteiro com '\n' em um único parágrafo).
+        text = text.replace(/\n/g, '<br />')
         const fmt = node.format || 0
         if (fmt & 1) text = `<strong>${text}</strong>`
         if (fmt & 2) text = `<em>${text}</em>`
