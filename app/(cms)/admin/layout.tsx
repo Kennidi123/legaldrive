@@ -39,13 +39,13 @@ export default async function CmsLayout({
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <header className="bg-[var(--surface-container-lowest)] border-b border-[var(--outline-variant)] sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/admin" className="flex items-center gap-2">
-              <Image src="/logovariavel3.png" alt="Legal Drive" width={32} height={32} className="h-7 w-auto object-contain" />
-              <span className="font-mono text-xs tracking-widest uppercase text-[var(--secondary)] font-bold">
-                Legal Drive CMS
+      <header className="dark-section border-b border-[var(--on-primary-fixed-variant)] sticky top-0 z-50 shadow-lg">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/admin" className="flex items-center gap-2.5">
+              <Image src="/logo-completa.png" alt="Legal Drive" width={160} height={42} priority className="h-9 w-auto object-contain" />
+              <span className="font-mono text-[9px] tracking-widest uppercase text-[var(--secondary)] border border-[var(--secondary)] rounded px-1.5 py-0.5 font-bold">
+                CMS
               </span>
             </Link>
             <nav className="hidden sm:flex items-center gap-5">
@@ -73,7 +73,7 @@ export default async function CmsLayout({
             <form action={logoutAction}>
               <button
                 type="submit"
-                className="font-mono text-xs tracking-widest uppercase text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors"
+                className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors"
               >
                 Sair
               </button>
