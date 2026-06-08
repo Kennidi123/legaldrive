@@ -85,6 +85,46 @@ export async function deleteVideoAction(id: string | number) {
   return { success: true }
 }
 
+export async function createAuthorAction(data: { name: string; role?: string; avatarUrl?: string }) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/authors`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `JWT ${token}` },
+    body: JSON.stringify({ name: data.name, role: data.role || undefined, avatarUrl: data.avatarUrl || undefined }),
+    cache: 'no-store',
+  })
+  const json = await res.json()
+  if (!res.ok) return { error: json.errors?.[0]?.message || 'Erro ao criar o autor' }
+  revalidatePath('/admin/authors')
+  return { success: true }
+}
+
+export async function updateAuthorAction(id: string | number, data: { name: string; role?: string; avatarUrl?: string }) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/authors/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `JWT ${token}` },
+    body: JSON.stringify({ name: data.name, role: data.role ?? '', avatarUrl: data.avatarUrl ?? '' }),
+    cache: 'no-store',
+  })
+  const json = await res.json()
+  if (!res.ok) return { error: json.errors?.[0]?.message || 'Erro ao salvar o autor' }
+  revalidatePath('/admin/authors')
+  return { success: true }
+}
+
+export async function deleteAuthorAction(id: string | number) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/authors/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `JWT ${token}` },
+    cache: 'no-store',
+  })
+  if (!res.ok) return { error: 'Erro ao excluir o autor' }
+  revalidatePath('/admin/authors')
+  return { success: true }
+}
+
 export async function apiGet(path: string) {
   const token = await getToken()
   const res = await fetch(`${BACKEND}${path}`, {

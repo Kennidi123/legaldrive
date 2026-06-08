@@ -44,6 +44,12 @@ export default async function CmsDashboard() {
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/admin/authors"
+            className="border border-[var(--outline-variant)] text-[var(--on-surface-variant)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:border-[var(--secondary)] hover:text-[var(--secondary)] transition-all"
+          >
+            👤 Autores
+          </Link>
+          <Link
             href="/admin/videos"
             className="border border-[var(--outline-variant)] text-[var(--on-surface-variant)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:border-[var(--secondary)] hover:text-[var(--secondary)] transition-all"
           >
