@@ -4,6 +4,7 @@ import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '
 import { getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
 import ArticleBody from '@/components/ArticleBody'
+import ViewTracker from '@/components/ViewTracker'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -114,6 +115,8 @@ export default async function ArticlePage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+
+      <ViewTracker postId={post.id} />
 
       <ArticleLayout
         label={cat.name}

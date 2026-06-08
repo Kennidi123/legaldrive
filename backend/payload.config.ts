@@ -37,7 +37,8 @@ ALTER TABLE posts
   ADD COLUMN IF NOT EXISTS media_final_tipo varchar DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS media_final_image_url varchar,
   ADD COLUMN IF NOT EXISTS media_final_caption varchar,
-  ADD COLUMN IF NOT EXISTS media_final_video varchar;
+  ADD COLUMN IF NOT EXISTS media_final_video varchar,
+  ADD COLUMN IF NOT EXISTS views integer DEFAULT 0;
 `
 
 export default buildConfig({

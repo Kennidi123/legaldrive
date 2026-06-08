@@ -27,10 +27,12 @@ export default async function CmsDashboard() {
   const posts = postsData?.docs || []
   const categories = categoriesData?.docs || []
 
+  const totalViews = posts.reduce((sum: number, p: any) => sum + (p.views || 0), 0)
   const stats = [
     { label: 'Total', value: posts.length, icon: '📰' },
     { label: 'Publicados', value: posts.filter((p: any) => p.status === 'published').length, icon: '✅' },
     { label: 'Rascunhos', value: posts.filter((p: any) => p.status === 'draft').length, icon: '📝' },
+    { label: 'Visualizações', value: totalViews, icon: '👁' },
     { label: 'Categorias', value: categories.length, icon: '🗂️' },
   ]
 
@@ -65,7 +67,7 @@ export default async function CmsDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-[var(--surface-container-high)] rounded-2xl border border-[var(--outline-variant)] p-5 shadow-sm">
             <div className="flex items-center justify-between">
@@ -132,8 +134,9 @@ export default async function CmsDashboard() {
                     </p>
 
                     <div className="mt-auto flex items-center justify-between pt-3 border-t border-[var(--outline-variant)]">
-                      <span className="font-mono text-[9px] text-[var(--outline)] uppercase tracking-wider">
+                      <span className="font-mono text-[9px] text-[var(--outline)] uppercase tracking-wider flex items-center gap-2">
                         {new Date(post.updatedAt).toLocaleDateString('pt-BR')}
+                        <span className="text-[var(--secondary)]">· 👁 {post.views ?? 0}</span>
                       </span>
                       <div className="flex items-center gap-3">
                         {viewHref && (

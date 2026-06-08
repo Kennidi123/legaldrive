@@ -143,6 +143,17 @@ export const Posts: CollectionConfig = {
       label: 'Tempo de Leitura (min)',
       admin: { position: 'sidebar' },
     },
+    {
+      name: 'views',
+      type: 'number',
+      label: 'Visualizações',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Contagem automática de quantas pessoas abriram a notícia.',
+      },
+    },
     // ── Conteúdo principal (em abas) ──────────────────────
     {
       type: 'tabs',
