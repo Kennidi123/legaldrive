@@ -28,7 +28,6 @@ const categories = [
   { label: 'Legislação', href: '/leis-de-transito' },
   { label: 'Tecnologia', href: '/mobilidade-eletrica' },
   { label: 'Cidadania', href: '/direitos-do-motorista' },
-  { label: 'Análise', href: '/contato' },
 ]
 
 export default function Footer() {

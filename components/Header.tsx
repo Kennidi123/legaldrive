@@ -12,7 +12,6 @@ const navLinks = [
   { label: 'Legislação', href: '/leis-de-transito' },
   { label: 'Tecnologia', href: '/mobilidade-eletrica' },
   { label: 'Cidadania', href: '/direitos-do-motorista' },
-  { label: 'Análise', href: '/contato' },
 ]
 
 function SearchIcon({ className = 'w-5 h-5' }: { className?: string }) {
