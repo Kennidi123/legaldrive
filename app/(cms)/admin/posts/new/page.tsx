@@ -253,6 +253,11 @@ export default function NewPostPage() {
                 onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
               />
               <div>
+                <label className={lbl}>Vídeo de Capa <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(YouTube, opcional)</span></label>
+                <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="https://youtube.com/watch?v=..." className={inp} />
+                <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Se preencher, a capa da notícia vira um player. A imagem acima é usada como prévia.</p>
+              </div>
+              <div>
                 <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte)</span></label>
                 <input name="externalLink" type="url" value={form.externalLink} onChange={handleChange} placeholder="https://g1.globo.com/..." className={inp} />
               </div>

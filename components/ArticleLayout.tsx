@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type React from 'react'
 import ArticleSidebar, { type RelatedItem } from './ArticleSidebar'
 import ShareButtons from './ShareButtons'
+import VideoEmbed from './VideoEmbed'
 
 export type { RelatedItem }
 
@@ -10,6 +11,8 @@ interface ArticleLayoutProps {
   label: string
   title: string
   cover?: string | null
+  /** Vídeo do YouTube para a capa (link ou ID). Se houver, a capa vira um player. */
+  coverVideo?: string | null
   caption?: string
   authorName: string
   authorRole: string
@@ -53,6 +56,7 @@ export default function ArticleLayout({
   label,
   title,
   cover,
+  coverVideo,
   caption,
   authorName,
   authorRole,
@@ -86,11 +90,15 @@ export default function ArticleLayout({
           </header>
 
           <figure className="mb-12">
-            <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[var(--tertiary-container)]" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
-              {cover ? (
-                <Image src={cover} alt={title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover" />
-              ) : null}
-            </div>
+            {coverVideo ? (
+              <VideoEmbed youtubeId={coverVideo} title={title} thumbnail={cover} />
+            ) : (
+              <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[var(--tertiary-container)]" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+                {cover ? (
+                  <Image src={cover} alt={title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover" />
+                ) : null}
+              </div>
+            )}
             {caption && (
               <figcaption className="mt-4 font-mono text-[11px] text-[var(--on-surface-variant)] italic text-center">
                 {caption}

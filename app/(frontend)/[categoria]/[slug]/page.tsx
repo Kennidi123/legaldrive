@@ -4,7 +4,6 @@ import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '
 import { getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
 import ArticleBody from '@/components/ArticleBody'
-import VideoEmbed from '@/components/VideoEmbed'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -120,6 +119,7 @@ export default async function ArticlePage({ params }: Props) {
         label={cat.name}
         title={post.title}
         cover={coverImage}
+        coverVideo={post.youtubeId}
         authorName={author?.name ?? 'Redação Legal Drive'}
         authorRole={author?.role ?? 'Especialistas em Trânsito'}
         avatar={avatarUrl}
@@ -133,12 +133,6 @@ export default async function ArticlePage({ params }: Props) {
         externalLink={post.externalLink}
       >
         <ArticleBody post={post} />
-
-        {post.youtubeId && (
-          <div className="my-8">
-            <VideoEmbed youtubeId={post.youtubeId} title={post.title} />
-          </div>
-        )}
       </ArticleLayout>
     </>
   )

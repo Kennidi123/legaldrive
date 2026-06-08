@@ -223,9 +223,9 @@ export const Posts: CollectionConfig = {
             {
               name: 'youtubeId',
               type: 'text',
-              label: 'Vídeo de Capa (YouTube) — legado',
+              label: 'Vídeo de Capa (YouTube)',
               admin: {
-                description: 'Opcional. Vídeo exibido no fim da notícia. Prefira usar os campos de mídia entre os textos. Cole o link ou o ID.',
+                description: 'Opcional. Se preenchido, a capa da notícia vira um player de vídeo (a imagem de capa é usada como prévia). Cole o link ou o ID.',
               },
               hooks: {
                 beforeChange: [({ value }) => (value ? extractYouTubeId(value) || value : value)],
