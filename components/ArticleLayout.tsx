@@ -79,10 +79,9 @@ export default function ArticleLayout({
         {/* ============ ARTIGO ============ */}
         <article className="lg:col-span-8">
           <header className="mb-8 md:mb-12">
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className="font-mono text-xs uppercase tracking-widest text-[var(--secondary)]">{label}</span>
-              <span className="text-[var(--on-surface-variant)]">—</span>
-              <span className="font-mono text-xs tracking-widest text-[var(--on-surface-variant)] line-clamp-1">{title}</span>
+            <div className="flex items-center gap-2 mb-4 text-[var(--secondary)]">
+              <span className="font-mono text-xs uppercase tracking-widest">{label}</span>
+              <span className="h-px w-8 bg-[var(--secondary)]" />
             </div>
             <h1 className="font-display text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl md:leading-tight font-extrabold text-[var(--on-surface)]">
               {title}
