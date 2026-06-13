@@ -28,16 +28,19 @@ ALTER TABLE posts
   ADD COLUMN IF NOT EXISTS media_inicial_image_url varchar,
   ADD COLUMN IF NOT EXISTS media_inicial_caption varchar,
   ADD COLUMN IF NOT EXISTS media_inicial_video varchar,
+  ADD COLUMN IF NOT EXISTS media_inicial_images jsonb,
   ADD COLUMN IF NOT EXISTS content_meio jsonb,
   ADD COLUMN IF NOT EXISTS media_meio_tipo varchar DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS media_meio_image_url varchar,
   ADD COLUMN IF NOT EXISTS media_meio_caption varchar,
   ADD COLUMN IF NOT EXISTS media_meio_video varchar,
+  ADD COLUMN IF NOT EXISTS media_meio_images jsonb,
   ADD COLUMN IF NOT EXISTS content_final jsonb,
   ADD COLUMN IF NOT EXISTS media_final_tipo varchar DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS media_final_image_url varchar,
   ADD COLUMN IF NOT EXISTS media_final_caption varchar,
   ADD COLUMN IF NOT EXISTS media_final_video varchar,
+  ADD COLUMN IF NOT EXISTS media_final_images jsonb,
   ADD COLUMN IF NOT EXISTS views integer DEFAULT 0;
 `
 

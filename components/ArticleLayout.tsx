@@ -86,6 +86,12 @@ export default function ArticleLayout({
             <h1 className="font-display text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl md:leading-tight font-extrabold text-[var(--on-surface)]">
               {title}
             </h1>
+            {authorName && (
+              <p className="mt-3 font-sans text-sm italic text-[var(--on-surface-variant)]">
+                Por {authorName}
+                {authorRole ? <span className="not-italic text-[var(--outline)]"> · {authorRole}</span> : null}
+              </p>
+            )}
           </header>
 
           <figure className="mb-12">

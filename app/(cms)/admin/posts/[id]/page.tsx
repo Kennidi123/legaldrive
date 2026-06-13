@@ -239,7 +239,10 @@ export default function EditPostPage() {
 
           {/* Conteúdo */}
           <div className={card}>
-            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Escreva em até 3 partes. Entre cada parte você pode colocar uma imagem ou um vídeo. Deixe vazio para mostrar só o texto." />
+            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Escreva em até 3 partes. Entre cada parte você pode colocar uma ou mais imagens, ou um vídeo. Deixe vazio para mostrar só o texto." />
+            <div className="mb-5 rounded-lg bg-[var(--surface-container-low)] border border-[var(--outline-variant)] px-4 py-3 font-sans text-[11px] leading-relaxed text-[var(--on-surface-variant)]">
+              💡 <strong className="font-semibold">Formatação:</strong> comece uma linha com <code className="font-mono text-[var(--secondary)]">## </code> para um <strong className="font-semibold">subtítulo em negrito</strong>; escreva <code className="font-mono text-[var(--secondary)]">**texto**</code> para deixar um trecho em <strong className="font-semibold">negrito</strong>.
+            </div>
             <div className="space-y-5">
               <div>
                 <label className={lbl}>1️⃣ Texto — Início</label>

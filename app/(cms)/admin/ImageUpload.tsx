@@ -59,7 +59,7 @@ export default function ImageUpload({
 
   return (
     <div>
-      <label className={lbl}>{label}</label>
+      {label && <label className={lbl}>{label}</label>}
       <div className="flex items-center gap-3">
         {value && (
           // eslint-disable-next-line @next/next/no-img-element

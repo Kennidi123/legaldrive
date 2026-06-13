@@ -29,12 +29,25 @@ const mediaBlock = (name: string, label: string): Field => ({
       },
     },
     {
-      name: 'imageUrl',
-      type: 'text',
-      label: 'Imagem (URL)',
+      // Galeria: permite mais de uma imagem por bloco intercalado.
+      // type 'json' (vira coluna jsonb) — não cria tabela nova nem ENUM, então
+      // o ALTER TABLE do onInit consegue criá-la em produção. Formato:
+      // [{ url, caption }, ...]
+      name: 'images',
+      type: 'json',
+      label: 'Imagens (galeria)',
       admin: {
         condition: (_, sibling) => sibling?.tipo === 'image',
-        description: 'URL da imagem. No painel customizado o upload preenche este campo automaticamente.',
+        description: 'Lista de imagens [{ url, caption }]. Preenchido pelo painel customizado.',
+      },
+    },
+    {
+      name: 'imageUrl',
+      type: 'text',
+      label: 'Imagem (URL) — legado',
+      admin: {
+        condition: (_, sibling) => sibling?.tipo === 'image',
+        description: 'Mantido por compatibilidade (1ª imagem da galeria).',
       },
     },
     {
