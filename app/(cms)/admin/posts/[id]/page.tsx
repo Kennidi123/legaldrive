@@ -5,7 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload from '../../ImageUpload'
 import MediaField from '../../MediaField'
-import { textToLexical, lexicalToText, cleanMedia, mediaFromPost, emptyMedia, type MediaValue } from '../../content-utils'
+import RichTextEditor from '../../RichTextEditor'
+import { htmlToLexical, htmlHasContent, cleanMedia, mediaFromPost, emptyMedia, type MediaValue } from '../../content-utils'
+import { lexicalToHTML } from '@/lib/lexical'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -86,9 +88,9 @@ export default function EditPostPage() {
           title: post.title || '',
           slug: post.slug || '',
           excerpt: post.excerpt || '',
-          content: lexicalToText(post.content),
-          contentMeio: lexicalToText(post.contentMeio),
-          contentFinal: lexicalToText(post.contentFinal),
+          content: lexicalToHTML(post.content),
+          contentMeio: lexicalToHTML(post.contentMeio),
+          contentFinal: lexicalToHTML(post.contentFinal),
           status: scheduled ? 'scheduled' : (post.status || 'draft'),
           featureLevel: post.featureLevel || (post.featured ? 'destaque' : 'normal'),
           scheduledAt: scheduled ? toLocalInput(post.publishedAt) : '',
@@ -139,6 +141,7 @@ export default function EditPostPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title || !form.slug || !form.excerpt) { showToast('Título, slug e resumo são obrigatórios.', 'error'); return }
+    if (!htmlHasContent(form.content)) { showToast('Escreva o conteúdo da notícia.', 'error'); return }
     if (!form.coverImageUrl) { showToast('A imagem de capa é obrigatória.', 'error'); return }
     if (form.status === 'scheduled' && !form.scheduledAt) { showToast('Defina a data e hora do agendamento.', 'error'); return }
     setSaving(true)
@@ -147,9 +150,9 @@ export default function EditPostPage() {
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
         status: form.status === 'draft' ? 'draft' : 'published', featureLevel: form.featureLevel,
-        content: textToLexical(form.content),
-        contentMeio: form.contentMeio ? textToLexical(form.contentMeio) : null,
-        contentFinal: form.contentFinal ? textToLexical(form.contentFinal) : null,
+        content: htmlToLexical(form.content),
+        contentMeio: htmlHasContent(form.contentMeio) ? htmlToLexical(form.contentMeio) : null,
+        contentFinal: htmlHasContent(form.contentFinal) ? htmlToLexical(form.contentFinal) : null,
         mediaInicial: cleanMedia(mediaInicial),
         mediaMeio: cleanMedia(mediaMeio),
         mediaFinal: cleanMedia(mediaFinal),
@@ -239,26 +242,36 @@ export default function EditPostPage() {
 
           {/* Conteúdo */}
           <div className={card}>
-            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Escreva em até 3 partes. Entre cada parte você pode colocar uma ou mais imagens, ou um vídeo. Deixe vazio para mostrar só o texto." />
-            <div className="mb-5 rounded-lg bg-[var(--surface-container-low)] border border-[var(--outline-variant)] px-4 py-3 font-sans text-[11px] leading-relaxed text-[var(--on-surface-variant)]">
-              💡 <strong className="font-semibold">Formatação:</strong> comece uma linha com <code className="font-mono text-[var(--secondary)]">## </code> para um <strong className="font-semibold">subtítulo em negrito</strong>; escreva <code className="font-mono text-[var(--secondary)]">**texto**</code> para deixar um trecho em <strong className="font-semibold">negrito</strong>.
-            </div>
+            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Use a barra de formatação (negrito, itálico, subtítulo, listas, link...) — o artigo sai exatamente como você escrever. Entre cada parte você pode colocar imagens ou um vídeo." />
             <div className="space-y-5">
               <div>
                 <label className={lbl}>1️⃣ Texto — Início</label>
-                <textarea name="content" value={form.content} onChange={handleChange} rows={9} className={`${inp} leading-relaxed`} />
+                <RichTextEditor
+                  initialHTML={form.content}
+                  placeholder="Escreva a abertura da notícia aqui..."
+                  minHeight={220}
+                  onChange={(html) => setForm(f => ({ ...f, content: html }))}
+                />
               </div>
               <MediaField label="🎞️ Mídia após o início" value={mediaInicial} onChange={setMediaInicial} />
 
               <div>
                 <label className={lbl}>2️⃣ Texto — Meio <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
-                <textarea name="contentMeio" value={form.contentMeio} onChange={handleChange} rows={7} className={`${inp} leading-relaxed`} />
+                <RichTextEditor
+                  initialHTML={form.contentMeio}
+                  placeholder="Continue a notícia (opcional)..."
+                  onChange={(html) => setForm(f => ({ ...f, contentMeio: html }))}
+                />
               </div>
               <MediaField label="🎞️ Mídia após o meio" value={mediaMeio} onChange={setMediaMeio} />
 
               <div>
                 <label className={lbl}>3️⃣ Texto — Final <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
-                <textarea name="contentFinal" value={form.contentFinal} onChange={handleChange} rows={7} className={`${inp} leading-relaxed`} />
+                <RichTextEditor
+                  initialHTML={form.contentFinal}
+                  placeholder="Conclusão da notícia (opcional)..."
+                  onChange={(html) => setForm(f => ({ ...f, contentFinal: html }))}
+                />
               </div>
               <MediaField label="🎞️ Mídia após o final" value={mediaFinal} onChange={setMediaFinal} />
             </div>

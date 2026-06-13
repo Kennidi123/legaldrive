@@ -46,9 +46,14 @@ páginas React no FRONTEND que falam com a API REST do backend. Detalhes:
 - Editar/Excluir: `app/(cms)/admin/posts/[id]/page.tsx`.
 - Upload de imagem: `ImageUpload.tsx` → POST `/api/upload-image` no backend → retorna **URL**
   (o CMS trabalha com **URLs de imagem**, não com relações de upload do Payload).
+- Editor de texto: **`app/(cms)/admin/RichTextEditor.tsx`** — editor visual (WYSIWYG,
+  contentEditable + `document.execCommand`) com barra de negrito/itálico/sublinhado/
+  tachado/subtítulo/listas/citação/link. Produz **HTML**, convertido para lexical ao salvar.
 - Helpers compartilhados: `app/(cms)/admin/content-utils.ts`
-  (`textToLexical`, `lexicalToText`, `cleanMedia`, `mediaFromPost`, tipo `MediaValue`).
-- Seletor de mídia (Nenhuma/Imagem/Vídeo): `app/(cms)/admin/MediaField.tsx`.
+  (`htmlToLexical` HTML→lexical, `htmlHasContent`, `cleanMedia`, `mediaFromPost`, tipo
+  `MediaValue`; `textToLexical`/`lexicalToText` são legado). Ao **carregar** um post para
+  editar, o lexical vira HTML com `lexicalToHTML` (`lib/lexical.ts`) para semear o editor.
+- Seletor de mídia (Nenhuma/Imagem/Vídeo, com galeria de várias imagens): `app/(cms)/admin/MediaField.tsx`.
 
 - Excluir notícia: pelos **cards do dashboard** (`DeletePostButton.tsx` → server action
   `deletePostAction` em `actions.ts`) ou pelo botão Excluir dentro da edição.

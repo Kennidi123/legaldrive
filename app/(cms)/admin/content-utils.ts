@@ -130,3 +130,146 @@ export function mediaFromPost(m: any): MediaValue {
     video: m.video || '',
   }
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// Conversão HTML (do editor visual) → Lexical (formato salvo no banco).
+// O RichTextEditor produz HTML (negrito, itálico, sublinhado, listas, links...).
+// Aqui convertemos para os nós lexical que o renderizador (lib/lexical.ts) já
+// entende, preservando a formatação exatamente como o editor escreveu.
+// ───────────────────────────────────────────────────────────────────────────
+
+// Bitmask de formatação (igual ao serializer em lib/lexical.ts).
+const FMT = { bold: 1, italic: 2, strike: 4, underline: 8, code: 16 }
+
+const BLOCK_TAGS = new Set(['p', 'div', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'])
+
+function txtNode(text: string, format: number) {
+  return { type: 'text', text, format, detail: 0, mode: 'normal', style: '', version: 1 }
+}
+
+function block(type: string, children: any[], extra: Record<string, unknown> = {}) {
+  return { type, children, direction: 'ltr', format: '', indent: 0, version: 1, ...extra }
+}
+
+/** Soma ao bitmask a formatação indicada por uma tag ou estilo inline. */
+function formatOf(el: HTMLElement, base: number): number {
+  let f = base
+  const tag = el.tagName.toLowerCase()
+  if (tag === 'b' || tag === 'strong') f |= FMT.bold
+  if (tag === 'i' || tag === 'em') f |= FMT.italic
+  if (tag === 'u' || tag === 'ins') f |= FMT.underline
+  if (tag === 's' || tag === 'strike' || tag === 'del') f |= FMT.strike
+  if (tag === 'code') f |= FMT.code
+  const st = el.style
+  const fw = st.fontWeight
+  if (fw === 'bold' || fw === 'bolder' || (/^\d+$/.test(fw) && parseInt(fw, 10) >= 600)) f |= FMT.bold
+  if (st.fontStyle === 'italic') f |= FMT.italic
+  const td = `${st.textDecoration || ''} ${(st as any).textDecorationLine || ''}`
+  if (td.includes('underline')) f |= FMT.underline
+  if (td.includes('line-through')) f |= FMT.strike
+  return f
+}
+
+/** Coleta os nós inline (texto/links/quebras) de um elemento. */
+function parseInline(node: Node, format: number, out: any[]) {
+  node.childNodes.forEach((child) => {
+    if (child.nodeType === 3) {
+      const text = (child.textContent || '').replace(/ /g, ' ')
+      if (text) out.push(txtNode(text, format))
+      return
+    }
+    if (child.nodeType !== 1) return
+    const el = child as HTMLElement
+    const tag = el.tagName.toLowerCase()
+    if (tag === 'br') {
+      out.push({ type: 'linebreak', version: 1 })
+      return
+    }
+    if (tag === 'a') {
+      const inner: any[] = []
+      parseInline(el, format, inner)
+      out.push(
+        block('link', inner, {
+          fields: { url: el.getAttribute('href') || '#', newTab: true, linkType: 'custom' },
+        }),
+      )
+      return
+    }
+    parseInline(el, formatOf(el, format), out)
+  })
+}
+
+function hasBlockChildren(el: HTMLElement): boolean {
+  return Array.from(el.children).some((c) => BLOCK_TAGS.has(c.tagName.toLowerCase()))
+}
+
+/** Converte um elemento de bloco e empilha o(s) nó(s) resultante(s). */
+function parseBlock(el: HTMLElement, out: any[]) {
+  const tag = el.tagName.toLowerCase()
+
+  if (tag === 'ul' || tag === 'ol') {
+    const items: any[] = []
+    el.querySelectorAll(':scope > li').forEach((li) => {
+      const inner: any[] = []
+      parseInline(li, 0, inner)
+      items.push(block('listitem', inner, { value: items.length + 1 }))
+    })
+    if (items.length) out.push(block('list', items, { listType: tag === 'ol' ? 'number' : 'bullet', tag, start: 1 }))
+    return
+  }
+  if (/^h[1-6]$/.test(tag)) {
+    const inner: any[] = []
+    parseInline(el, 0, inner)
+    out.push(block('heading', inner, { tag: tag === 'h1' || tag === 'h2' ? 'h2' : 'h3' }))
+    return
+  }
+  if (tag === 'blockquote') {
+    const inner: any[] = []
+    parseInline(el, 0, inner)
+    out.push(block('quote', inner))
+    return
+  }
+  // Contêiner (div/p) com blocos aninhados → desce recursivamente.
+  if ((tag === 'div' || tag === 'p') && hasBlockChildren(el)) {
+    el.childNodes.forEach((n) => {
+      if (n.nodeType === 1) parseBlock(n as HTMLElement, out)
+      else if (n.nodeType === 3 && (n.textContent || '').trim()) {
+        out.push(block('paragraph', [txtNode(n.textContent || '', 0)]))
+      }
+    })
+    return
+  }
+  // Padrão: parágrafo.
+  const inner: any[] = []
+  parseInline(el, 0, inner)
+  out.push(block('paragraph', inner))
+}
+
+/** Converte o HTML do editor visual em um documento lexical. */
+export function htmlToLexical(html: string) {
+  const children: any[] = []
+  if (typeof document !== 'undefined') {
+    const container = document.createElement('div')
+    container.innerHTML = html || ''
+    container.childNodes.forEach((node) => {
+      if (node.nodeType === 1) parseBlock(node as HTMLElement, children)
+      else if (node.nodeType === 3 && (node.textContent || '').trim()) {
+        children.push(block('paragraph', [txtNode(node.textContent || '', 0)]))
+      }
+    })
+  }
+  if (children.length === 0) children.push(block('paragraph', []))
+  return { root: { children, direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+}
+
+/** Verifica se o HTML do editor tem algum conteúdo real (texto ou mídia inline). */
+export function htmlHasContent(html: string): boolean {
+  if (!html) return false
+  const stripped = html
+    .replace(/<br\s*\/?>(?=)/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, '')
+    .replace(/ /g, '')
+    .trim()
+  return stripped.length > 0
+}
