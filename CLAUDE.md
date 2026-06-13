@@ -112,6 +112,29 @@ Como funciona:
 - O dashboard (`app/(cms)/admin/page.tsx`) mostra `👁 N` por card e o total na estatística
   "Visualizações".
 
+## Comentários (sem login + curtidas + moderação)
+
+As notícias têm comentários **públicos** (não exigem login) com **curtida (coração)**.
+O admin pode **excluir** qualquer comentário.
+
+- Tabela própria `comments` (NÃO é collection do Payload) — criada no boot via
+  `ENSURE_COMMENTS_TABLE` no `onInit` (`CREATE TABLE IF NOT EXISTS`, idempotente; FK
+  `post_id` com `ON DELETE CASCADE`). Colunas: `id`, `post_id`, `author_name`, `content`,
+  `likes`, `created_at`. Manipulada por SQL direto no pool (igual ao contador de views).
+- Rotas no backend (`backend/app/api/comments/`):
+  - `GET /api/comments?postId=N` — lista os comentários de uma notícia (público).
+  - `GET /api/comments?all=1` — lista recentes de todas (com título do post; usado no painel).
+  - `POST /api/comments` — cria comentário `{ postId, authorName, content }` (**público**,
+    sem login). `content`/`authorName` são limitados em tamanho e tratados como texto puro.
+  - `POST /api/comments/[id]/like` — incrementa `likes` (**público**, NÃO destrutivo, atômico).
+  - `DELETE /api/comments/[id]` — **só admin**: valida o JWT via `payload.auth({ headers })`
+    (o painel envia `Authorization: JWT <token>`); sem usuário → 401.
+- Frontend: `components/Comments.tsx` (client) renderiza formulário + lista + botão de curtir.
+  Curtidas usam `localStorage` (`ld:liked-comments`) para evitar repetição por navegador.
+  É renderizado dentro de `ArticleLayout` (recebe `postId`) no fim do artigo.
+- Painel: `app/(cms)/admin/comments/` (lista + `DeleteCommentButton` → `deleteCommentAction`).
+  Link "💬 Comentários" no header do CMS e no dashboard.
+
 ## Banco de dados e schema (ARMADILHA IMPORTANTE)
 
 O backend usa postgres com `push: true`. **Mas `push` só roda em desenvolvimento.** Em
@@ -143,7 +166,8 @@ app/
   og/route.tsx         imagem Open Graph dinâmica (1200x630)
 components/            Header, Footer, ArticleLayout, ArticleBody, ArticleSidebar,
                        ArticleCard(+Horizontal), FeaturedHero, CategoryTabs/Badge,
-                       VideoEmbed, ShareButtons, WhatsAppBanner, ViewTracker (conta views)
+                       VideoEmbed, ShareButtons, WhatsAppBanner, ViewTracker (conta views),
+                       Comments (comentários públicos + curtidas)
 lib/
   payload-api.ts       funções de fetch da API (getPostBySlug, getLatestPosts, etc.)
   lexical.ts           lexicalToHTML + helpers de imagem (getPostCoverImage, normalizeMediaUrl)
@@ -153,7 +177,8 @@ backend/
   payload.config.ts    config do Payload (onInit, cors, db, admin.css)
   collections/         Posts, Categories, Authors, Tags, Media, Videos, Users
   app/(payload)/       rotas do Payload (/admin, /api)
-  app/api/             upload-image, image/[id], posts/[id]/view (contador de views)
+  app/api/             upload-image, image/[id], posts/[id]/view (views),
+                       comments (+ [id], [id]/like) — comentários públicos
   youtube.ts           cópia do extractYouTubeId p/ o backend
   styles/admin.css     marca no /admin nativo do Payload
 ```

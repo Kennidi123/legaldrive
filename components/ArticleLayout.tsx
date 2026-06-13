@@ -3,10 +3,13 @@ import type React from 'react'
 import ArticleSidebar, { type RelatedItem } from './ArticleSidebar'
 import ShareButtons from './ShareButtons'
 import VideoEmbed from './VideoEmbed'
+import Comments from './Comments'
 
 export type { RelatedItem }
 
 interface ArticleLayoutProps {
+  /** ID da notícia (para o sistema de comentários) */
+  postId: string | number
   /** Rótulo da editoria (ex.: "Fiscalização e Radar") */
   label: string
   title: string
@@ -53,6 +56,7 @@ const P = {
 }
 
 export default function ArticleLayout({
+  postId,
   label,
   title,
   cover,
@@ -169,22 +173,8 @@ export default function ArticleLayout({
               </div>
             </div>
 
-            {/* Comentários */}
-            <section className="mt-16">
-              <h4 className="font-display text-2xl font-semibold text-[var(--on-surface)] mb-6">Comentários (12)</h4>
-              <div className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)]" style={{ background: CARD_BG }}>
-                <textarea
-                  rows={3}
-                  placeholder="Adicione seu comentário ou dúvida..."
-                  className="w-full p-4 rounded-lg border border-[var(--outline-variant)] focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-white placeholder:text-[var(--on-surface-variant)] resize-none focus:outline-none"
-                />
-                <div className="flex justify-end mt-4">
-                  <button className="bg-[var(--primary-container)] text-[var(--primary)] border border-[var(--primary)] px-8 py-2 rounded-lg font-mono text-xs hover:bg-[var(--primary)] hover:text-[var(--on-primary)] transition-colors uppercase tracking-wider">
-                    Publicar
-                  </button>
-                </div>
-              </div>
-            </section>
+            {/* Comentários (sistema real, sem login) */}
+            <Comments postId={postId} />
           </footer>
         </article>
 

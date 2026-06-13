@@ -58,6 +58,12 @@ export default async function CmsDashboard() {
             🎬 Vídeos
           </Link>
           <Link
+            href="/admin/comments"
+            className="border border-[var(--outline-variant)] text-[var(--on-surface-variant)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:border-[var(--secondary)] hover:text-[var(--secondary)] transition-all"
+          >
+            💬 Comentários
+          </Link>
+          <Link
             href="/admin/posts/new"
             className="bg-[var(--secondary)] text-[var(--on-secondary)] font-mono text-xs font-bold tracking-widest uppercase px-5 py-3 rounded-xl hover:brightness-110 transition-all shadow-sm"
           >

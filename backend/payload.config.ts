@@ -44,6 +44,22 @@ ALTER TABLE posts
   ADD COLUMN IF NOT EXISTS views integer DEFAULT 0;
 `
 
+// Cria a tabela de comentários das notícias. É uma tabela gerenciada por SQL
+// próprio (não é uma collection do Payload) — manipulada pelas rotas em
+// backend/app/api/comments. Necessário porque o `push: true` só roda em dev;
+// em produção este CREATE garante a tabela no boot. Idempotente.
+const ENSURE_COMMENTS_TABLE = `
+CREATE TABLE IF NOT EXISTS comments (
+  id serial PRIMARY KEY,
+  post_id integer NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  author_name varchar NOT NULL DEFAULT 'Anônimo',
+  content varchar NOT NULL,
+  likes integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS comments_post_id_idx ON comments(post_id);
+`
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -67,6 +83,13 @@ export default buildConfig({
       payload.logger.info('[init] Colunas de mídia/segmentos garantidas na tabela posts.')
     } catch (err) {
       payload.logger.error(err, '[init] Falha ao garantir colunas novas em posts')
+    }
+
+    try {
+      await runSql(ENSURE_COMMENTS_TABLE)
+      payload.logger.info('[init] Tabela de comentários garantida.')
+    } catch (err) {
+      payload.logger.error(err, '[init] Falha ao garantir a tabela de comentários')
     }
 
     // Reset único e controlado: apaga TODAS as notícias quando RESET_POSTS=true.

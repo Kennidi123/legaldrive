@@ -125,6 +125,18 @@ export async function deleteAuthorAction(id: string | number) {
   return { success: true }
 }
 
+export async function deleteCommentAction(id: string | number) {
+  const token = await getToken()
+  const res = await fetch(`${BACKEND}/api/comments/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `JWT ${token}` },
+    cache: 'no-store',
+  })
+  if (!res.ok) return { error: 'Erro ao excluir o comentário' }
+  revalidatePath('/admin/comments')
+  return { success: true }
+}
+
 export async function apiGet(path: string) {
   const token = await getToken()
   const res = await fetch(`${BACKEND}${path}`, {

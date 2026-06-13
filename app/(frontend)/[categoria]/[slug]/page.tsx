@@ -119,6 +119,7 @@ export default async function ArticlePage({ params }: Props) {
       <ViewTracker postId={post.id} />
 
       <ArticleLayout
+        postId={post.id}
         label={cat.name}
         title={post.title}
         cover={coverImage}
