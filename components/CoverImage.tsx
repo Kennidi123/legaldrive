@@ -36,6 +36,8 @@ export default function CoverImage({ src, alt, sizes, priority, className = '' }
         sizes={sizes}
         className={`object-contain ${className}`}
       />
+      {/* Moldura dourada por cima (contorno em gradiente, segue os cantos) */}
+      <span className="cover-frame absolute inset-0" aria-hidden />
     </>
   )
 }
