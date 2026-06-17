@@ -176,16 +176,16 @@ export default async function HomePage() {
       <main className="bg-[var(--primary-container)] text-[var(--primary-fixed)]">
       <div className="max-w-content mx-auto px-4 md:px-16 py-16">
         {/* ============ HERO BENTO ============ */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-16">
+        <section className="reveal grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-16">
           {/* Matéria principal */}
           <article className="lg:col-span-8 group">
-            <Link href={heroMain.href} className="block relative aspect-video overflow-hidden rounded-xl mb-4">
+            <Link href={heroMain.href} className="media-zoom block relative aspect-video overflow-hidden rounded-xl mb-4">
               {heroMain.coverImage ? (
                 <Image src={heroMain.coverImage} alt={heroMain.title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover transform group-hover:scale-105 transition-transform duration-700" />
               ) : (
                 <div className="w-full h-full bg-[var(--tertiary-container)]" />
               )}
-              <span className="absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-3 py-1 font-mono text-[11px] tracking-widest uppercase rounded-lg">
+              <span className="pulse-badge absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-3 py-1 font-mono text-[11px] tracking-widest uppercase rounded-lg z-10">
                 Destaque
               </span>
             </Link>
@@ -202,7 +202,7 @@ export default async function HomePage() {
           <div className="lg:col-span-4 flex flex-col gap-gutter">
             {heroSide.map((s, i) => (
               <article key={s.id} className="group">
-                <Link href={s.href} className="block relative aspect-[16/10] overflow-hidden rounded-xl mb-2">
+                <Link href={s.href} className="media-zoom block relative aspect-[16/10] overflow-hidden rounded-xl mb-2">
                   {s.coverImage ? (
                     <Image src={s.coverImage} alt={s.title} fill sizes="(max-width:1024px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform duration-500" />
                   ) : (
@@ -224,18 +224,18 @@ export default async function HomePage() {
           {/* ----- Coluna principal ----- */}
           <div className="lg:col-span-8">
             {/* Notícias Recentes */}
-            <section className="mb-16">
+            <section className="reveal mb-16">
               <div className="flex items-center justify-between border-b-2 border-[var(--primary)] pb-2 mb-8">
                 <h2 className="font-display text-[32px] font-bold">Notícias Recentes</h2>
-                <Link href="#" className="text-[var(--secondary)] font-mono text-sm hover:underline flex items-center gap-1">
-                  Ver todas <Icon d={P.arrow} className="w-4 h-4" />
+                <Link href="#" className="group text-[var(--secondary)] font-mono text-sm hover:underline flex items-center gap-1">
+                  Ver todas <Icon d={P.arrow} className="w-4 h-4 arrow-nudge" />
                 </Link>
               </div>
               <div className="space-y-8">
                 {recent.map((n, i) => (
                   <div key={n.id}>
                     <article className="flex flex-col md:flex-row gap-6 group">
-                      <Link href={n.href} className="md:w-1/3 relative aspect-[4/3] overflow-hidden rounded-xl flex-none">
+                      <Link href={n.href} className="media-zoom md:w-1/3 relative aspect-[4/3] overflow-hidden rounded-xl flex-none">
                         {n.coverImage ? (
                           <Image src={n.coverImage} alt={n.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform" />
                         ) : (
@@ -262,7 +262,7 @@ export default async function HomePage() {
             </section>
 
             {/* Vídeos em Destaque */}
-            <section className="mb-16 bg-[var(--tertiary-container)] p-8 rounded-xl">
+            <section className="reveal mb-16 bg-[var(--tertiary-container)] p-8 rounded-xl">
               <div className="flex items-center gap-3 mb-8 border-l-4 border-[var(--secondary)] pl-4">
                 <h2 className="font-display text-[32px] font-bold">Vídeos em Destaque</h2>
               </div>
@@ -313,7 +313,7 @@ export default async function HomePage() {
             </section>
 
             {/* Novas Tecnologias */}
-            <section className="mb-16">
+            <section className="reveal mb-16">
               <div className="flex items-center justify-between border-b-2 border-[var(--primary)] pb-2 mb-8">
                 <h2 className="font-display text-[32px] font-bold">Novas Tecnologias</h2>
                 <span className="text-[var(--secondary)]"><Icon d={P.chip} /></span>
@@ -321,7 +321,7 @@ export default async function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
                 {tech.map((t) => (
                   <article key={t.id} className="group">
-                    <Link href={t.href} className="block relative aspect-video rounded-xl overflow-hidden mb-4">
+                    <Link href={t.href} className="media-zoom block relative aspect-video rounded-xl overflow-hidden mb-4">
                       {t.coverImage ? (
                         <Image src={t.coverImage} alt={t.title} fill sizes="(max-width:768px) 100vw, 50vw" className="object-cover group-hover:scale-105 transition-transform" />
                       ) : (
@@ -338,7 +338,7 @@ export default async function HomePage() {
             </section>
 
             {/* Listas: Multas & CNH / Legislação */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div className="reveal grid grid-cols-1 md:grid-cols-2 gap-16">
               {[
                 { title: 'Multas & CNH', items: listMultas },
                 { title: 'Legislação', items: listLeis },
@@ -360,7 +360,7 @@ export default async function HomePage() {
             </div>
 
             {/* Cidadania no Trânsito — notícias reais da categoria */}
-            <section className="mt-16 pt-16 border-t border-[var(--on-primary-fixed-variant)]">
+            <section className="reveal mt-16 pt-16 border-t border-[var(--on-primary-fixed-variant)]">
               <h2 className="font-display text-[32px] font-bold mb-8">Cidadania no Trânsito</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {civica.map((c) => (
@@ -382,7 +382,7 @@ export default async function HomePage() {
           </div>
 
           {/* ----- Sidebar ----- */}
-          <aside className="lg:col-span-4 space-y-16">
+          <aside className="reveal lg:col-span-4 space-y-16">
             {/* Mais Lidas */}
             <div className="bg-[var(--tertiary-container)] p-8 rounded-xl border-l border-[var(--on-primary-fixed-variant)]">
               <h3 className="font-display text-2xl font-semibold mb-6 flex items-center gap-2">
@@ -406,7 +406,7 @@ export default async function HomePage() {
               href={whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-2xl p-8 text-center shadow-lg hover:brightness-105 transition-all group"
+              className="btn-shine hover-lift block rounded-2xl p-8 text-center shadow-lg transition-all group"
               style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)' }}
             >
               <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
@@ -427,14 +427,14 @@ export default async function HomePage() {
               <p className="text-[var(--primary)] text-base mb-4">Assine e receba a curadoria semanal de trânsito direto no seu e-mail.</p>
               <form action="/contato" method="GET" className="space-y-3">
                 <input name="email" type="email" required placeholder="Seu melhor e-mail" className="w-full border-b border-[var(--on-primary-fixed-variant)] focus:border-[var(--secondary)] bg-transparent py-2 transition-colors placeholder:text-[var(--primary-fixed-dim)] focus:outline-none" />
-                <button type="submit" className="w-full bg-[var(--secondary)] text-[var(--on-secondary)] py-2 font-mono uppercase tracking-widest text-[11px] rounded-xl hover:brightness-110 transition-all">Assinar Agora</button>
+                <button type="submit" className="btn-shine w-full bg-[var(--secondary)] text-[var(--on-secondary)] py-2 font-mono uppercase tracking-widest text-[11px] rounded-xl hover:brightness-110 transition-all">Assinar Agora</button>
               </form>
             </div>
           </aside>
         </div>
 
         {/* ============ ALERTA CTB (fim da página) ============ */}
-        <section className="mt-16 bg-[var(--tertiary-container)] border border-[var(--on-primary-fixed-variant)] rounded-xl p-6">
+        <section className="reveal mt-16 bg-[var(--tertiary-container)] border border-[var(--on-primary-fixed-variant)] rounded-xl p-6">
           <div className="flex items-center gap-4 mb-4">
             <span className="text-[var(--error)]"><Icon d={P.gavel} /></span>
             <h2 className="font-display text-2xl font-semibold">Mudanças Legislativas: Alerta CTB</h2>

@@ -34,7 +34,7 @@ export default function ArticleCard({
       style={{ animationDelay: `${animationDelay}ms` }}
     >
       <Link href={`/${category.slug}/${slug}`} className="block overflow-hidden">
-        <div className="relative aspect-video overflow-hidden bg-[var(--surface-container-high)]">
+        <div className="media-zoom relative aspect-video overflow-hidden bg-[var(--surface-container-high)]">
           {coverImage ? (
             <Image
               src={coverImage}

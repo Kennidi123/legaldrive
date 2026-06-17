@@ -90,6 +90,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
+      <head>
+        {/* Sem JS: garante que nada animado por scroll-reveal fique invisível */}
+        <noscript>
+          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
+      </head>
       <body className={`${chivo.variable} ${geist.variable} ${jetbrainsMono.variable} font-body antialiased`}>
         {children}
       </body>

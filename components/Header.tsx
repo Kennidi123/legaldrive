@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const navLinks = [
   { label: 'Multas', href: '/multas' },
@@ -33,12 +33,28 @@ function RssIcon({ className = 'w-5 h-5' }: { className?: string }) {
 export default function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
   return (
-    <header className="dark-section border-b border-[var(--on-primary-fixed-variant)] sticky top-0 z-50">
-      <div className="max-w-content mx-auto px-4 md:px-16 py-3 md:py-2.5">
+    <header
+      className={`dark-section border-b border-[var(--on-primary-fixed-variant)] sticky top-0 z-50 transition-shadow duration-300 ${
+        scrolled ? 'shadow-xl shadow-black/30' : ''
+      }`}
+    >
+      <div
+        className={`max-w-content mx-auto px-4 md:px-16 transition-all duration-300 ${
+          scrolled ? 'py-2 md:py-1.5' : 'py-3 md:py-2.5'
+        }`}
+      >
         {/* Linha superior: logo + busca + ações */}
         <div className="flex items-center justify-between w-full md:mb-2.5">
           <Link href="/" className="flex items-center flex-none">
@@ -62,7 +78,7 @@ export default function Header() {
 
             <Link
               href="/contato"
-              className="bg-[var(--secondary)] text-[var(--on-secondary)] px-6 py-1.5 font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:brightness-110 transition-all whitespace-nowrap"
+              className="btn-shine bg-[var(--secondary)] text-[var(--on-secondary)] px-6 py-1.5 font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:brightness-110 transition-all whitespace-nowrap"
             >
               Painel CNH
             </Link>
@@ -119,7 +135,7 @@ export default function Header() {
                 className={`font-mono text-xs tracking-widest uppercase transition-colors pb-1 ${
                   active
                     ? 'text-[var(--secondary)] border-b-2 border-[var(--secondary)]'
-                    : 'text-[var(--primary)] hover:text-[var(--secondary)]'
+                    : 'nav-underline text-[var(--primary)] hover:text-[var(--secondary)]'
                 }`}
               >
                 {link.label}
