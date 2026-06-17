@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPublishedPosts, getRelatedPosts } from '@/lib/payload-api'
 import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '@/lib/seo'
 import { getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
+import { normalizeSources } from '@/lib/sources'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
 import ArticleBody from '@/components/ArticleBody'
 import ViewTracker from '@/components/ViewTracker'
@@ -134,7 +135,7 @@ export default async function ArticlePage({ params }: Props) {
         whatsapp={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '/contato'}
         shareUrl={articleUrl}
         shareTitle={post.title}
-        externalLink={post.externalLink}
+        sources={normalizeSources(post.sources, post.externalLink)}
       >
         <ArticleBody post={post} />
       </ArticleLayout>

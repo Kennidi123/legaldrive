@@ -96,10 +96,21 @@ Se `tipo='none'`, renderiza só o texto. Imagens entre textos saem em **16:9** e
 desktop, **pequenas e centralizadas** (`md:max-w-sm mx-auto`); no mobile, largura total.
 
 Outros campos: `title`, `slug`, `excerpt`, `coverImageUrl` (capa — **obrigatória no CMS**),
-`coverImage` (upload, legado), `youtubeId` (vídeo de capa legado), `externalLink`,
+`coverImage` (upload, legado), `youtubeId` (vídeo de capa legado), `externalLink`
+(fonte única — **legado**), `sources` (jsonb — **várias fontes**, ver abaixo),
 `category`, `author`, `tags`, `readingTime`, `status` (draft/published),
 `featureLevel` (`normal`/`destaque`/`principal`), `publishedAt` (agendamento), `seo`,
 `views` (contador de visualizações — ver seção abaixo).
+
+## Fontes / links externos (múltiplos)
+
+A notícia pode ter **várias fontes** (links externos). Guardadas no campo `sources`
+(**jsonb**) como lista `[{ url, label? }]`. O campo antigo `externalLink` (string única)
+continua existindo só por **compatibilidade** — ao salvar uma notícia no CMS ele é migrado
+para `sources` e zerado. `lib/sources.ts` (`normalizeSources`) une os dois e remove
+duplicatas; `app/(cms)/admin/SourceLinksField.tsx` é o editor (adicionar/remover linhas);
+`components/ArticleLayout.tsx` renderiza a lista no rodapé do artigo. A coluna `sources jsonb`
+é criada no boot pelo `ENSURE_POSTS_COLUMNS` (mesma armadilha de schema das outras colunas).
 
 Coleções: `Posts`, `Categories`, `Authors`, `Tags`, `Media`, `Videos`, `Users`.
 

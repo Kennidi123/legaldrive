@@ -258,8 +258,14 @@ export const Posts: CollectionConfig = {
             {
               name: 'externalLink',
               type: 'text',
-              label: 'Link Externo (fonte)',
-              admin: { description: 'URL de fonte externa ou notícia original. Ex: https://g1.globo.com/...' },
+              label: 'Link Externo (fonte) — legado',
+              admin: { description: 'Campo antigo de fonte única. Mantido por compatibilidade; use "Fontes" abaixo.' },
+            },
+            {
+              name: 'sources',
+              type: 'json',
+              label: 'Fontes (links externos)',
+              admin: { description: 'Lista de fontes/links externos. Cada item: { "url": "https://...", "label": "opcional" }.' },
             },
           ],
         },

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type React from 'react'
 import CoverImage from './CoverImage'
+import type { SourceLink } from '@/lib/sources'
 import ArticleSidebar, { type RelatedItem } from './ArticleSidebar'
 import ShareButtons from './ShareButtons'
 import VideoEmbed from './VideoEmbed'
@@ -30,8 +31,8 @@ interface ArticleLayoutProps {
   shareUrl: string
   /** Título usado no texto de compartilhamento */
   shareTitle: string
-  /** Link externo (fonte) exibido no rodapé do artigo */
-  externalLink?: string | null
+  /** Fontes (links externos) exibidas no rodapé do artigo */
+  sources?: SourceLink[]
   newsletterTitle?: string
   newsletterText?: string
   /** Corpo do artigo (conteúdo real em prose ou fallback estático) */
@@ -73,7 +74,7 @@ export default function ArticleLayout({
   whatsapp,
   shareUrl,
   shareTitle,
-  externalLink,
+  sources = [],
   newsletterTitle = 'Radar Legal Drive',
   newsletterText = 'Receba atualizações cruciais sobre leis de trânsito direto no seu e-mail.',
   children,
@@ -147,19 +148,29 @@ export default function ArticleLayout({
                 </div>
               </div>
 
-              {externalLink && (
-                <a
-                  href={externalLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 flex items-center gap-3 p-4 rounded-lg border border-[var(--on-primary-fixed-variant)] hover:border-[var(--secondary)] transition-colors group bg-[var(--primary-container)]"
-                >
-                  <Icon d={P.link} className="w-5 h-5 text-[var(--secondary)] flex-none" />
-                  <div className="min-w-0">
-                    <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)]">Fonte / Leia também</p>
-                    <p className="text-sm text-[var(--on-surface)] truncate group-hover:text-[var(--secondary)] transition-colors">{externalLink}</p>
-                  </div>
-                </a>
+              {sources.length > 0 && (
+                <div className="mt-5 space-y-2">
+                  <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--secondary)] mb-1">
+                    {sources.length > 1 ? 'Fontes / Leia também' : 'Fonte / Leia também'}
+                  </p>
+                  {sources.map((s, i) => (
+                    <a
+                      key={i}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 rounded-lg border border-[var(--on-primary-fixed-variant)] hover:border-[var(--secondary)] transition-colors group bg-[var(--primary-container)]"
+                    >
+                      <Icon d={P.link} className="w-5 h-5 text-[var(--secondary)] flex-none" />
+                      <div className="min-w-0">
+                        {s.label && (
+                          <p className="text-sm font-semibold text-[var(--on-surface)] group-hover:text-[var(--secondary)] transition-colors truncate">{s.label}</p>
+                        )}
+                        <p className="text-sm text-[var(--on-surface-variant)] truncate group-hover:text-[var(--secondary)] transition-colors">{s.url}</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               )}
             </div>
 

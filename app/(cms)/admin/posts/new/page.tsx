@@ -7,6 +7,16 @@ import ImageUpload from '../../ImageUpload'
 import MediaField from '../../MediaField'
 import RichTextEditor from '../../RichTextEditor'
 import { htmlToLexical, htmlHasContent, cleanMedia, emptyMedia, type MediaValue } from '../../content-utils'
+import SourceLinksField from '../../SourceLinksField'
+import { type SourceLink } from '@/lib/sources'
+
+/** Limpa as linhas de fontes: remove vazias e normaliza os campos. */
+function cleanSources(sources: SourceLink[]): SourceLink[] {
+  return sources
+    .map(s => ({ url: (s.url || '').trim(), label: (s.label || '').trim() }))
+    .filter(s => s.url)
+    .map(s => (s.label ? { url: s.url, label: s.label } : { url: s.url }))
+}
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -53,8 +63,9 @@ export default function NewPostPage() {
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', content: '', contentMeio: '', contentFinal: '', category: '',
     author: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
-    featureLevel: 'normal', scheduledAt: '', coverImageUrl: '', youtubeId: '', externalLink: '', readingTime: '',
+    featureLevel: 'normal', scheduledAt: '', coverImageUrl: '', youtubeId: '', readingTime: '',
   })
+  const [sources, setSources] = useState<SourceLink[]>([])
   const [mediaInicial, setMediaInicial] = useState<MediaValue>({ ...emptyMedia })
   const [mediaMeio, setMediaMeio] = useState<MediaValue>({ ...emptyMedia })
   const [mediaFinal, setMediaFinal] = useState<MediaValue>({ ...emptyMedia })
@@ -133,7 +144,8 @@ export default function NewPostPage() {
       if (form.author) body.author = /^\d+$/.test(form.author) ? Number(form.author) : form.author
       if (form.coverImageUrl) body.coverImageUrl = form.coverImageUrl
       if (form.youtubeId) body.youtubeId = form.youtubeId
-      if (form.externalLink) body.externalLink = form.externalLink
+      const cleanedSources = cleanSources(sources)
+      if (cleanedSources.length) body.sources = cleanedSources
       if (form.readingTime) body.readingTime = Number(form.readingTime)
       if (form.status === 'published') body.publishedAt = new Date().toISOString()
       if (form.status === 'scheduled') body.publishedAt = new Date(form.scheduledAt).toISOString()
@@ -272,10 +284,7 @@ export default function NewPostPage() {
                 <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="https://youtube.com/watch?v=..." className={inp} />
                 <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Se preencher, a capa da notícia vira um player. A imagem acima é usada como prévia.</p>
               </div>
-              <div>
-                <label className={lbl}>Link Externo <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(fonte)</span></label>
-                <input name="externalLink" type="url" value={form.externalLink} onChange={handleChange} placeholder="https://g1.globo.com/..." className={inp} />
-              </div>
+              <SourceLinksField value={sources} onChange={setSources} />
             </div>
           </div>
 
