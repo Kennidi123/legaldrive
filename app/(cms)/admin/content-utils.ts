@@ -143,8 +143,26 @@ const FMT = { bold: 1, italic: 2, strike: 4, underline: 8, code: 16 }
 
 const BLOCK_TAGS = new Set(['p', 'div', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'])
 
-function txtNode(text: string, format: number) {
-  return { type: 'text', text, format, detail: 0, mode: 'normal', style: '', version: 1 }
+// Estilos inline preservados no `style` do nó de texto (lexical). O Payload
+// mantém esse campo, então tamanho da fonte / espaçamento / cor sobrevivem.
+const STYLE_KEYS = ['font-size', 'line-height', 'color', 'background-color']
+
+function readStyle(el: HTMLElement, base: Record<string, string>): Record<string, string> {
+  const out = { ...base }
+  STYLE_KEYS.forEach((k) => {
+    const v = el.style.getPropertyValue(k)
+    if (v) out[k] = v
+  })
+  return out
+}
+
+function styleStr(s: Record<string, string>): string {
+  const entries = Object.entries(s)
+  return entries.length ? entries.map(([k, v]) => `${k}: ${v};`).join(' ') : ''
+}
+
+function txtNode(text: string, format: number, style: Record<string, string> = {}) {
+  return { type: 'text', text, format, detail: 0, mode: 'normal', style: styleStr(style), version: 1 }
 }
 
 function block(type: string, children: any[], extra: Record<string, unknown> = {}) {
@@ -170,12 +188,13 @@ function formatOf(el: HTMLElement, base: number): number {
   return f
 }
 
-/** Coleta os nós inline (texto/links/quebras) de um elemento. */
-function parseInline(node: Node, format: number, out: any[]) {
+/** Coleta os nós inline (texto/links/quebras) de um elemento, propagando
+ *  a formatação e os estilos inline (tamanho/espaçamento/cor). */
+function parseInline(node: Node, format: number, style: Record<string, string>, out: any[]) {
   node.childNodes.forEach((child) => {
     if (child.nodeType === 3) {
       const text = (child.textContent || '').replace(/ /g, ' ')
-      if (text) out.push(txtNode(text, format))
+      if (text) out.push(txtNode(text, format, style))
       return
     }
     if (child.nodeType !== 1) return
@@ -187,7 +206,7 @@ function parseInline(node: Node, format: number, out: any[]) {
     }
     if (tag === 'a') {
       const inner: any[] = []
-      parseInline(el, format, inner)
+      parseInline(el, format, style, inner)
       out.push(
         block('link', inner, {
           fields: { url: el.getAttribute('href') || '#', newTab: true, linkType: 'custom' },
@@ -195,7 +214,7 @@ function parseInline(node: Node, format: number, out: any[]) {
       )
       return
     }
-    parseInline(el, formatOf(el, format), out)
+    parseInline(el, formatOf(el, format), readStyle(el, style), out)
   })
 }
 
@@ -211,7 +230,7 @@ function parseBlock(el: HTMLElement, out: any[]) {
     const items: any[] = []
     el.querySelectorAll(':scope > li').forEach((li) => {
       const inner: any[] = []
-      parseInline(li, 0, inner)
+      parseInline(li, 0, {}, inner)
       items.push(block('listitem', inner, { value: items.length + 1 }))
     })
     if (items.length) out.push(block('list', items, { listType: tag === 'ol' ? 'number' : 'bullet', tag, start: 1 }))
@@ -219,13 +238,13 @@ function parseBlock(el: HTMLElement, out: any[]) {
   }
   if (/^h[1-6]$/.test(tag)) {
     const inner: any[] = []
-    parseInline(el, 0, inner)
+    parseInline(el, 0, {}, inner)
     out.push(block('heading', inner, { tag: tag === 'h1' || tag === 'h2' ? 'h2' : 'h3' }))
     return
   }
   if (tag === 'blockquote') {
     const inner: any[] = []
-    parseInline(el, 0, inner)
+    parseInline(el, 0, {}, inner)
     out.push(block('quote', inner))
     return
   }
@@ -241,7 +260,7 @@ function parseBlock(el: HTMLElement, out: any[]) {
   }
   // Padrão: parágrafo.
   const inner: any[] = []
-  parseInline(el, 0, inner)
+  parseInline(el, 0, {}, inner)
   out.push(block('paragraph', inner))
 }
 

@@ -2,6 +2,7 @@ type LexicalNode = {
   type: string
   text?: string
   format?: number
+  style?: string
   tag?: string
   listType?: string
   fields?: { url?: string; newTab?: boolean }
@@ -27,6 +28,11 @@ function serializeNodes(nodes: LexicalNode[]): string {
         if (fmt & 8) text = `<u>${text}</u>`
         if (fmt & 4) text = `<s>${text}</s>`
         if (fmt & 16) text = `<code>${text}</code>`
+        // Estilos inline (tamanho da fonte, espaçamento, cor) definidos no editor.
+        if (node.style) {
+          const safe = node.style.replace(/"/g, '&quot;')
+          text = `<span style="${safe}">${text}</span>`
+        }
         return text
       }
       if (node.type === 'linebreak') return '<br />'
