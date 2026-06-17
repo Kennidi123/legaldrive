@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import CategoryBadge from './CategoryBadge'
+import CoverImage from './CoverImage'
 
 interface ArticleCardProps {
   title: string
@@ -36,11 +36,10 @@ export default function ArticleCard({
       <Link href={`/${category.slug}/${slug}`} className="block overflow-hidden">
         <div className="media-zoom relative aspect-video overflow-hidden bg-[var(--surface-container-high)]">
           {coverImage ? (
-            <Image
+            <CoverImage
               src={coverImage}
               alt={title}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              className="transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (

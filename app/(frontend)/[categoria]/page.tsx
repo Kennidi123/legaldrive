@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import CoverImage from '@/components/CoverImage'
 import type { Metadata } from 'next'
 import { getCategories, getCategoryBySlug, getPostsByCategory, getLatestPosts } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
@@ -140,7 +140,7 @@ export default async function CategoryPage({ params }: Props) {
               <article className="group">
                 <Link href={featured.href} className="block relative aspect-video overflow-hidden rounded-xl mb-6 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
                   {featured.coverImage ? (
-                    <Image src={featured.coverImage} alt={featured.title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <CoverImage src={featured.coverImage} alt={featured.title} priority sizes="(max-width:1024px) 100vw, 66vw" className="transition-transform duration-700 group-hover:scale-105" />
                   ) : null}
                   <span className="absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-4 py-1 font-mono text-[11px] tracking-widest uppercase rounded-full shadow-lg">
                     Destaque
@@ -173,7 +173,7 @@ export default async function CategoryPage({ params }: Props) {
                     <Link key={c.id} href={c.href} className="group block">
                       <div className="relative aspect-video rounded-xl overflow-hidden mb-4 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
                         {c.coverImage ? (
-                          <Image src={c.coverImage} alt={c.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <CoverImage src={c.coverImage} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="transition-transform duration-500 group-hover:scale-105" />
                         ) : null}
                       </div>
                       <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>

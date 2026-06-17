@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import CoverImage from './CoverImage'
 
 interface SidePost {
   title: string
@@ -42,12 +42,11 @@ export default function FeaturedHero({
         <Link href={`/${category.slug}/${slug}`} className="block">
           <div className="relative aspect-video overflow-hidden rounded-lg bg-[var(--surface-container-high)]">
             {coverImage ? (
-              <Image
+              <CoverImage
                 src={coverImage}
                 alt={title}
-                fill
                 priority
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 66vw"
               />
             ) : (

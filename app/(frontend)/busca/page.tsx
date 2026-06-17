@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import CoverImage from '@/components/CoverImage'
 import type { Metadata } from 'next'
 import { searchPosts, getLatestPosts } from '@/lib/payload-api'
 import { getPostCoverImage } from '@/lib/lexical'
@@ -130,7 +130,7 @@ export default async function BuscaPage({ searchParams }: Props) {
                   <Link key={c.id} href={c.href} className="group block">
                     <div className="relative aspect-video rounded-xl overflow-hidden mb-4 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
                       {c.coverImage ? (
-                        <Image src={c.coverImage} alt={c.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <CoverImage src={c.coverImage} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="transition-transform duration-500 group-hover:scale-105" />
                       ) : null}
                     </div>
                     <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>

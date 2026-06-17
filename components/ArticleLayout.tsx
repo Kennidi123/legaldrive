@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type React from 'react'
+import CoverImage from './CoverImage'
 import ArticleSidebar, { type RelatedItem } from './ArticleSidebar'
 import ShareButtons from './ShareButtons'
 import VideoEmbed from './VideoEmbed'
@@ -104,7 +105,7 @@ export default function ArticleLayout({
             ) : (
               <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[var(--tertiary-container)]" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
                 {cover ? (
-                  <Image src={cover} alt={title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover" />
+                  <CoverImage src={cover} alt={title} priority sizes="(max-width:1024px) 100vw, 66vw" />
                 ) : null}
               </div>
             )}

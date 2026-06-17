@@ -5,6 +5,7 @@ import { getLatestPosts, getMainFeatured, getVideos, getPostsByCategory } from '
 import { getPostCoverImage } from '@/lib/lexical'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
+import CoverImage from '@/components/CoverImage'
 
 export const dynamic = 'force-dynamic'
 
@@ -181,7 +182,7 @@ export default async function HomePage() {
           <article className="lg:col-span-8 group">
             <Link href={heroMain.href} className="media-zoom block relative aspect-video overflow-hidden rounded-xl mb-4">
               {heroMain.coverImage ? (
-                <Image src={heroMain.coverImage} alt={heroMain.title} fill priority sizes="(max-width:1024px) 100vw, 66vw" className="object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <CoverImage src={heroMain.coverImage} alt={heroMain.title} priority sizes="(max-width:1024px) 100vw, 66vw" className="transform group-hover:scale-105 transition-transform duration-700" />
               ) : (
                 <div className="w-full h-full bg-[var(--tertiary-container)]" />
               )}
@@ -204,7 +205,7 @@ export default async function HomePage() {
               <article key={s.id} className="group">
                 <Link href={s.href} className="media-zoom block relative aspect-[16/10] overflow-hidden rounded-xl mb-2">
                   {s.coverImage ? (
-                    <Image src={s.coverImage} alt={s.title} fill sizes="(max-width:1024px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                    <CoverImage src={s.coverImage} alt={s.title} sizes="(max-width:1024px) 100vw, 33vw" className="transform group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="w-full h-full bg-[var(--tertiary-container)]" />
                   )}
@@ -237,7 +238,7 @@ export default async function HomePage() {
                     <article className="flex flex-col md:flex-row gap-6 group">
                       <Link href={n.href} className="media-zoom md:w-1/3 relative aspect-[4/3] overflow-hidden rounded-xl flex-none">
                         {n.coverImage ? (
-                          <Image src={n.coverImage} alt={n.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform" />
+                          <CoverImage src={n.coverImage} alt={n.title} sizes="(max-width:768px) 100vw, 33vw" className="transform group-hover:scale-105 transition-transform" />
                         ) : (
                           <div className="w-full h-full bg-[var(--tertiary-container)]" />
                         )}
@@ -323,7 +324,7 @@ export default async function HomePage() {
                   <article key={t.id} className="group">
                     <Link href={t.href} className="media-zoom block relative aspect-video rounded-xl overflow-hidden mb-4">
                       {t.coverImage ? (
-                        <Image src={t.coverImage} alt={t.title} fill sizes="(max-width:768px) 100vw, 50vw" className="object-cover group-hover:scale-105 transition-transform" />
+                        <CoverImage src={t.coverImage} alt={t.title} sizes="(max-width:768px) 100vw, 50vw" className="group-hover:scale-105 transition-transform" />
                       ) : (
                         <div className="w-full h-full bg-[var(--tertiary-container)]" />
                       )}
@@ -367,7 +368,7 @@ export default async function HomePage() {
                   <article key={c.id} className="group">
                     <Link href={c.href} className="block relative aspect-video rounded-xl overflow-hidden mb-4 bg-[var(--tertiary-container)] border border-[var(--on-primary-fixed-variant)]">
                       {c.coverImage ? (
-                        <Image src={c.coverImage} alt={c.title} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover group-hover:scale-105 transition-transform" />
+                        <CoverImage src={c.coverImage} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="group-hover:scale-105 transition-transform" />
                       ) : null}
                     </Link>
                     <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>
