@@ -42,6 +42,7 @@ ALTER TABLE posts
   ADD COLUMN IF NOT EXISTS media_final_video varchar,
   ADD COLUMN IF NOT EXISTS media_final_images jsonb,
   ADD COLUMN IF NOT EXISTS sources jsonb,
+  ADD COLUMN IF NOT EXISTS cover_image_square_url varchar,
   ADD COLUMN IF NOT EXISTS views integer DEFAULT 0;
 `
 

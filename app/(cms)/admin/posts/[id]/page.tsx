@@ -71,7 +71,7 @@ export default function EditPostPage() {
 
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', content: '', contentMeio: '', contentFinal: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
-    featureLevel: 'normal', scheduledAt: '', category: '', author: '', coverImageUrl: '', youtubeId: '', readingTime: '',
+    featureLevel: 'normal', scheduledAt: '', category: '', author: '', coverImageUrl: '', coverImageSquareUrl: '', youtubeId: '', readingTime: '',
   })
   const [sources, setSources] = useState<SourceLink[]>([])
   const [mediaInicial, setMediaInicial] = useState<MediaValue>({ ...emptyMedia })
@@ -108,6 +108,7 @@ export default function EditPostPage() {
           category: typeof post.category === 'object' ? post.category?.id : post.category || '',
           author: typeof post.author === 'object' ? post.author?.id : post.author || '',
           coverImageUrl: post.coverImageUrl || '',
+          coverImageSquareUrl: post.coverImageSquareUrl || '',
           youtubeId: post.youtubeId || '',
           readingTime: post.readingTime?.toString() || '',
         })
@@ -171,6 +172,7 @@ export default function EditPostPage() {
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
       body.author = form.author ? (/^\d+$/.test(form.author) ? Number(form.author) : form.author) : null
       body.coverImageUrl = form.coverImageUrl || null
+      body.coverImageSquareUrl = form.coverImageSquareUrl || null
       body.youtubeId = form.youtubeId || null
       // Migra o link legado para a lista de fontes e zera o campo antigo
       body.sources = cleanSources(sources)
@@ -335,6 +337,14 @@ export default function EditPostPage() {
                 value={form.coverImageUrl}
                 onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
               />
+              <div>
+                <ImageUpload
+                  label="Imagem Quadrada (formatos menores)"
+                  value={form.coverImageSquareUrl}
+                  onChange={url => setForm(f => ({ ...f, coverImageSquareUrl: url }))}
+                />
+                <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Opcional. Versão 1:1 usada nas miniaturas pequenas, evitando o corte da capa. Se vazio, usa a capa.</p>
+              </div>
               <div>
                 <label className={lbl}>Vídeo de Capa <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(YouTube, opcional)</span></label>
                 <input name="youtubeId" value={form.youtubeId} onChange={handleChange} placeholder="https://youtube.com/watch?v=..." className={inp} />

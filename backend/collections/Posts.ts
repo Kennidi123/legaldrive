@@ -245,6 +245,12 @@ export const Posts: CollectionConfig = {
               admin: { description: 'Use para imagens hospedadas externamente. O upload tem prioridade.' },
             },
             {
+              name: 'coverImageSquareUrl',
+              type: 'text',
+              label: 'Imagem Quadrada (formatos menores)',
+              admin: { description: 'Opcional. Versão quadrada (1:1) usada nas miniaturas pequenas, evitando corte da capa. Se vazio, usa a capa.' },
+            },
+            {
               name: 'youtubeId',
               type: 'text',
               label: 'Vídeo de Capa (YouTube)',

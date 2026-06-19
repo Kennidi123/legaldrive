@@ -7,6 +7,12 @@ interface CoverImageProps {
   priority?: boolean
   /** Classes extras aplicadas à imagem nítida (ex.: zoom no hover). */
   className?: string
+  /**
+   * `contain` (padrão): imagem inteira sobre fundo desfocado — para capas landscape
+   * em caixas de proporção diferente. `cover`: preenche a caixa — use quando a
+   * proporção da imagem já casa com a da caixa (ex.: imagem quadrada em caixa 1:1).
+   */
+  fit?: 'contain' | 'cover'
 }
 
 /**
@@ -17,24 +23,27 @@ interface CoverImageProps {
  * O container pai deve ter `position: relative` e `overflow-hidden` + uma proporção
  * (aspect-*). As duas imagens usam `fill`; a nítida fica por cima por vir depois no DOM.
  */
-export default function CoverImage({ src, alt, sizes, priority, className = '' }: CoverImageProps) {
+export default function CoverImage({ src, alt, sizes, priority, className = '', fit = 'contain' }: CoverImageProps) {
   return (
     <>
-      <Image
-        src={src}
-        alt=""
-        aria-hidden
-        fill
-        sizes={sizes}
-        className="object-cover scale-110 blur-2xl opacity-50 select-none pointer-events-none"
-      />
+      {/* Fundo desfocado só faz sentido no modo "contain" (preenche as faixas vazias) */}
+      {fit === 'contain' && (
+        <Image
+          src={src}
+          alt=""
+          aria-hidden
+          fill
+          sizes={sizes}
+          className="object-cover scale-110 blur-2xl opacity-50 select-none pointer-events-none"
+        />
+      )}
       <Image
         src={src}
         alt={alt}
         fill
         priority={priority}
         sizes={sizes}
-        className={`object-contain ${className}`}
+        className={`${fit === 'cover' ? 'object-cover' : 'object-contain'} ${className}`}
       />
       {/* Moldura dourada por cima (contorno em gradiente, segue os cantos) */}
       <span className="cover-frame absolute inset-0" aria-hidden />

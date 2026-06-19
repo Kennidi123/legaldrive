@@ -2,7 +2,7 @@ import Link from 'next/link'
 import CoverImage from '@/components/CoverImage'
 import type { Metadata } from 'next'
 import { getCategories, getCategoryBySlug, getPostsByCategory, getLatestPosts } from '@/lib/payload-api'
-import { getPostCoverImage } from '@/lib/lexical'
+import { getPostCoverImage, getPostSquareCover } from '@/lib/lexical'
 import { buildMetadata } from '@/lib/seo'
 import ArticleSidebar, { type RelatedItem } from '@/components/ArticleSidebar'
 
@@ -119,7 +119,7 @@ export default async function CategoryPage({ params }: Props) {
   const relatedReal: RelatedItem[] = (latestResult?.docs || [])
     .map((d: any) => {
       const c = typeof d.category === 'object' && d.category ? d.category : { name: category.name, slug: categoria }
-      return { id: d.id, label: c.name, title: d.title, href: `/${c.slug}/${d.slug}`, img: getPostCoverImage(d) }
+      return { id: d.id, label: c.name, title: d.title, href: `/${c.slug}/${d.slug}`, img: getPostSquareCover(d) }
     })
     .filter((r: RelatedItem) => r.id !== featured?.id && !cards.some((c) => c.id === r.id))
     .slice(0, 3)

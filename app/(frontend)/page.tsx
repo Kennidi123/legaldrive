@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import { getLatestPosts, getMainFeatured, getVideos, getPostsByCategory } from '@/lib/payload-api'
-import { getPostCoverImage } from '@/lib/lexical'
+import { getPostCoverImage, normalizeMediaUrl } from '@/lib/lexical'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
 import CoverImage from '@/components/CoverImage'
@@ -20,6 +20,8 @@ type Story = {
   href: string
   excerpt: string
   coverImage: string | null
+  /** Imagem quadrada dedicada (formatos menores). null/ausente se não houver. */
+  square?: string | null
   category: string
   date?: string | null
 }
@@ -33,6 +35,7 @@ function normalize(doc: any): Story {
     href: `/${catSlug}/${doc.slug}`,
     excerpt: doc.excerpt || '',
     coverImage: getPostCoverImage(doc),
+    square: doc.coverImageSquareUrl ? normalizeMediaUrl(doc.coverImageSquareUrl) : null,
     category: cat?.name || 'Notícias',
     date: doc.publishedAt ?? null,
   }
@@ -236,9 +239,15 @@ export default async function HomePage() {
                 {recent.map((n, i) => (
                   <div key={n.id}>
                     <article className="flex flex-col md:flex-row gap-6 group">
-                      <Link href={n.href} className="media-zoom md:w-1/3 relative aspect-[4/3] overflow-hidden rounded-xl flex-none">
-                        {n.coverImage ? (
-                          <CoverImage src={n.coverImage} alt={n.title} sizes="(max-width:768px) 100vw, 33vw" className="transform group-hover:scale-105 transition-transform" />
+                      <Link href={n.href} className={`media-zoom relative overflow-hidden rounded-xl flex-none ${n.square ? 'md:w-1/4 aspect-square' : 'md:w-1/3 aspect-[4/3]'}`}>
+                        {n.square || n.coverImage ? (
+                          <CoverImage
+                            src={(n.square || n.coverImage) as string}
+                            alt={n.title}
+                            fit={n.square ? 'cover' : 'contain'}
+                            sizes="(max-width:768px) 100vw, 33vw"
+                            className="transform group-hover:scale-105 transition-transform"
+                          />
                         ) : (
                           <div className="w-full h-full bg-[var(--tertiary-container)]" />
                         )}

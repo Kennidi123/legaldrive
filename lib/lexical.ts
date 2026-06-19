@@ -95,6 +95,19 @@ export function getPostCoverImage(post: {
   return normalizeImageUrl(post.coverImageUrl)
 }
 
+/**
+ * Imagem quadrada da notícia, usada nos formatos menores (miniaturas).
+ * Se não houver imagem quadrada dedicada, cai de volta para a capa landscape.
+ */
+export function getPostSquareCover(post: {
+  coverImageSquareUrl?: string | null
+  coverImage?: { url?: string } | null | number
+  coverImageUrl?: string | null
+}): string | null {
+  if (post.coverImageSquareUrl) return normalizeImageUrl(post.coverImageSquareUrl)
+  return getPostCoverImage(post)
+}
+
 /** Normaliza uma URL de mídia (corrige host interno do container). */
 export function normalizeMediaUrl(url?: string | null): string | null {
   return normalizeImageUrl(url ?? null)

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPublishedPosts, getRelatedPosts } from '@/lib/payload-api'
 import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '@/lib/seo'
-import { getPostCoverImage, getAuthorAvatar } from '@/lib/lexical'
+import { getPostCoverImage, getPostSquareCover, getAuthorAvatar } from '@/lib/lexical'
 import { normalizeSources } from '@/lib/sources'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
 import ArticleBody from '@/components/ArticleBody'
@@ -109,7 +109,7 @@ export default async function ArticlePage({ params }: Props) {
 
   const related: RelatedItem[] = relatedDocs.map((rel: any) => {
     const rc = typeof rel.category === 'object' ? rel.category : { name: '', slug: '' }
-    return { id: rel.id, label: rc.name, title: rel.title, href: `/${rc.slug}/${rel.slug}`, img: getPostCoverImage(rel) }
+    return { id: rel.id, label: rc.name, title: rel.title, href: `/${rc.slug}/${rel.slug}`, img: getPostSquareCover(rel) }
   })
 
   return (

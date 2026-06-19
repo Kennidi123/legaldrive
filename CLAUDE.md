@@ -96,6 +96,8 @@ Se `tipo='none'`, renderiza só o texto. Imagens entre textos saem em **16:9** e
 desktop, **pequenas e centralizadas** (`md:max-w-sm mx-auto`); no mobile, largura total.
 
 Outros campos: `title`, `slug`, `excerpt`, `coverImageUrl` (capa — **obrigatória no CMS**),
+`coverImageSquareUrl` (imagem **quadrada 1:1** opcional p/ miniaturas — `getPostSquareCover`
+em `lib/lexical.ts` usa ela e cai p/ a capa se vazia; `CoverImage` aceita `fit="cover"`),
 `coverImage` (upload, legado), `youtubeId` (vídeo de capa legado), `externalLink`
 (fonte única — **legado**), `sources` (jsonb — **várias fontes**, ver abaixo),
 `category`, `author`, `tags`, `readingTime`, `status` (draft/published),
