@@ -246,6 +246,62 @@ body {
 }
 
 /* ============================================================
+   LEGAL PROSE — páginas institucionais (termos, privacidade, compliance)
+   ============================================================ */
+.legal-prose {
+  color: var(--on-surface-variant);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+.legal-prose h2 {
+  font-family: var(--font-chivo), sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: 2.75rem 0 1rem;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--secondary);
+}
+.legal-prose h2:first-child {
+  margin-top: 0;
+}
+.legal-prose h3 {
+  font-family: var(--font-chivo), sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 1.75rem 0 0.6rem;
+}
+.legal-prose p {
+  margin-bottom: 1.1rem;
+}
+.legal-prose ul {
+  list-style: disc;
+  padding-left: 1.4rem;
+  margin-bottom: 1.1rem;
+}
+.legal-prose ol {
+  list-style: decimal;
+  padding-left: 1.4rem;
+  margin-bottom: 1.1rem;
+}
+.legal-prose li {
+  margin-bottom: 0.5rem;
+}
+.legal-prose strong {
+  color: var(--on-surface);
+  font-weight: 600;
+}
+.legal-prose a {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-prose a:hover {
+  opacity: 0.8;
+}
+
+/* ============================================================
    ANIMATION — FADE IN UP (staggered)
    ============================================================ */
 @keyframes fadeInUp {
