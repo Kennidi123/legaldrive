@@ -174,16 +174,17 @@ export default function ArticleLayout({
               )}
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <ShareButtons url={shareUrl} title={shareTitle} variant="bottom" />
-              <div className="flex flex-wrap gap-2">
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-8">
                 {tags.map((t) => (
                   <span key={t} className="px-3 py-1 rounded-full font-mono text-[11px] text-[var(--on-surface-variant)]" style={{ background: '#e9eef3' }}>
                     {t}
                   </span>
                 ))}
               </div>
-            </div>
+            )}
+
+            <ShareButtons url={shareUrl} title={shareTitle} variant="bottom" />
 
             {/* Comentários (sistema real, sem login) */}
             <Comments postId={postId} />
