@@ -68,7 +68,7 @@ export default function SobrePage() {
           <div className="relative">
             <div className="absolute -top-4 -left-4 w-16 h-16 border-l-2 border-t-2 border-[var(--secondary)] opacity-40" />
             <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5rBR1dEUjJhUatHWzRcA74c2CFVtk4rswGY_XMkw-vhfCSddFO5LNhny-rV18j13Xg_WYz6wIWlEOMOZLk08L-ZJEL2RvRGm93vIBmUcup0Enp9_YYTvoGD-eLXvVMeg9JqcoBnTk44p20MWlbTjfcZWWkJfoEb1Ud-baLbvKl848MR9qGNGu7_20isBfUqP_ulkIfSkgnjqiQA1v7qaKAa5Mp5QKBMWmRfAw3sKf7_MQBR-pwqQ9UeEiXCi7_6sSD5TIAXkrjA"
+              src="/erikachagas.jpg"
               alt="Erika Chagas — Founder & CEO Legal Drive"
               width={600}
               height={600}
