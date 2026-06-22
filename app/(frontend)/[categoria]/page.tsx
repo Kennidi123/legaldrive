@@ -146,11 +146,11 @@ export default async function CategoryPage({ params }: Props) {
                   {featured.coverImage ? (
                     <CoverImage src={featured.coverImage} alt={featured.title} priority sizes="(max-width:1024px) 100vw, 66vw" className="transition-transform duration-700 group-hover:scale-105" />
                   ) : null}
-                  <span className="absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-4 py-1 font-mono text-[11px] tracking-widest uppercase rounded-full shadow-lg">
-                    Destaque
-                  </span>
                 </Link>
-                <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-2 block">{featured.category}</span>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-[var(--secondary)] text-[var(--on-secondary)] px-2.5 py-0.5 rounded-md font-mono text-[10px] tracking-widest uppercase">Destaque</span>
+                  <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest">{featured.category}</span>
+                </div>
                 <Link href={featured.href}>
                   <h2 className="font-display text-2xl md:text-4xl font-bold leading-tight group-hover:text-[var(--secondary)] transition-colors">
                     {featured.title}

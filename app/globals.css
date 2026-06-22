@@ -511,28 +511,6 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(224, 123, 0, 0); }
 }
 
-/* Moldura dourada (gradiente metálico) nas capas — usada pelo <CoverImage />.
-   Usa máscara para virar só o contorno, seguindo o border-radius herdado da caixa. */
-.cover-frame {
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(135deg, #f7dd92 0%, #dcab40 42%, #a9781f 100%);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-  z-index: 3;
-}
-/* Brilho dourado sutil ao passar o mouse na capa emoldurada */
-.group:hover .cover-frame {
-  box-shadow: 0 0 0 1px rgba(220, 171, 64, 0.35), 0 6px 18px -8px rgba(220, 171, 64, 0.45);
-}
-
 /* Overlay gradiente que aparece na imagem ao passar o mouse no card */
 .media-zoom::after {
   content: '';

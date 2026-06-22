@@ -52,18 +52,13 @@ export default function FeaturedHero({
             ) : (
               <div className="w-full h-full bg-[var(--surface-container-high)]" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute top-4 left-4">
-              <span className="font-mono text-[11px] font-medium tracking-widest uppercase bg-[var(--secondary)] text-[var(--on-secondary)] px-3 py-1 rounded">
-                Destaque
-              </span>
-            </div>
           </div>
         </Link>
 
         <div className="mt-4 space-y-3">
-          <span className="font-mono text-[11px] tracking-widest uppercase text-[var(--secondary)]">
-            {category.name}
+          <span className="inline-flex items-center gap-2">
+            <span className="font-mono text-[10px] tracking-widest uppercase bg-[var(--secondary)] text-[var(--on-secondary)] px-2.5 py-0.5 rounded-md">Destaque</span>
+            <span className="font-mono text-[11px] tracking-widest uppercase text-[var(--secondary)]">{category.name}</span>
           </span>
 
           <Link href={`/${category.slug}/${slug}`}>

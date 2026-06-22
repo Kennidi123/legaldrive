@@ -189,11 +189,11 @@ export default async function HomePage() {
               ) : (
                 <div className="w-full h-full bg-[var(--tertiary-container)]" />
               )}
-              <span className="pulse-badge absolute top-4 left-4 bg-[var(--secondary)] text-[var(--on-secondary)] px-3 py-1 font-mono text-[11px] tracking-widest uppercase rounded-lg z-10">
-                Destaque
-              </span>
             </Link>
-            <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-2 block">{heroMain.category}</span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="pulse-badge bg-[var(--secondary)] text-[var(--on-secondary)] px-2.5 py-0.5 rounded-md font-mono text-[10px] tracking-widest uppercase">Destaque</span>
+              <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest">{heroMain.category}</span>
+            </div>
             <Link href={heroMain.href}>
               <h2 className="font-display text-2xl md:text-[32px] leading-tight font-bold mb-4 group-hover:text-[var(--secondary)] transition-colors">
                 {heroMain.title}
@@ -244,7 +244,6 @@ export default async function HomePage() {
                           <CoverImage
                             src={(n.square || n.coverImage) as string}
                             alt={n.title}
-                            fit={n.square ? 'cover' : 'contain'}
                             sizes="(max-width:768px) 100vw, 33vw"
                             className="transform group-hover:scale-105 transition-transform"
                           />
