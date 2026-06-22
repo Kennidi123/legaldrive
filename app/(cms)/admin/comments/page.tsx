@@ -13,6 +13,7 @@ interface AdminComment {
   post_id: number
   post_title?: string | null
   post_slug?: string | null
+  author_email?: string | null
 }
 
 function formatDate(iso: string) {
@@ -60,6 +61,7 @@ export default async function CommentsAdminPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="font-display text-sm font-bold text-[var(--on-surface)]">{c.author_name || 'Anônimo'}</span>
+                    {c.author_email && <span className="font-mono text-[10px] text-[var(--secondary)]">{c.author_email}</span>}
                     <span className="font-mono text-[10px] text-[var(--outline)]">{formatDate(c.created_at)}</span>
                     <span className="font-mono text-[10px] text-red-400">❤ {c.likes || 0}</span>
                   </div>

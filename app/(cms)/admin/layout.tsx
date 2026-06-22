@@ -61,6 +61,9 @@ export default async function CmsLayout({
               <Link href="/admin/comments" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
                 Comentários
               </Link>
+              <Link href="/admin/users" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
+                Usuários
+              </Link>
               <Link href="/" target="_blank" className="font-mono text-xs tracking-widest uppercase text-[var(--on-surface-variant)] hover:text-[var(--secondary)] transition-colors">
                 Ver Site ↗
               </Link>

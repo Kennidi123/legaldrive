@@ -1,23 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { corsHeaders, getPool } from '@/lib/apiHelpers'
+import { getSiteUserId } from '@/lib/siteAuth'
 
 export const dynamic = 'force-dynamic'
-
-const FRONTEND = process.env.NEXT_PUBLIC_FRONTEND_URL || '*'
-const corsHeaders = {
-  'Access-Control-Allow-Origin': FRONTEND,
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
-
-type Pool = { query: (sql: string, values?: unknown[]) => Promise<{ rows: any[] }> }
-
-async function getPool(): Promise<Pool | null> {
-  const { getPayload } = await import('payload')
-  const configMod = await import('@payload-config')
-  const payload = await getPayload({ config: configMod.default })
-  const db = payload.db as unknown as { pool?: Pool }
-  return db.pool ?? null
-}
 
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
@@ -38,9 +23,11 @@ export async function GET(req: NextRequest) {
     if (url.searchParams.get('all') === '1') {
       const res = await pool.query(
         `SELECT c.id, c.author_name, c.content, c.likes, c.created_at, c.post_id,
-                p.title AS post_title, p.slug AS post_slug
+                p.title AS post_title, p.slug AS post_slug,
+                u.email AS author_email
            FROM comments c
            LEFT JOIN posts p ON p.id = c.post_id
+           LEFT JOIN site_users u ON u.id = c.user_id
           ORDER BY c.created_at DESC
           LIMIT 300`,
       )
@@ -64,17 +51,21 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * Cria um comentário. PÚBLICO (não exige login).
- * O conteúdo é tratado como texto puro (renderizado escapado no front).
+ * Cria um comentário. EXIGE LOGIN do usuário do site (Authorization: Bearer).
+ * O nome do autor vem do cadastro; o conteúdo é texto puro (escapado no front).
  */
 export async function POST(req: NextRequest) {
   try {
+    const uid = getSiteUserId(req)
+    if (!uid) {
+      return NextResponse.json({ error: 'Faça login para comentar.' }, { status: 401, headers: corsHeaders })
+    }
+
     const pool = await getPool()
     if (!pool) return NextResponse.json({ error: 'Indisponível' }, { status: 503, headers: corsHeaders })
 
     const body = await req.json().catch(() => ({}))
     const postId = Number(body.postId)
-    const authorName = String(body.authorName || '').trim().slice(0, 80) || 'Anônimo'
     const content = String(body.content || '').trim().slice(0, 2000)
 
     if (!Number.isInteger(postId) || postId <= 0) {
@@ -84,11 +75,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Escreva um comentário' }, { status: 400, headers: corsHeaders })
     }
 
+    const userRes = await pool.query('SELECT name FROM site_users WHERE id = $1 LIMIT 1', [uid])
+    const authorName = String(userRes.rows[0]?.name || 'Usuário').slice(0, 80)
+
     const res = await pool.query(
-      `INSERT INTO comments (post_id, author_name, content)
-       VALUES ($1, $2, $3)
+      `INSERT INTO comments (post_id, author_name, content, user_id)
+       VALUES ($1, $2, $3, $4)
        RETURNING id, author_name, content, likes, created_at`,
-      [postId, authorName, content],
+      [postId, authorName, content, uid],
     )
     return NextResponse.json({ doc: res.rows[0] }, { status: 201, headers: corsHeaders })
   } catch (err) {

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useSiteAuth } from './SiteAuthProvider'
 
 const navLinks = [
   { label: 'Multas', href: '/multas' },
@@ -33,8 +34,10 @@ function RssIcon({ className = 'w-5 h-5' }: { className?: string }) {
 
 export default function Header() {
   const pathname = usePathname()
+  const { user, openAuth, openPassword, logout } = useSiteAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -76,6 +79,49 @@ export default function Header() {
                 className="pl-10 pr-4 py-1.5 bg-[var(--tertiary-container)] border-none focus:ring-2 focus:ring-[var(--secondary)] rounded-xl text-sm text-[var(--primary-fixed)] placeholder:text-[var(--primary-fixed-dim)] w-64 transition-all focus:outline-none"
               />
             </form>
+
+            {/* Auth do usuário do site */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen((o) => !o)}
+                  className="flex items-center gap-2 group"
+                  aria-label="Minha conta"
+                >
+                  <span className="w-8 h-8 rounded-full bg-[var(--secondary)] text-[var(--on-secondary)] flex items-center justify-center font-mono text-xs font-bold uppercase flex-none">
+                    {(user.name || 'U').charAt(0)}
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--primary)] group-hover:text-[var(--secondary)] transition-colors max-w-[110px] truncate">
+                    {(user.name || '').split(' ')[0]}
+                  </span>
+                  <svg className="w-3.5 h-3.5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-slate-200 py-1 z-50">
+                      <p className="px-4 py-2 border-b border-slate-100">
+                        <span className="block font-mono text-[9px] uppercase tracking-widest text-slate-400">Conta</span>
+                        <span className="block text-sm text-slate-800 truncate">{user.email}</span>
+                      </p>
+                      <button onClick={() => { setUserMenuOpen(false); openPassword() }} className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors">
+                        Redefinir senha
+                      </button>
+                      <button onClick={() => { setUserMenuOpen(false); logout() }} className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-slate-100 transition-colors">
+                        Sair
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => openAuth('register')}
+                className="font-mono text-xs tracking-widest uppercase text-[var(--primary)] hover:text-[var(--secondary)] transition-colors whitespace-nowrap"
+              >
+                Cadastrar
+              </button>
+            )}
 
             <Link
               href="/contato"
@@ -164,6 +210,26 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Auth do usuário (mobile) */}
+            {user ? (
+              <div className="mt-3 pt-3 border-t border-[var(--on-primary-fixed-variant)] flex flex-col gap-1">
+                <span className="px-3 font-mono text-[10px] uppercase tracking-widest text-[var(--primary-fixed-dim)]">{user.name}</span>
+                <button onClick={() => { setMobileOpen(false); openPassword() }} className="text-left font-mono text-xs tracking-widest uppercase py-3 px-3 rounded text-[var(--primary)] hover:bg-[var(--tertiary-container)] transition-colors">
+                  Redefinir senha
+                </button>
+                <button onClick={() => { setMobileOpen(false); logout() }} className="text-left font-mono text-xs tracking-widest uppercase py-3 px-3 rounded text-red-400 hover:bg-[var(--tertiary-container)] transition-colors">
+                  Sair
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setMobileOpen(false); openAuth('register') }}
+                className="mt-3 font-mono text-xs tracking-widest uppercase py-3 px-3 rounded border border-[var(--on-primary-fixed-variant)] text-[var(--primary)] hover:bg-[var(--tertiary-container)] transition-colors"
+              >
+                Criar conta / Entrar
+              </button>
+            )}
 
             <Link
               href="/contato"

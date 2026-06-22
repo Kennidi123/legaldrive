@@ -1,6 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useSiteAuth } from './SiteAuthProvider'
+import { authHeader } from '@/lib/site-auth'
 
 const BACKEND = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/$/, '')
 
@@ -41,9 +43,9 @@ function HeartIcon({ filled }: { filled: boolean }) {
 }
 
 export default function Comments({ postId }: { postId: string | number }) {
+  const { user, openAuth } = useSiteAuth()
   const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
-  const [name, setName] = useState('')
   const [content, setContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -78,15 +80,24 @@ export default function Comments({ postId }: { postId: string | number }) {
       setError('Escreva um comentário.')
       return
     }
+    if (!user) {
+      openAuth('login')
+      return
+    }
     setSubmitting(true)
     setError('')
     try {
       const res = await fetch(`${BACKEND}/api/comments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, authorName: name.trim(), content: text }),
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ postId, content: text }),
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (res.status === 401) {
+        setError('Sua sessão expirou. Entre novamente para comentar.')
+        openAuth('login')
+        return
+      }
       if (!res.ok) {
         setError(data?.error || 'Não foi possível enviar.')
         return
@@ -124,34 +135,50 @@ export default function Comments({ postId }: { postId: string | number }) {
         Comentários{comments.length > 0 && ` (${comments.length})`}
       </h4>
 
-      {/* Formulário (sem login) */}
-      <form onSubmit={submit} className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)] mb-8" style={{ background: CARD_BG }}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Seu nome (opcional)"
-          maxLength={80}
-          className="w-full mb-3 p-3 rounded-lg border border-[var(--outline-variant)] focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-white placeholder:text-[var(--on-surface-variant)] focus:outline-none text-sm"
-        />
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={3}
-          maxLength={2000}
-          placeholder="Adicione seu comentário ou dúvida..."
-          className="w-full p-4 rounded-lg border border-[var(--outline-variant)] focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-white placeholder:text-[var(--on-surface-variant)] resize-none focus:outline-none"
-        />
-        {error && <p className="font-mono text-[11px] text-red-600 mt-2 uppercase tracking-wider">{error}</p>}
-        <div className="flex justify-end mt-4">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-[var(--primary-container)] text-[var(--primary)] border border-[var(--primary)] px-8 py-2 rounded-lg font-mono text-xs hover:bg-[var(--primary)] hover:text-[var(--on-primary)] transition-colors uppercase tracking-wider disabled:opacity-50"
-          >
-            {submitting ? 'Enviando...' : 'Publicar'}
-          </button>
+      {/* Formulário (exige login) */}
+      {user ? (
+        <form onSubmit={submit} className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)] mb-8" style={{ background: CARD_BG }}>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)] mb-3">
+            Comentando como <span className="text-[var(--secondary)]">{user.name}</span>
+          </p>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={3}
+            maxLength={2000}
+            placeholder="Adicione seu comentário ou dúvida..."
+            className="w-full p-4 rounded-lg border border-[var(--outline-variant)] focus:ring-1 focus:ring-[var(--secondary)] text-[var(--on-surface)] bg-white placeholder:text-[var(--on-surface-variant)] resize-none focus:outline-none"
+          />
+          {error && <p className="font-mono text-[11px] text-red-600 mt-2 uppercase tracking-wider">{error}</p>}
+          <div className="flex justify-end mt-4">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-[var(--primary-container)] text-[var(--primary)] border border-[var(--primary)] px-8 py-2 rounded-lg font-mono text-xs hover:bg-[var(--primary)] hover:text-[var(--on-primary)] transition-colors uppercase tracking-wider disabled:opacity-50"
+            >
+              {submitting ? 'Enviando...' : 'Publicar'}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="p-6 rounded-xl border border-[var(--on-primary-fixed-variant)] mb-8 text-center" style={{ background: CARD_BG }}>
+          <p className="text-[var(--on-surface)] text-sm mb-4">Entre na sua conta para deixar um comentário.</p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => openAuth('login')}
+              className="bg-[var(--secondary)] text-[var(--on-secondary)] px-6 py-2.5 rounded-lg font-mono text-[11px] font-bold uppercase tracking-widest hover:brightness-110 transition-all"
+            >
+              Entrar
+            </button>
+            <button
+              onClick={() => openAuth('register')}
+              className="border border-[var(--primary)] text-[var(--primary)] px-6 py-2.5 rounded-lg font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-[var(--primary)] hover:text-[var(--on-primary)] transition-colors"
+            >
+              Criar conta
+            </button>
+          </div>
         </div>
-      </form>
+      )}
 
       {/* Lista */}
       {loading ? (

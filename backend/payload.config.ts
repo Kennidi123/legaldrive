@@ -60,6 +60,22 @@ CREATE TABLE IF NOT EXISTS comments (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS comments_post_id_idx ON comments(post_id);
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS user_id integer;
+`
+
+// Cadastro de USUÁRIOS DO SITE (leitores que comentam) — separado dos Users do
+// Payload (que são os admins do CMS). Tabela própria gerenciada por SQL, como a de
+// comentários. Senha guardada como hash (scrypt) — nunca em texto puro. Idempotente.
+const ENSURE_SITE_USERS_TABLE = `
+CREATE TABLE IF NOT EXISTS site_users (
+  id serial PRIMARY KEY,
+  name varchar NOT NULL,
+  email varchar NOT NULL,
+  whatsapp varchar,
+  password varchar NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS site_users_email_idx ON site_users (lower(email));
 `
 
 export default buildConfig({
@@ -92,6 +108,13 @@ export default buildConfig({
       payload.logger.info('[init] Tabela de comentários garantida.')
     } catch (err) {
       payload.logger.error(err, '[init] Falha ao garantir a tabela de comentários')
+    }
+
+    try {
+      await runSql(ENSURE_SITE_USERS_TABLE)
+      payload.logger.info('[init] Tabela de usuários do site garantida.')
+    } catch (err) {
+      payload.logger.error(err, '[init] Falha ao garantir a tabela de usuários do site')
     }
 
     // Reset único e controlado: apaga TODAS as notícias quando RESET_POSTS=true.

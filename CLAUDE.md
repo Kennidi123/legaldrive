@@ -154,7 +154,28 @@ O admin pode **excluir** qualquer comentário.
   Curtidas usam `localStorage` (`ld:liked-comments`) para evitar repetição por navegador.
   É renderizado dentro de `ArticleLayout` (recebe `postId`) no fim do artigo.
 - Painel: `app/(cms)/admin/comments/` (lista + `DeleteCommentButton` → `deleteCommentAction`).
-  Link "💬 Comentários" no header do CMS e no dashboard.
+  Link "💬 Comentários" no header do CMS e no dashboard. Mostra o e-mail do autor (join com `site_users`).
+
+## Cadastro de usuários do SITE (leitores) — separado do admin
+
+Leitores se cadastram (Nome, Email, WhatsApp, Senha) para **comentar**. É **independente**
+da coleção `Users` do Payload (que são os admins do CMS).
+
+- Tabela própria `site_users` (NÃO é collection do Payload) — criada no boot via
+  `ENSURE_SITE_USERS_TABLE` (idempotente; índice único em `lower(email)`). Senha guardada
+  como **hash scrypt** (`backend/lib/siteAuth.ts`); sessão via **token HMAC** assinado com
+  `PAYLOAD_SECRET` (sem dependências externas, só `crypto`).
+- Rotas (`backend/app/api/site-users/`): `register`, `login`, `me` (Bearer), `password`
+  (redefinir, Bearer), `GET /` (lista — **só admin**, via `payload.auth`), `DELETE /[id]`
+  (**só admin**). Helper comum em `backend/lib/apiHelpers.ts` (`corsHeaders`, `getPool`,
+  `getPayloadInstance`).
+- Comentar agora **exige login**: `POST /api/comments` valida o token (Bearer), usa o nome
+  do cadastro como autor e grava `comments.user_id` (coluna adicionada no boot).
+- Frontend: `lib/site-auth.ts` (cliente — token/usuário em `localStorage`: `ld:site-token`,
+  `ld:site-user`), `components/SiteAuthProvider.tsx` (contexto `useSiteAuth`, monta os modais),
+  `AuthModal.tsx` (entrar/cadastrar em pop-up), `ChangePasswordModal.tsx`. Botão **Cadastrar**
+  / menu do usuário (só **Redefinir senha** + **Sair**) fica ao lado do "Painel CNH" no `Header`.
+- Admin: `app/(cms)/admin/users/` lista nome/email/whatsapp (NUNCA a senha) + `DeleteUserButton`.
 
 ## Banco de dados e schema (ARMADILHA IMPORTANTE)
 
