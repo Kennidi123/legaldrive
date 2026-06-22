@@ -5,6 +5,7 @@ import { getCategories, getCategoryBySlug, getPostsByCategory, getLatestPosts } 
 import { getPostCoverImage, getPostSquareCover } from '@/lib/lexical'
 import { buildMetadata } from '@/lib/seo'
 import ArticleSidebar, { type RelatedItem } from '@/components/ArticleSidebar'
+import TrafficLawsSection from '@/components/TrafficLawsSection'
 
 export const dynamic = 'force-dynamic'
 
@@ -132,6 +133,9 @@ export default async function CategoryPage({ params }: Props) {
       <div className="max-w-content mx-auto px-4 md:px-16 pt-6 pb-12 md:pb-16">
         {/* Título acessível (não exibido) — a página começa pelo destaque */}
         <h1 className="sr-only">{category.name}</h1>
+
+        {/* Seção exclusiva de Leis de Trânsito (apenas na Legislação) */}
+        {categoria === 'leis-de-transito' && <TrafficLawsSection />}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           {/* ===== Coluna principal: destaque + demais notícias ===== */}
