@@ -69,7 +69,7 @@ export default function NewPostPage() {
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', content: '', contentMeio: '', contentFinal: '', category: '',
     author: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
-    featureLevel: 'normal', scheduledAt: '', coverImageUrl: '', coverImageSquareUrl: '', youtubeId: '', readingTime: '',
+    featureLevel: 'normal', scheduledAt: '', coverImageUrl: '', coverImageMediumUrl: '', coverImageSquareUrl: '', youtubeId: '', readingTime: '',
   })
   const [sources, setSources] = useState<SourceLink[]>([])
   const [mediaInicial, setMediaInicial] = useState<MediaValue>({ ...emptyMedia })
@@ -149,6 +149,7 @@ export default function NewPostPage() {
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
       if (form.author) body.author = /^\d+$/.test(form.author) ? Number(form.author) : form.author
       if (form.coverImageUrl) body.coverImageUrl = form.coverImageUrl
+      if (form.coverImageMediumUrl) body.coverImageMediumUrl = form.coverImageMediumUrl
       if (form.coverImageSquareUrl) body.coverImageSquareUrl = form.coverImageSquareUrl
       if (form.youtubeId) body.youtubeId = form.youtubeId
       const cleanedSources = cleanSources(sources)
@@ -281,18 +282,29 @@ export default function NewPostPage() {
           <div className={card}>
             <SectionHeader icon="🖼️" title="Capa & Links" />
             <div className="space-y-4">
-              <ImageUpload
-                label="Imagem de Capa *"
-                value={form.coverImageUrl}
-                onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
-              />
               <div>
                 <ImageUpload
-                  label="Imagem Quadrada (formatos menores)"
+                  label="Imagem de Capa — GRANDE (destaque) *"
+                  value={form.coverImageUrl}
+                  onChange={url => setForm(f => ({ ...f, coverImageUrl: url }))}
+                />
+                <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Tamanho ideal: <strong>1200 × 675 px</strong> (16:9). Usada no destaque e no topo da notícia.</p>
+              </div>
+              <div>
+                <ImageUpload
+                  label="Imagem MÉDIA (seção de notícias)"
+                  value={form.coverImageMediumUrl}
+                  onChange={url => setForm(f => ({ ...f, coverImageMediumUrl: url }))}
+                />
+                <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Opcional. Tamanho ideal: <strong>800 × 450 px</strong> (16:9). Usada nos cards das listas. Se vazio, usa a capa.</p>
+              </div>
+              <div>
+                <ImageUpload
+                  label="Imagem PEQUENA / quadrada (relacionados)"
                   value={form.coverImageSquareUrl}
                   onChange={url => setForm(f => ({ ...f, coverImageSquareUrl: url }))}
                 />
-                <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Opcional. Versão 1:1 usada nas miniaturas pequenas, evitando o corte da capa. Se vazio, usa a capa.</p>
+                <p className="font-sans text-[10px] text-[var(--outline)] mt-1.5 normal-case tracking-normal">Opcional. Tamanho ideal: <strong>400 × 400 px</strong> (1:1). Usada nas miniaturas de artigos relacionados. Se vazio, usa a capa.</p>
               </div>
               <div>
                 <label className={lbl}>Vídeo de Capa <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(YouTube, opcional)</span></label>

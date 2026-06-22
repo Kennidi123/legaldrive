@@ -2,7 +2,7 @@ import Link from 'next/link'
 import CoverImage from '@/components/CoverImage'
 import type { Metadata } from 'next'
 import { searchPosts, getLatestPosts } from '@/lib/payload-api'
-import { getPostCoverImage, getPostSquareCover } from '@/lib/lexical'
+import { getPostCoverImage, getPostMediumCover, getPostSquareCover } from '@/lib/lexical'
 import { buildMetadata } from '@/lib/seo'
 import ArticleSidebar, { type RelatedItem } from '@/components/ArticleSidebar'
 
@@ -24,6 +24,7 @@ type Story = {
   href: string
   excerpt: string
   coverImage: string | null
+  medium?: string | null
   category: string
 }
 
@@ -36,6 +37,7 @@ function normalize(doc: any): Story {
     href: `/${catSlug}/${doc.slug}`,
     excerpt: doc.excerpt || '',
     coverImage: getPostCoverImage(doc),
+    medium: getPostMediumCover(doc),
     category: cat?.name || 'Notícias',
   }
 }
@@ -129,8 +131,8 @@ export default async function BuscaPage({ searchParams }: Props) {
                 {results.map((c) => (
                   <Link key={c.id} href={c.href} className="group block">
                     <div className="relative aspect-video rounded-xl overflow-hidden mb-4 border border-[var(--on-primary-fixed-variant)] bg-[var(--tertiary-container)]">
-                      {c.coverImage ? (
-                        <CoverImage src={c.coverImage} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="transition-transform duration-500 group-hover:scale-105" />
+                      {c.medium || c.coverImage ? (
+                        <CoverImage src={(c.medium || c.coverImage) as string} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="transition-transform duration-500 group-hover:scale-105" />
                       ) : null}
                     </div>
                     <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>

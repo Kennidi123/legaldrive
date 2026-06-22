@@ -108,6 +108,19 @@ export function getPostSquareCover(post: {
   return getPostCoverImage(post)
 }
 
+/**
+ * Imagem MÉDIA da notícia, usada nos cards das listas de notícias.
+ * Se não houver imagem média dedicada, cai de volta para a capa.
+ */
+export function getPostMediumCover(post: {
+  coverImageMediumUrl?: string | null
+  coverImage?: { url?: string } | null | number
+  coverImageUrl?: string | null
+}): string | null {
+  if (post.coverImageMediumUrl) return normalizeImageUrl(post.coverImageMediumUrl)
+  return getPostCoverImage(post)
+}
+
 /** Normaliza uma URL de mídia (corrige host interno do container). */
 export function normalizeMediaUrl(url?: string | null): string | null {
   return normalizeImageUrl(url ?? null)

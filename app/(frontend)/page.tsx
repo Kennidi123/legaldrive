@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import { getLatestPosts, getMainFeatured, getVideos, getPostsByCategory } from '@/lib/payload-api'
-import { getPostCoverImage, normalizeMediaUrl } from '@/lib/lexical'
+import { getPostCoverImage, getPostMediumCover, normalizeMediaUrl } from '@/lib/lexical'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import VideoEmbed from '@/components/VideoEmbed'
 import CoverImage from '@/components/CoverImage'
@@ -20,6 +20,8 @@ type Story = {
   href: string
   excerpt: string
   coverImage: string | null
+  /** Imagem média (cards das listas). Cai para a capa se não houver. */
+  medium?: string | null
   /** Imagem quadrada dedicada (formatos menores). null/ausente se não houver. */
   square?: string | null
   category: string
@@ -35,6 +37,7 @@ function normalize(doc: any): Story {
     href: `/${catSlug}/${doc.slug}`,
     excerpt: doc.excerpt || '',
     coverImage: getPostCoverImage(doc),
+    medium: getPostMediumCover(doc),
     square: doc.coverImageSquareUrl ? normalizeMediaUrl(doc.coverImageSquareUrl) : null,
     category: cat?.name || 'Notícias',
     date: doc.publishedAt ?? null,
@@ -239,10 +242,10 @@ export default async function HomePage() {
                 {recent.map((n, i) => (
                   <div key={n.id}>
                     <article className="flex flex-col md:flex-row gap-6 group">
-                      <Link href={n.href} className={`media-zoom relative overflow-hidden rounded-xl flex-none ${n.square ? 'md:w-1/4 aspect-square' : 'md:w-1/3 aspect-[4/3]'}`}>
-                        {n.square || n.coverImage ? (
+                      <Link href={n.href} className="media-zoom md:w-1/3 relative aspect-video overflow-hidden rounded-xl flex-none">
+                        {n.medium || n.coverImage ? (
                           <CoverImage
-                            src={(n.square || n.coverImage) as string}
+                            src={(n.medium || n.coverImage) as string}
                             alt={n.title}
                             sizes="(max-width:768px) 100vw, 33vw"
                             className="transform group-hover:scale-105 transition-transform"
@@ -331,8 +334,8 @@ export default async function HomePage() {
                 {tech.map((t) => (
                   <article key={t.id} className="group">
                     <Link href={t.href} className="media-zoom block relative aspect-video rounded-xl overflow-hidden mb-4">
-                      {t.coverImage ? (
-                        <CoverImage src={t.coverImage} alt={t.title} sizes="(max-width:768px) 100vw, 50vw" className="group-hover:scale-105 transition-transform" />
+                      {t.medium || t.coverImage ? (
+                        <CoverImage src={(t.medium || t.coverImage) as string} alt={t.title} sizes="(max-width:768px) 100vw, 50vw" className="group-hover:scale-105 transition-transform" />
                       ) : (
                         <div className="w-full h-full bg-[var(--tertiary-container)]" />
                       )}
@@ -375,8 +378,8 @@ export default async function HomePage() {
                 {civica.map((c) => (
                   <article key={c.id} className="group">
                     <Link href={c.href} className="block relative aspect-video rounded-xl overflow-hidden mb-4 bg-[var(--tertiary-container)] border border-[var(--on-primary-fixed-variant)]">
-                      {c.coverImage ? (
-                        <CoverImage src={c.coverImage} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="group-hover:scale-105 transition-transform" />
+                      {c.medium || c.coverImage ? (
+                        <CoverImage src={(c.medium || c.coverImage) as string} alt={c.title} sizes="(max-width:768px) 100vw, 33vw" className="group-hover:scale-105 transition-transform" />
                       ) : null}
                     </Link>
                     <span className="text-[var(--secondary)] font-mono text-[11px] uppercase tracking-widest mb-1 block">{c.category}</span>
