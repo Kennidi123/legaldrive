@@ -25,6 +25,12 @@ function getToken() {
   return match ? decodeURIComponent(match[1]) : ''
 }
 
+// Saneia o slug enquanto digita: sem acento, sem espaço/símbolo (vira "-"). Mantém
+// o "-" final para não atrapalhar a digitação. Evita slugs com acento (que dão 404).
+function sanitizeSlugInput(text: string) {
+  return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-')
+}
+
 function slugify(text: string) {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
@@ -192,7 +198,7 @@ export default function NewPostPage() {
               <div>
                 <label className={lbl}>Slug (URL) *</label>
                 <div className="flex gap-2">
-                  <input name="slug" value={form.slug} onChange={e => { setSlugManual(true); handleChange(e) }} required placeholder="novas-regras-multas-radar-2025" className={inp} />
+                  <input name="slug" value={form.slug} onChange={e => { setSlugManual(true); setForm(f => ({ ...f, slug: sanitizeSlugInput(e.target.value) })) }} required placeholder="novas-regras-multas-radar-2025" className={inp} />
                   <button type="button" onClick={() => { setSlugManual(false); setForm(f => ({ ...f, slug: slugify(f.title) })) }} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] hover:border-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
                 </div>
               </div>

@@ -69,8 +69,14 @@ export async function getPostsByCategory(categorySlug: string, limit = 12) {
 }
 
 export async function getPostBySlug(slug: string, depth = 2) {
-  const res = await get<PayloadList>(`/api/posts?where[slug][equals]=${encodeURIComponent(slug)}&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=${depth}&limit=1`)
-  return res?.docs[0] ?? null
+  // Slugs com acento (ex.: "prorrogação") podem chegar em forma Unicode diferente
+  // da que está no banco (NFC vs NFD), causando 404. Tentamos as variações.
+  const variants = Array.from(new Set([slug, slug.normalize('NFC'), slug.normalize('NFD')]))
+  for (const s of variants) {
+    const res = await get<PayloadList>(`/api/posts?where[slug][equals]=${encodeURIComponent(s)}&where[status][equals]=published&where[publishedAt][less_than_equal]=${nowParam()}&depth=${depth}&limit=1`)
+    if (res?.docs?.[0]) return res.docs[0]
+  }
+  return null
 }
 
 export async function getAllPublishedPosts(limit = 500) {

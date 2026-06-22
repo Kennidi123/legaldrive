@@ -26,6 +26,12 @@ function getToken() {
   return match ? decodeURIComponent(match[1]) : ''
 }
 
+// Saneia o slug enquanto digita: sem acento, sem espaço/símbolo (vira "-"). Evita
+// slugs com acento (que dão 404).
+function sanitizeSlugInput(text: string) {
+  return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-')
+}
+
 function slugify(text: string) {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
@@ -244,7 +250,7 @@ export default function EditPostPage() {
               <div>
                 <label className={lbl}>Slug (URL) *</label>
                 <div className="flex gap-2">
-                  <input name="slug" value={form.slug} onChange={handleChange} required className={inp} />
+                  <input name="slug" value={form.slug} onChange={e => setForm(f => ({ ...f, slug: sanitizeSlugInput(e.target.value) }))} required className={inp} />
                   <button type="button" onClick={() => setForm(f => ({ ...f, slug: slugify(f.title) }))} className="px-3 py-2 rounded-lg border border-[var(--outline-variant)] font-mono text-[10px] text-[var(--outline)] hover:text-[var(--secondary)] hover:border-[var(--secondary)] transition-colors whitespace-nowrap">↺ Gerar</button>
                 </div>
               </div>
