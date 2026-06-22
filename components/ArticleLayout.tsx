@@ -106,7 +106,7 @@ export default function ArticleLayout({
             ) : (
               <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[var(--tertiary-container)]" style={{ boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
                 {cover ? (
-                  <CoverImage src={cover} alt={title} priority sizes="(max-width:1024px) 100vw, 66vw" />
+                  <CoverImage src={cover} alt={title} priority fit="contain" sizes="(max-width:1024px) 100vw, 66vw" />
                 ) : null}
               </div>
             )}
