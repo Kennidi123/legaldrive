@@ -43,6 +43,32 @@ export function authHeader(): Record<string, string> {
   return t ? { Authorization: `Bearer ${t}` } : {}
 }
 
+/* ---------- Validação / máscara ---------- */
+
+export function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email || '').trim())
+}
+
+export function onlyDigits(value: string): string {
+  return (value || '').replace(/\D/g, '')
+}
+
+/** Aplica a máscara de celular brasileiro: (11) 99999-9999. */
+export function formatWhatsapp(value: string): string {
+  let d = onlyDigits(value)
+  if (d.startsWith('55') && d.length > 11) d = d.slice(2) // remove DDI (+55) colado
+  d = d.slice(0, 11)
+  if (d.length === 0) return ''
+  if (d.length <= 2) return `(${d}`
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`
+}
+
+/** Celular válido = DDD + 9 dígitos (11 no total). */
+export function isValidWhatsapp(value: string): boolean {
+  return onlyDigits(value).length === 11
+}
+
 export async function registerUser(data: {
   name: string
   email: string

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { registerUser, loginUser, type SiteUser } from '@/lib/site-auth'
+import { registerUser, loginUser, formatWhatsapp, isValidWhatsapp, isValidEmail, type SiteUser } from '@/lib/site-auth'
 
 const inp =
   'w-full bg-white border border-[var(--outline-variant)] text-[var(--on-surface)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[var(--secondary)] focus:ring-2 focus:ring-[var(--secondary)]/20 transition-all placeholder:text-[var(--outline)]'
@@ -19,7 +19,7 @@ export default function AuthModal({ mode, onClose, onAuthed }: AuthModalProps) {
   const [error, setError] = useState('')
 
   function set(k: string, v: string) {
-    setForm((f) => ({ ...f, [k]: v }))
+    setForm((f) => ({ ...f, [k]: k === 'whatsapp' ? formatWhatsapp(v) : v }))
   }
 
   async function submit(e: React.FormEvent) {
@@ -29,7 +29,8 @@ export default function AuthModal({ mode, onClose, onAuthed }: AuthModalProps) {
     try {
       if (tab === 'register') {
         if (form.name.trim().length < 2) return setError('Informe seu nome.')
-        if (!form.whatsapp.trim()) return setError('Informe seu WhatsApp.')
+        if (!isValidEmail(form.email)) return setError('Digite um e-mail válido. Ex.: nome@email.com')
+        if (!isValidWhatsapp(form.whatsapp)) return setError('WhatsApp inválido. Use DDD + número. Ex.: (11) 99999-9999')
         if (form.password.length < 6) return setError('A senha deve ter ao menos 6 caracteres.')
         const r = await registerUser({
           name: form.name.trim(),
@@ -40,6 +41,7 @@ export default function AuthModal({ mode, onClose, onAuthed }: AuthModalProps) {
         if (r.error) return setError(r.error)
         if (r.user) onAuthed(r.user)
       } else {
+        if (!isValidEmail(form.email)) return setError('Digite um e-mail válido.')
         const r = await loginUser({ email: form.email.trim(), password: form.password })
         if (r.error) return setError(r.error)
         if (r.user) onAuthed(r.user)
@@ -93,7 +95,7 @@ export default function AuthModal({ mode, onClose, onAuthed }: AuthModalProps) {
           {tab === 'register' && (
             <>
               <input className={inp} placeholder="Nome completo" value={form.name} onChange={(e) => set('name', e.target.value)} maxLength={80} />
-              <input className={inp} type="tel" placeholder="WhatsApp (ex.: 11 99999-9999)" value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} maxLength={30} />
+              <input className={inp} type="tel" inputMode="numeric" placeholder="WhatsApp — (11) 99999-9999" value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} maxLength={16} />
             </>
           )}
           <input className={inp} type="email" placeholder="E-mail" value={form.email} onChange={(e) => set('email', e.target.value)} required maxLength={160} />

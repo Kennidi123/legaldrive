@@ -20,8 +20,11 @@ export async function POST(req: NextRequest) {
     const whatsapp = String(body.whatsapp || '').trim().slice(0, 30)
     const password = String(body.password || '')
 
+    const whatsappDigits = whatsapp.replace(/\D/g, '')
+
     if (name.length < 2) return NextResponse.json({ error: 'Informe seu nome.' }, { status: 400, headers: corsHeaders })
     if (!isValidEmail(email)) return NextResponse.json({ error: 'E-mail inválido.' }, { status: 400, headers: corsHeaders })
+    if (whatsappDigits.length !== 11) return NextResponse.json({ error: 'WhatsApp inválido. Use DDD + número (11 dígitos).' }, { status: 400, headers: corsHeaders })
     if (password.length < 6) return NextResponse.json({ error: 'A senha deve ter ao menos 6 caracteres.' }, { status: 400, headers: corsHeaders })
 
     const exists = await pool.query('SELECT id FROM site_users WHERE lower(email) = lower($1) LIMIT 1', [email])
