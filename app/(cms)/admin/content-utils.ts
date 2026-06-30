@@ -1,4 +1,5 @@
 // Utilitários compartilhados pelos formulários do CMS (novo post / editar post).
+import { lexicalToHTML } from '@/lib/lexical'
 
 /** Uma imagem dentro de um bloco de mídia (galeria). */
 export interface MediaImage {
@@ -17,6 +18,68 @@ export interface MediaValue {
 }
 
 export const emptyMedia: MediaValue = { tipo: 'none', images: [], imageUrl: '', caption: '', video: '' }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Seções do corpo (dinâmicas). Cada seção = texto (HTML no editor) + mídia.
+   No banco viram [{ content: lexical, media }]. Os campos legados
+   content/contentMeio/contentFinal continuam existindo p/ posts antigos.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/** Seção no estado do formulário (texto em HTML, com id estável p/ reordenar). */
+export interface SectionValue {
+  id: string
+  content: string
+  media: MediaValue
+}
+
+function uid(): string {
+  try {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
+  } catch {
+    /* ignore */
+  }
+  return `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+}
+
+/** Cria uma seção vazia. */
+export function newSection(): SectionValue {
+  return { id: uid(), content: '', media: { ...emptyMedia, images: [] } }
+}
+
+/** Monta as seções do formulário a partir de um post carregado.
+ *  Usa `post.sections` se existir; senão migra o legado (Início/Meio/Final). */
+export function sectionsFromPost(post: any): SectionValue[] {
+  if (Array.isArray(post?.sections) && post.sections.length > 0) {
+    return post.sections.map((s: any) => ({
+      id: uid(),
+      content: lexicalToHTML(s?.content) || '',
+      media: mediaFromPost(s?.media),
+    }))
+  }
+
+  // Migração do formato antigo (3 partes).
+  const legacy: { content: any; media: any }[] = [
+    { content: post?.content, media: post?.mediaInicial },
+    { content: post?.contentMeio, media: post?.mediaMeio },
+    { content: post?.contentFinal, media: post?.mediaFinal },
+  ]
+  const out: SectionValue[] = []
+  for (const part of legacy) {
+    const html = lexicalToHTML(part.content) || ''
+    const media = mediaFromPost(part.media)
+    if (htmlHasContent(html) || media.tipo !== 'none') {
+      out.push({ id: uid(), content: html, media })
+    }
+  }
+  return out.length > 0 ? out : [newSection()]
+}
+
+/** Serializa as seções do formulário para enviar ao backend (descarta vazias). */
+export function serializeSections(sections: SectionValue[]): { content: any; media: MediaValue }[] {
+  return sections
+    .filter((s) => htmlHasContent(s.content) || s.media.tipo !== 'none')
+    .map((s) => ({ content: htmlToLexical(s.content), media: cleanMedia(s.media) }))
+}
 
 /** Converte uma linha de texto em nós lexical, interpretando **negrito**. */
 function inlineNodes(line: string) {

@@ -44,6 +44,7 @@ ALTER TABLE posts
   ADD COLUMN IF NOT EXISTS sources jsonb,
   ADD COLUMN IF NOT EXISTS cover_image_square_url varchar,
   ADD COLUMN IF NOT EXISTS cover_image_medium_url varchar,
+  ADD COLUMN IF NOT EXISTS sections jsonb,
   ADD COLUMN IF NOT EXISTS views integer DEFAULT 0;
 `
 

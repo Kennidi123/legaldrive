@@ -79,15 +79,26 @@ O login fica no banco (coleção `Users`), não no código. **Nunca** hardcode s
 
 ## Modelo de conteúdo — a Notícia (Posts)
 
-Uma notícia (`posts`) tem o corpo dividido em **até 3 partes**, com um bloco de **mídia
-opcional** (imagem OU vídeo do YouTube) entre cada parte:
+O corpo agora é **dinâmico**: uma lista de **seções ilimitadas**, cada uma com **texto
+opcional + mídia opcional**, que dá para **adicionar / excluir / reordenar (↑↓)** no CMS.
+
+- Campo `sections` (**jsonb**) — fonte de verdade: `[{ content: lexical, media }, …]`.
+- CMS: `app/(cms)/admin/SectionsField.tsx` (lista de seções; cada seção = `RichTextEditor`
+  + `MediaField`). Helpers em `content-utils.ts`: `SectionValue` (estado, com `id` estável
+  p/ reordenar), `newSection`, `sectionsFromPost` (carrega `sections` OU **migra** o legado),
+  `serializeSections` (HTML→lexical + `cleanMedia`, descarta seções vazias).
+- Render: `components/ArticleBody.tsx` usa `sections` quando presente; senão cai no legado.
+- Ao salvar, o `content` legado é preenchido com a **1ª seção** (compatibilidade/SEO).
+
+**Legado (posts antigos, ainda renderizado quando não há `sections`):** corpo em **até 3
+partes** com mídia opcional entre elas:
 
 ```
-content      (richText) — 1ª parte (Início) — obrigatório
+content      (richText) — 1ª parte (Início)
 mediaInicial (group)    — mídia após o início
-contentMeio  (richText) — 2ª parte (Meio) — opcional
+contentMeio  (richText) — 2ª parte (Meio)
 mediaMeio    (group)    — mídia após o meio
-contentFinal (richText) — 3ª parte (Final) — opcional
+contentFinal (richText) — 3ª parte (Final)
 mediaFinal   (group)    — mídia após o final
 ```
 

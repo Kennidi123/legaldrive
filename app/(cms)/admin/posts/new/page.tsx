@@ -4,9 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload from '../../ImageUpload'
-import MediaField from '../../MediaField'
-import RichTextEditor from '../../RichTextEditor'
-import { htmlToLexical, htmlHasContent, cleanMedia, emptyMedia, type MediaValue } from '../../content-utils'
+import SectionsField from '../../SectionsField'
+import { htmlToLexical, newSection, serializeSections, type SectionValue } from '../../content-utils'
 import SourceLinksField from '../../SourceLinksField'
 import { type SourceLink } from '@/lib/sources'
 
@@ -67,14 +66,12 @@ export default function NewPostPage() {
   const [slugManual, setSlugManual] = useState(false)
 
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', contentMeio: '', contentFinal: '', category: '',
+    title: '', slug: '', excerpt: '', category: '',
     author: '', status: 'draft' as 'draft' | 'published' | 'scheduled',
     featureLevel: 'normal', scheduledAt: '', coverImageUrl: '', coverImageMediumUrl: '', coverImageSquareUrl: '', youtubeId: '', readingTime: '',
   })
   const [sources, setSources] = useState<SourceLink[]>([])
-  const [mediaInicial, setMediaInicial] = useState<MediaValue>({ ...emptyMedia })
-  const [mediaMeio, setMediaMeio] = useState<MediaValue>({ ...emptyMedia })
-  const [mediaFinal, setMediaFinal] = useState<MediaValue>({ ...emptyMedia })
+  const [sections, setSections] = useState<SectionValue[]>([newSection()])
 
   const showToast = useCallback((msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -130,21 +127,19 @@ export default function NewPostPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title || !form.slug || !form.excerpt) { showToast('Título, slug e resumo são obrigatórios.', 'error'); return }
-    if (!htmlHasContent(form.content)) { showToast('Escreva o conteúdo da notícia.', 'error'); return }
+    if (serializeSections(sections).length === 0) { showToast('Adicione ao menos uma seção com texto ou mídia.', 'error'); return }
     if (!form.coverImageUrl) { showToast('A imagem de capa é obrigatória.', 'error'); return }
     if (form.status === 'scheduled' && !form.scheduledAt) { showToast('Defina a data e hora do agendamento.', 'error'); return }
     setSaving(true)
     try {
       const token = getToken()
+      const serializedSections = serializeSections(sections)
       const body: any = {
         title: form.title, slug: form.slug, excerpt: form.excerpt,
         status: form.status === 'draft' ? 'draft' : 'published', featureLevel: form.featureLevel,
-        content: htmlToLexical(form.content),
-        contentMeio: htmlHasContent(form.contentMeio) ? htmlToLexical(form.contentMeio) : null,
-        contentFinal: htmlHasContent(form.contentFinal) ? htmlToLexical(form.contentFinal) : null,
-        mediaInicial: cleanMedia(mediaInicial),
-        mediaMeio: cleanMedia(mediaMeio),
-        mediaFinal: cleanMedia(mediaFinal),
+        sections: serializedSections,
+        // Mantém o campo legado `content` preenchido (1ª seção) por compatibilidade.
+        content: serializedSections[0]?.content || htmlToLexical(''),
       }
       if (form.category) body.category = /^\d+$/.test(form.category) ? Number(form.category) : form.category
       if (form.author) body.author = /^\d+$/.test(form.author) ? Number(form.author) : form.author
@@ -210,41 +205,10 @@ export default function NewPostPage() {
             </div>
           </div>
 
-          {/* Conteúdo em 3 partes com mídia intercalada */}
+          {/* Corpo em seções dinâmicas (texto + mídia), com adicionar/mover/excluir */}
           <div className={card}>
-            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Use a barra de formatação (negrito, itálico, subtítulo, listas, link...) — o artigo sai exatamente como você escrever. Entre cada parte você pode colocar imagens ou um vídeo." />
-            <div className="space-y-5">
-              <div>
-                <label className={lbl}>1️⃣ Texto — Início</label>
-                <RichTextEditor
-                  initialHTML=""
-                  placeholder="Escreva a abertura da notícia aqui..."
-                  minHeight={220}
-                  onChange={(html) => setForm(f => ({ ...f, content: html }))}
-                />
-              </div>
-              <MediaField label="🎞️ Mídia após o início" value={mediaInicial} onChange={setMediaInicial} />
-
-              <div>
-                <label className={lbl}>2️⃣ Texto — Meio <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
-                <RichTextEditor
-                  initialHTML=""
-                  placeholder="Continue a notícia (opcional)..."
-                  onChange={(html) => setForm(f => ({ ...f, contentMeio: html }))}
-                />
-              </div>
-              <MediaField label="🎞️ Mídia após o meio" value={mediaMeio} onChange={setMediaMeio} />
-
-              <div>
-                <label className={lbl}>3️⃣ Texto — Final <span className="text-[var(--outline)] normal-case tracking-normal font-sans">(opcional)</span></label>
-                <RichTextEditor
-                  initialHTML=""
-                  placeholder="Conclusão da notícia (opcional)..."
-                  onChange={(html) => setForm(f => ({ ...f, contentFinal: html }))}
-                />
-              </div>
-              <MediaField label="🎞️ Mídia após o final" value={mediaFinal} onChange={setMediaFinal} />
-            </div>
+            <SectionHeader icon="📰" title="Conteúdo do Artigo" desc="Monte a notícia em seções: cada uma tem um texto e, opcionalmente, mídia (imagem/galeria/vídeo). Adicione quantas quiser e reordene com ↑/↓." />
+            <SectionsField value={sections} onChange={setSections} />
           </div>
         </div>
 

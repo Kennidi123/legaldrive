@@ -200,8 +200,8 @@ export const Posts: CollectionConfig = {
             {
               name: 'content',
               type: 'richText',
-              label: '1️⃣ Texto — Início da Notícia',
-              required: true,
+              label: '1️⃣ Texto — Início da Notícia (legado)',
+              admin: { description: 'Campo legado. O corpo agora é montado em "sections". Mantido por compatibilidade.' },
               editor: lexicalEditor({
                 features: ({ defaultFeatures }) => [...defaultFeatures],
               }),
@@ -227,6 +227,15 @@ export const Posts: CollectionConfig = {
               }),
             },
             mediaBlock('mediaFinal', '🎞️ Mídia após o final'),
+            // Corpo dinâmico: lista de seções [{ content (lexical), media }]. É a fonte
+            // de verdade do corpo. Os campos content/contentMeio/contentFinal acima são
+            // legado (posts antigos). jsonb para evitar a armadilha do push em produção.
+            {
+              name: 'sections',
+              type: 'json',
+              label: 'Seções do corpo (dinâmico)',
+              admin: { description: 'Lista de seções: cada item { content (richText), media }. Gerado pelo CMS.' },
+            },
           ],
         },
         {

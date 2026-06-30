@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { Fragment } from 'react'
 import { lexicalToHTML, normalizeMediaUrl } from '@/lib/lexical'
 import VideoEmbed from './VideoEmbed'
 
@@ -15,6 +16,11 @@ interface MediaGroup {
   video?: string | null
 }
 
+interface Section {
+  content?: unknown
+  media?: MediaGroup | null
+}
+
 interface PostBody {
   title: string
   content?: unknown
@@ -23,6 +29,8 @@ interface PostBody {
   mediaInicial?: MediaGroup | null
   mediaMeio?: MediaGroup | null
   mediaFinal?: MediaGroup | null
+  /** Corpo dinâmico (novo formato). Quando presente, tem prioridade sobre o legado. */
+  sections?: Section[] | null
 }
 
 /** Renderiza a mídia (imagem ou vídeo) que fica entre os blocos de texto. */
@@ -104,6 +112,25 @@ function MediaBlock({ media, title }: { media?: MediaGroup | null; title: string
  * que só têm o `content`).
  */
 export default function ArticleBody({ post }: { post: PostBody }) {
+  // Formato novo: corpo em seções dinâmicas (texto + mídia).
+  const sections = Array.isArray(post.sections) ? post.sections : []
+  if (sections.length > 0) {
+    return (
+      <div className="article-body">
+        {sections.map((s, i) => {
+          const html = lexicalToHTML(s.content as any)
+          return (
+            <Fragment key={i}>
+              {html && <div className="article-prose max-w-none" dangerouslySetInnerHTML={{ __html: html }} />}
+              <MediaBlock media={s.media} title={post.title} />
+            </Fragment>
+          )
+        })}
+      </div>
+    )
+  }
+
+  // Formato legado: até 3 partes (Início → Meio → Final).
   const intro = lexicalToHTML(post.content as any)
   const meio = lexicalToHTML(post.contentMeio as any)
   const final = lexicalToHTML(post.contentFinal as any)
