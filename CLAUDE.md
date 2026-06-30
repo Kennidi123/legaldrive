@@ -48,8 +48,9 @@ páginas React no FRONTEND que falam com a API REST do backend. Detalhes:
   (o CMS trabalha com **URLs de imagem**, não com relações de upload do Payload).
 - Editor de texto: **`app/(cms)/admin/RichTextEditor.tsx`** — editor visual (WYSIWYG,
   contentEditable + `document.execCommand`) com barra de negrito/itálico/sublinhado/
-  tachado/subtítulo/listas/citação/link, mais **tamanho da fonte** e **espaçamento entre
-  linhas** aplicados à seleção (viram `style` inline no nó de texto, preservados no lexical;
+  tachado/subtítulo/listas/citação/link, mais **tamanho da fonte**, **espaçamento entre
+  linhas** e **cor do texto** (paleta + cor personalizada via `<input type="color">`)
+  aplicados à seleção (viram `style` inline no nó de texto, preservados no lexical;
   `htmlToLexical` captura `font-size`/`line-height`/`color` e `lexicalToHTML` os emite num
   `<span style>`). Produz **HTML**, convertido para lexical ao salvar.
 - Helpers compartilhados: `app/(cms)/admin/content-utils.ts`

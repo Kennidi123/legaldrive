@@ -30,6 +30,17 @@ const SPACINGS: { label: string; value: string }[] = [
   { label: 'Grande', value: '2.5' },
 ]
 
+const COLORS: { label: string; value: string }[] = [
+  { label: 'Cor', value: '' },
+  { label: 'Padrão (preto)', value: '#14181b' },
+  { label: 'Navy (marca)', value: '#0a192f' },
+  { label: 'Laranja (marca)', value: '#e07b00' },
+  { label: 'Vermelho', value: '#c0392b' },
+  { label: 'Verde', value: '#1e7e34' },
+  { label: 'Azul', value: '#1d4ed8' },
+  { label: 'Cinza', value: '#6b7280' },
+]
+
 export default function RichTextEditor({
   initialHTML,
   onChange,
@@ -198,6 +209,40 @@ export default function RichTextEditor({
             </option>
           ))}
         </select>
+        {sep}
+        {/* Cor do texto — predefinida (aplica à seleção) */}
+        <select
+          title="Cor do texto (selecione um trecho)"
+          value=""
+          onMouseDown={saveSelection}
+          onChange={(e) => {
+            applyInlineStyle('color', e.target.value)
+            e.target.value = ''
+          }}
+          className={sel}
+        >
+          {COLORS.map((c) => (
+            <option key={c.label} value={c.value} disabled={c.value === ''}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        {/* Cor do texto — personalizada */}
+        <label
+          title="Cor personalizada (selecione um trecho)"
+          onMouseDown={saveSelection}
+          className="flex items-center gap-1 px-1.5 py-1 rounded-md bg-[var(--surface-container-low)] border border-[var(--outline-variant)] cursor-pointer"
+        >
+          <span className="font-mono text-[10px] font-bold text-[var(--on-surface-variant)] leading-none">A</span>
+          <input
+            type="color"
+            aria-label="Cor personalizada do texto"
+            defaultValue="#e07b00"
+            onMouseDown={saveSelection}
+            onChange={(e) => applyInlineStyle('color', e.target.value)}
+            className="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer"
+          />
+        </label>
         {sep}
         <button type="button" title="Subtítulo" onMouseDown={md} onClick={() => run('formatBlock', 'H3')} className={btn}>
           Subtítulo
