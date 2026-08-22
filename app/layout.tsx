@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Chivo, Geist, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://legaldrive.com.br'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://legaldrivemultas.com.br'
 
 const chivo = Chivo({
   subsets: ['latin'],

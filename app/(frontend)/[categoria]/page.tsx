@@ -3,7 +3,7 @@ import CoverImage from '@/components/CoverImage'
 import type { Metadata } from 'next'
 import { getCategories, getCategoryBySlug, getPostsByCategory, getLatestPosts } from '@/lib/payload-api'
 import { getPostCoverImage, getPostMediumCover, getPostSquareCover } from '@/lib/lexical'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, collectionPageJsonLd, siteUrl } from '@/lib/seo'
 import ArticleSidebar, { type RelatedItem } from '@/components/ArticleSidebar'
 import TrafficLawsSection from '@/components/TrafficLawsSection'
 
@@ -128,10 +128,19 @@ export default async function CategoryPage({ params }: Props) {
     .slice(0, 3)
   const related = relatedReal.length > 0 ? relatedReal : FB_RELATED
 
+  // Página de listagem NÃO é matéria: CollectionPage (nunca NewsArticle).
+  const collectionLd = collectionPageJsonLd({
+    name: category.name,
+    description: (category as { description?: string | null }).description,
+    url: `${siteUrl}/${categoria}`,
+    items: real.map((p) => ({ title: p.title, url: p.href })),
+  })
+
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL || '/contato'
 
   return (
     <main className="bg-[var(--primary-container)] text-[var(--on-surface)]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
       <div className="max-w-content mx-auto px-4 md:px-16 pt-6 pb-12 md:pb-16">
         {/* Título acessível (não exibido) — a página começa pelo destaque */}
         <h1 className="sr-only">{category.name}</h1>

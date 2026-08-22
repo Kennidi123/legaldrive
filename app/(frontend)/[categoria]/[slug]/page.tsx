@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPublishedPosts, getRelatedPosts } from '@/lib/payload-api'
 import { articleJsonLd, breadcrumbJsonLd, buildArticleMetadata, siteUrl } from '@/lib/seo'
-import { getPostCoverImage, getPostSquareCover, getAuthorAvatar } from '@/lib/lexical'
+import { getPostCoverImage, getPostSquareCover, getPostMediumCover, getAuthorAvatar } from '@/lib/lexical'
 import { normalizeSources } from '@/lib/sources'
 import ArticleLayout, { type RelatedItem } from '@/components/ArticleLayout'
 import ArticleBody from '@/components/ArticleBody'
@@ -89,16 +89,18 @@ export default async function ArticlePage({ params }: Props) {
   const articleUrl = `/${cat.slug}/${post.slug}`
   const fullUrl = `${siteUrl}${articleUrl}`
 
+  // NewsArticle: headline = <h1> visível, imagens nas proporções disponíveis (16:9 / 1:1),
+  // datas com fuso e autoria como Person (cai para Organization se não houver autor real).
   const jsonLd = articleJsonLd({
     title: post.title,
     description: post.seo?.metaDesc || post.excerpt,
-    publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
-    updatedAt: new Date(post.updatedAt),
-    author: author?.name || 'Redação Legal Drive',
-    authorRole: author?.role,
-    image: coverImage,
+    publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt,
+    authors: [{ name: author?.name, role: author?.role }],
+    images: [coverImage, getPostMediumCover(post), getPostSquareCover(post)],
     url: fullUrl,
     section: cat.name,
+    tags,
   })
 
   const breadcrumb = breadcrumbJsonLd([
